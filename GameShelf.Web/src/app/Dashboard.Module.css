@@ -1,0 +1,289 @@
+.container {
+    min-height: 100vh;
+    background-color: #0f172a;
+    color: #f1f5f9;
+    font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.header {
+    height: 70px;
+    background-color: #1e293b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    border-bottom: 1px solid #334155;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #6366f1;
+    letter-spacing: -1px;
+}
+
+.navActions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.notificationWrapper {
+    position: relative;
+}
+
+.iconButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.iconButton:hover {
+    background-color: #334155;
+}
+
+.bellIcon {
+    font-size: 1.4rem;
+}
+
+.badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #ef4444;
+    color: white;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+    border: 2px solid #1e293b;
+}
+
+.dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 320px;
+    background: #ffffff;
+    color: #1e293b;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.dropdownHeader {
+    padding: 15px;
+    font-weight: bold;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+}
+
+.notifList {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notifItem {
+    padding: 15px;
+    display: flex;
+    gap: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.2s;
+}
+
+.notifItem:hover {
+    background-color: #f8fafc;
+}
+
+.notifIndicator {
+    width: 8px;
+    height: 8px;
+    background: #6366f1;
+    border-radius: 50%;
+    margin-top: 5px;
+}
+
+.notifContent p {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.notifContent small {
+    color: #94a3b8;
+    font-size: 0.75rem;
+}
+
+.emptyText {
+    padding: 30px;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.userProfile {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+
+.mainContent {
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.heroSection {
+    margin-bottom: 40px;
+}
+
+.heroSection h1 {
+    font-size: 2.5rem;
+    margin: 0 0 10px 0;
+}
+
+.userName {
+    color: #6366f1;
+}
+
+.statusOnline {
+    color: #4ade80;
+    font-size: 0.9rem;
+}
+
+.statusOffline {
+    color: #fb7185;
+    font-size: 0.9rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.card {
+    background-color: #1e293b;
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid #334155;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card h3 {
+    margin-top: 0;
+    color: #818cf8;
+}
+
+.cardButton {
+    margin-top: 15px;
+    background: #334155;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.cardButton:hover {
+    background: #475569;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal {
+    background: #1e293b;
+    padding: 25px;
+    border-radius: 12px;
+    width: 400px;
+    border: 1px solid #334155;
+}
+
+.friendSelectionList {
+    max-height: 250px;
+    overflow-y: auto;
+    margin: 15px 0;
+}
+
+.friendSelectItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.friendSelectItem:hover {
+    background: #334155;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.senderName {
+    font-weight: bold;
+    color: #818cf8;
+    display: block;
+    font-size: 0.75rem;
+}
+
+.timestamp {
+    display: block;
+    text-align: right;
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-top: 4px;
+}
+
+
+.chatHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+    font-weight: bold;
+}
+
+.leaveChatBtn {
+    background: transparent;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.leaveChatBtn:hover {
+    background: #ef4444;
+    color: white;
+}
