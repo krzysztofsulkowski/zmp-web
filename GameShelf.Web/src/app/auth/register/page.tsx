@@ -11,6 +11,7 @@ export default function RegisterPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -25,6 +26,18 @@ export default function RegisterPage() {
             return;
         }
 
+        if (password.length < 6) {
+            setError("Hasło musi mieć co najmniej 6 znaków");
+            return;
+        }
+
+        if (!email.includes("@")) {
+            setError("Niepoprawny adres e-mail");
+            return;
+        }
+
+        setIsLoading(true);
+
         try {
             const res = await fetch(`${apiUrl}/api/authentication/register`, {
                 method: 'POST',
@@ -32,16 +45,37 @@ export default function RegisterPage() {
                 body: JSON.stringify({ email, username, password }),
             });
 
-            const data = await res.json();
+            let data = null;
 
-            if (!res.ok) {
-                throw new Error(data.error?.description || data.message || 'Rejestracja nieudana. Sprawdź dane.');
+            try {
+                data = await res.json();
+            } catch {
+                data = null;
             }
 
+            console.log("REGISTER RESPONSE:", data);
+
+            if (!res.ok) {
+                if (data?.errors) {
+                    const messages = Object.values(data.errors).flat().join(" ");
+                    throw new Error(messages);
+                }
+
+                throw new Error(data?.title || data?.message || 'Rejestracja nieudana.');
+            }
+
+            setError(null);
             setSuccessMessage('Konto zostało utworzone.');
-            setTimeout(() => navigate('/login'), 1000);
+
+            setTimeout(() => {
+                navigate('/login');
+            }, 1000);
+
         } catch (err: any) {
             setError(err.message || 'Wystąpił błąd rejestracji.');
+            setSuccessMessage(null);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -122,8 +156,12 @@ export default function RegisterPage() {
                                 />
                             </div>
 
-                            <button type="submit" className={styles.primaryButton}>
-                                Zarejestruj się
+                            <button
+                                type="submit"
+                                className={styles.primaryButton}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? "Rejestrowanie..." : "Zarejestruj się"}
                             </button>
 
                             <div className={styles.divider}>lub</div>

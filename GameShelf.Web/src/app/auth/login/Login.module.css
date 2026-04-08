@@ -70,10 +70,10 @@
 
 .card {
     width: 100%;
-    max-width: 420px;
+    max-width: 600px;
     background: white;
-    padding: 40px 32px;
-    border-radius: 20px;
+    padding: 80px 80px;
+    border-radius: 30px;
 }
 
 .title {
@@ -140,7 +140,7 @@
     padding: 12px;
     border-radius: 30px;
     border: none;
-    background: linear-gradient(135deg, #7c3aed, #9333ea);
+    background: #7C3AED;
     color: white;
     font-size: 16px;
     cursor: pointer;
