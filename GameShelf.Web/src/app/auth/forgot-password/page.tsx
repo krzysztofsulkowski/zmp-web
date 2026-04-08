@@ -3,11 +3,14 @@ import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './ForgotPassword.module.css';
 import logo from '@/assets/logo.svg';
+import arrowBack from "@/assets/arrow-back.svg";
+import { useNavigate } from "react-router-dom";
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -57,6 +60,10 @@ export default function ForgotPasswordPage() {
 
                 <section className={styles.rightPanel}>
                     <div className={styles.card}>
+                        <button className={styles.backButton} onClick={() => navigate(-1)}>
+                            <img src={arrowBack} alt="back" />
+                        </button>
+
                         <h1 className={styles.title}>Reset hasła</h1>
 
                         <form onSubmit={handleSubmit} className={styles.form}>
@@ -70,18 +77,17 @@ export default function ForgotPasswordPage() {
                                     className={styles.input}
                                 />
                             </div>
-
+                            <p className={styles.bottomText}>
+                                Na Twój adres e-mail wyślemy link, który umożliwi Ci zmianę hasła.
+                            </p>
                             <button type="submit" className={styles.primaryButton}>
-                                Wyślij link resetujący
+                                Wyślij link
                             </button>
                         </form>
 
                         {error && <p className={styles.errorMessage}>{error}</p>}
                         {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
 
-                        <p className={styles.bottomText}>
-                            Pamiętasz hasło? <Link to="/login" className={styles.linkStrong}>Wróć do logowania</Link>
-                        </p>
                     </div>
                 </section>
             </div>

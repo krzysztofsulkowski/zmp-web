@@ -109,7 +109,7 @@ export default function LoginPage() {
                                     className={styles.input}
                                 />
                                 <div className={styles.forgotWrapper}>
-                                    <Link to="forgot-password" className={styles.forgotLink}>
+                                    <Link to="/forgot-password" className={styles.forgotLink}>
                                         Nie pamiętam hasła
                                     </Link>
                                 </div>
