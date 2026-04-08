@@ -1,68 +1,93 @@
 .page {
     min-height: 100vh;
-    background: #272C3C;
+    background: radial-gradient(circle at top left, #3b1d73, #0f0f1a);
 }
 
 .container {
     width: 100%;
     min-height: 100vh;
     display: grid;
-    grid-template-columns: 1.1fr 1fr;
-    background: #272C3C;
+    grid-template-columns: 1.2fr 1fr;
 }
 
 .leftPanel {
-    background: #272C3C;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
+    padding: 80px;
 }
 
-
 .logoWrapper {
-    max-width: 420px;
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto;
     text-align: center;
-    transform: translateX(-30px);
+    padding-left: 20px;
 }
 
 .logoImage {
-    width: 500px;
-    max-width: 100%;
-    margin-bottom: 18px;
+    width: 280px;
+    margin-bottom: 32px;
+}
+.logoSubtitle {
+    margin-top: 20px;
+    margin-bottom: 16px;
+    color: white;
 }
 
-.logoSubtitle {
-    font-size: 20px;
-    color: #C9CCD6;
+.description {
+    font-size: 14px;
+    color: white;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.downloadButtons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+
+.downloadBtn {
+    padding: 12px 18px;
+    border-radius: 14px;
+    background: #7C3AED;
+    color: white;
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 700;
 }
 
 .rightPanel {
-    background: #292E3E;
-    padding: 72px 88px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50px 0 0 50px;
-    box-shadow: -5px 0 24px rgba(22, 25, 34, 0.18);
+    padding: 60px;
 }
 
 .card {
     width: 100%;
-    max-width: 380px;
+    max-width: 420px;
+    background: white;
+    padding: 40px 32px;
+    border-radius: 20px;
 }
 
 .title {
-    font-size: 28px;
+    font-size: 29px;
     text-align: center;
-    color: #ffffff;
-    margin-bottom: 28px;
+    color: #111;
+    margin-bottom: 24px;
+    font-weight: 800;
 }
 
 .form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
 }
 
 .field {
@@ -72,130 +97,105 @@
 }
 
 .label {
-    font-size: 13px;
-    color: #C9CCD6;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
 }
 
 .input {
     width: 100%;
-    padding: 12px 16px;
-    border-radius: 43px;
-    border: 1px solid #4b5563;
-    background: #D9D9D9;
-    color: #111827;
-    font-size: 15px;
-    outline: none;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #c4c4c4;
+    background: white;
+    font-size: 14px;
+    box-sizing: border-box;
+    border-color: black;
 }
 
     .input:focus {
-        border-color: #e99b0c;
-        border-width: 2px;
+        border-color: #7c3aed;
+        outline: none;
     }
+
 
 .forgotWrapper {
     display: flex;
-    justify-content: flex-end;
+    margin-top: 4px;
 }
 
-.linkMuted {
-    font-size: 11px;
-    color: #C9CCD6;
+.forgotLink {
+    font-size: 13px;
+    color: black;
     text-decoration: underline;
+    font-weight: 700;
 }
 
-    .linkMuted:hover {
-        color: #ffffff;
+    .forgotLink:hover {
+        color: #7C3AED;
     }
 
 .primaryButton {
-    margin-top: 4px;
     width: 100%;
-    padding: 12px 16px;
-    border-radius: 52px;
+    padding: 12px;
+    border-radius: 30px;
     border: none;
-    background: #1F2330;
-    color: #ffffff;
-    font-size: 15px;
-    font-weight: 500;
+    background: linear-gradient(135deg, #7c3aed, #9333ea);
+    color: white;
+    font-size: 16px;
     cursor: pointer;
-    transition: background 0.15s ease, transform 0.05s ease;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 700;
+    margin-top: 20px;
 }
-
-    .primaryButton:hover {
-        background: #232837;
-        transform: translateY(-1px);
-    }
 
 .divider {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 10px 0;
-}
-
-.dividerLine {
-    flex: 1;
-    height: 1px;
-    background: #3E4453;
-}
-
-.dividerText {
-    font-size: 11px;
-    color: #C9CCD6;
-}
-
-.socialButton {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 43px;
-    border: none;
+    text-align: center;
+    margin: 12px 0;
     font-size: 16px;
     font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 4px;
-    background: #1F2330;
-    color: #ffffff;
-    transition: background 0.15s ease, transform 0.05s ease;
 }
 
-    .socialButton:hover {
-        transform: translateY(-1px);
-        background: #232837;
-    }
+.socialButtonGoogle {
+    width: 100%;
+    padding: 12px;
+    border-radius: 30px;
+    border: 1px solid #d4d4d8;
+    background: white;
+    color: #111;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 700;
+    border-color: black;
+}
 
 .errorMessage {
     margin-top: 12px;
     font-size: 13px;
-    color: #f97373;
+    color: #dc2626;
 }
 
 .successMessage {
     margin-top: 12px;
     font-size: 13px;
-    color: #4ade80;
+    color: #16a34a;
 }
 
 .bottomText {
     margin-top: 20px;
-    font-size: 17px;
+    font-size: 14px;
     text-align: center;
-    color: #C9CCD6;
-}
-
-.linkStrong {
-    color: #EAC278;
+    color: #52525b;
     font-weight: 600;
 }
 
-    .linkStrong:hover {
-        text-decoration: underline;
-    }
+.linkStrong {
+    color: black;
+    font-weight: 800;
+}
 
-@media (max-width: 960px) {
+@media (max-width: 900px) {
     .container {
         grid-template-columns: 1fr;
     }
@@ -205,10 +205,6 @@
     }
 
     .rightPanel {
-        padding: 40px 24px;
-    }
-
-    .card {
-        max-width: 100%;
+        padding: 24px;
     }
 }

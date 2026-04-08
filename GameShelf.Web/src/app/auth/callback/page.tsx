@@ -16,6 +16,7 @@ export default function AuthCallback() {
             navigate('/dashboard');
         } else {
             console.error("Błąd autoryzacji zewnętrznej:", error);
+            console.error("Błąd autoryzacji zewnętrznej:", error);
             navigate('/login?error=auth_failed');
         }
     }, [navigate, location]);

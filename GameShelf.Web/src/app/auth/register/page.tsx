@@ -1,19 +1,29 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react'; 
+import type { FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import styles from "./Register.module.css";
+import logo from "@/assets/logo.svg";
 
 export default function RegisterPage() {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-    const apiUrl = import.meta.env.VITE_API_URL; 
+    const navigate = useNavigate();
+    const apiUrl = import.meta.env.VITE_API_URL;
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
+        setSuccessMessage(null);
+
+        if (password !== confirmPassword) {
+            setError("Hasła nie są takie same");
+            return;
+        }
 
         try {
             const res = await fetch(`${apiUrl}/api/authentication/register`, {
@@ -22,28 +32,120 @@ export default function RegisterPage() {
                 body: JSON.stringify({ email, username, password }),
             });
 
-            if (!res.ok) throw new Error("Rejestracja nieudana. Sprawdź dane.");
+            const data = await res.json();
 
-            alert("Konto utworzone!");
-            navigate('/login');
+            if (!res.ok) {
+                throw new Error(data.error?.description || data.message || 'Rejestracja nieudana. Sprawdź dane.');
+            }
+
+            setSuccessMessage('Konto zostało utworzone.');
+            setTimeout(() => navigate('/login'), 1000);
         } catch (err: any) {
-            setError(err.message);
+            setError(err.message || 'Wystąpił błąd rejestracji.');
         }
     };
 
+    const handleGoogleRegister = () => {
+        const returnUrl = encodeURIComponent(window.location.origin + "/auth-callback");
+        window.location.href = `${apiUrl}/api/authentication/external-login?provider=Google&returnUrl=${returnUrl}`;
+    };
+
     return (
-        <div style={{ maxWidth: '400px', margin: '100px auto', color: 'white', backgroundColor: '#1e293b', padding: '2rem', borderRadius: '8px' }}>
-            <h1>Rejestracja</h1>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-                <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
-                <input type="password" placeholder="Hasło" value={password} onChange={e => setPassword(e.target.value)} required />
-                <button type="submit" style={{ backgroundColor: '#6366f1', color: 'white', padding: '0.5rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-                    Zarejestruj się
-                </button>
-            </form>
-            {error && <p style={{ color: '#fb7185' }}>{error}</p>}
-            <p>Masz konto? <Link to="/login" style={{ color: '#6366f1' }}>Zaloguj się</Link></p>
-        </div>
+        <main className={styles.page}>
+            <div className={styles.container}>
+                <section className={styles.leftPanel}>
+                    <div className={styles.logoWrapper}>
+                        <img src={logo} alt="logo" className={styles.logoImage} />
+
+                        <h2 className={styles.logoSubtitle}>
+                            Pełna kontrola na każdym urządzeniu
+                        </h2>
+
+                        <p className={styles.description}>
+                            Korzystaj z aplikacji na desktopie i telefonie, zarządzaj swoją biblioteką gier,
+                            śledź postępy i kontaktuj się z innymi graczami w jednym miejscu.
+                        </p>
+
+                        <div className={styles.downloadButtons}>
+                            <button className={styles.downloadBtn}>Pobierz na Windows</button>
+                            <button className={styles.downloadBtn}>Pobierz na Google Play</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section className={styles.rightPanel}>
+                    <div className={styles.card}>
+                        <h1 className={styles.title}>Rejestracja</h1>
+
+                        <form onSubmit={handleSubmit} className={styles.form}>
+                            <div className={styles.field}>
+                                <label className={styles.label}>adres e-mail</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    className={styles.input}
+                                />
+                            </div>
+
+                            <div className={styles.field}>
+                                <label className={styles.label}>nazwa użytkownika</label>
+                                <input
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    required
+                                    className={styles.input}
+                                />
+                            </div>
+
+                            <div className={styles.field}>
+                                <label className={styles.label}>hasło</label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    className={styles.input}
+                                />
+                            </div>
+
+                            <div className={styles.field}>
+                                <label className={styles.label}>powtórz hasło</label>
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                    className={styles.input}
+                                />
+                            </div>
+
+                            <button type="submit" className={styles.primaryButton}>
+                                Zarejestruj się
+                            </button>
+
+                            <div className={styles.divider}>lub</div>
+
+                            <button
+                                type="button"
+                                className={styles.socialButtonGoogle}
+                                onClick={handleGoogleRegister}
+                            >
+                                Kontynuuj przez Google
+                            </button>
+                        </form>
+
+                        {error && <p className={styles.errorMessage}>{error}</p>}
+                        {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
+
+                        <p className={styles.bottomText}>
+                            Masz już konto? <Link to="/login" className={styles.linkStrong}>Zaloguj się</Link>
+                        </p>
+                    </div>
+                </section>
+            </div>
+        </main>
     );
 }
