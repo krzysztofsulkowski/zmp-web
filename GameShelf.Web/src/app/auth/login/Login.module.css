@@ -54,11 +54,11 @@
     border-radius: 14px;
     background: #7C3AED;
     color: white;
-    font-size: 13px;
+    font-size: 15px;
     border: none;
     cursor: pointer;
     font-family: 'Figtree', system-ui, sans-serif;
-    font-weight: 800;
+    font-weight: 700;
 }
 
 .rightPanel {
@@ -81,7 +81,6 @@
     text-align: center;
     color: #111;
     margin-bottom: 24px;
-    font-family: 'Figtree', system-ui, sans-serif;
     font-weight: 800;
 }
 
@@ -100,6 +99,7 @@
 .label {
     font-size: 16px;
     color: #333;
+    font-weight: 600;
 }
 
 .input {
@@ -110,6 +110,7 @@
     background: white;
     font-size: 14px;
     box-sizing: border-box;
+    border-color: black;
 }
 
     .input:focus {
@@ -117,33 +118,56 @@
         outline: none;
     }
 
+
+.forgotWrapper {
+    display: flex;
+    margin-top: 4px;
+}
+
+.forgotLink {
+    font-size: 13px;
+    color: black;
+    text-decoration: underline;
+    font-weight: 700;
+}
+
+    .forgotLink:hover {
+        color: #7C3AED;
+    }
+
 .primaryButton {
     width: 100%;
     padding: 12px;
-    border-radius: 10px;
+    border-radius: 30px;
     border: none;
     background: linear-gradient(135deg, #7c3aed, #9333ea);
     color: white;
-    font-weight: 500;
+    font-size: 16px;
     cursor: pointer;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 700;
+    margin-top: 20px;
 }
 
 .divider {
     text-align: center;
     margin: 12px 0;
-    color: #6b7280;
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: 500;
 }
 
 .socialButtonGoogle {
     width: 100%;
     padding: 12px;
-    border-radius: 10px;
+    border-radius: 30px;
     border: 1px solid #d4d4d8;
     background: white;
     color: #111;
-    font-weight: 500;
+    font-size: 16px;
     cursor: pointer;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 700;
+    border-color: black;
 }
 
 .errorMessage {
@@ -163,11 +187,12 @@
     font-size: 14px;
     text-align: center;
     color: #52525b;
+    font-weight: 600;
 }
 
 .linkStrong {
-    color: #7c3aed;
-    font-weight: 600;
+    color: black;
+    font-weight: 800;
 }
 
 @media (max-width: 900px) {
