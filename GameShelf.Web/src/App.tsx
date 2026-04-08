@@ -4,6 +4,7 @@ import RegisterPage from './app/auth/register/page';
 import LoginPage from './app/auth/login/page';
 import AuthCallback from './app/auth/callback/page';
 import Dashboard from './app/Dashboard';
+import ForgotPasswordPage from './app/auth/forgot-password/page';
 
 import './App.css';
 
@@ -31,6 +32,9 @@ function App() {
 
          {/*http://localhost:5173/dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
+
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
       </Routes>
     </Router>
   );
