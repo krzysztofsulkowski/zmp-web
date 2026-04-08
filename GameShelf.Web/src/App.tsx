@@ -5,6 +5,7 @@ import LoginPage from './app/auth/login/page';
 import AuthCallback from './app/auth/callback/page';
 import Dashboard from './app/Dashboard';
 import ForgotPasswordPage from './app/auth/forgot-password/page';
+import LandingPage from './app/auth/landing/page';
 
 import './App.css';
 
@@ -21,11 +22,11 @@ function App() {
         {/* Powrót z Google Login */}
         <Route path="/auth-callback" element={<AuthCallback />} />
 
-        {/* Strona główna przekierowuje do logowania */}
-        <Route path="/" element={<Navigate to="/login" />} />
+        {/* Strona główna przekierowuje do landing page */}
+        <Route path="/" element={<LandingPage />} />
         
-        {/* Dowolny inny adres (404) przekierowuje do logowania */}
-        <Route path="*" element={<Navigate to="/login" />} />
+        {/* Dowolny inny adres (404) przekierowuje do landing page */}
+        <Route path="/" element={<LandingPage />} />
 
         {/*http://localhost:5173/dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />

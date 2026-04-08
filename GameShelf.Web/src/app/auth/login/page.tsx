@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import styles from "./Login.module.css";
+import styles from "./Landing.module.css";
 import logo from "@/assets/logo.svg";
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -23,6 +24,7 @@ export default function LoginPage() {
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         setError(null);
+        setSuccessMessage(null);
 
         try {
             const response = await fetch(`${apiUrl}/api/authentication/login`, {
@@ -31,25 +33,41 @@ export default function LoginPage() {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
+            let data = null;
 
-            if (!response.ok) {
-                throw new Error(data.error?.description || data.message || 'Logowanie nie powiodło się');
+            try {
+                data = await response.json();
+            } catch {
+                data = null;
             }
 
-            const token = data.data?.token || data.token;
+            console.log("LOGIN RESPONSE:", data);
+
+            if (!response.ok) {
+                if (data?.errors) {
+                    const messages = Object.values(data.errors).flat().join(" ");
+                    throw new Error(messages);
+                }
+
+                throw new Error(data?.title || data?.message || 'Logowanie nie powiodło się');
+            }
+
+            const token = data?.data?.token || data?.token;
 
             if (!token) {
                 throw new Error("Brak tokenu");
             }
 
             localStorage.setItem('authToken', token);
+
+            setError(null);
             setSuccessMessage("Zalogowano pomyślnie!");
 
             setTimeout(() => navigate('/dashboard'), 1000);
 
         } catch (err: any) {
             setError(err.message || 'Błąd logowania');
+            setSuccessMessage(null);
         }
     };
 
