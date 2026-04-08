@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import styles from "./Login.module.css";
-
+import logo from "@/assets/logo.svg";
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -16,7 +16,7 @@ export default function LoginPage() {
     useEffect(() => {
         const externalAuthError = searchParams.get('error');
         if (externalAuthError === 'auth_failed') {
-            setError('Logowanie za pomocą zewnętrznego dostawcy nie powiodło się.');
+            setError('Logowanie za pomocą Google nie powiodło się.');
         }
     }, [searchParams]);
 
@@ -37,17 +37,19 @@ export default function LoginPage() {
                 throw new Error(data.error?.description || data.message || 'Logowanie nie powiodło się');
             }
 
-            if (data.data?.token || data.token) {
-                const token = data.data?.token || data.token;
-                localStorage.setItem('authToken', token);
-                setSuccessMessage("Zalogowano pomyślnie!");
-                setTimeout(() => navigate('/dashboard'), 1000);
-            } else {
-                throw new Error("Brak tokenu w odpowiedzi serwera.");
+            const token = data.data?.token || data.token;
+
+            if (!token) {
+                throw new Error("Brak tokenu");
             }
 
+            localStorage.setItem('authToken', token);
+            setSuccessMessage("Zalogowano pomyślnie!");
+
+            setTimeout(() => navigate('/dashboard'), 1000);
+
         } catch (err: any) {
-            setError(err.message || 'Wystąpił nieznany błąd');
+            setError(err.message || 'Błąd logowania');
         }
     };
 
@@ -59,10 +61,24 @@ export default function LoginPage() {
     return (
         <main className={styles.page}>
             <div className={styles.container}>
+
                 <section className={styles.leftPanel}>
                     <div className={styles.logoWrapper}>
-                        <img src="/logo.svg" alt="Logo" className={styles.logoImage} />
-                        <div className={styles.logoSubtitle}>Twoja biblioteka gier w jednym miejscu</div>
+                        <img src={logo} alt="logo" className={styles.logoImage} />
+
+                        <h2 className={styles.logoSubtitle}>
+                            Pełna kontrola na każdym urządzeniu
+                        </h2>
+
+                        <p className={styles.description}>
+                            Korzystaj z aplikacji na desktopie i telefonie, zarządzaj swoją biblioteką gier,
+                            śledź postępy i kontaktuj się z innymi graczami w jednym miejscu.
+                        </p>
+
+                        <div className={styles.downloadButtons}>
+                            <button className={styles.downloadBtn}>Pobierz na Windows</button>
+                            <button className={styles.downloadBtn}>Pobierz na Google Play</button>
+                        </div>
                     </div>
                 </section>
 
@@ -71,8 +87,9 @@ export default function LoginPage() {
                         <h1 className={styles.title}>Logowanie</h1>
 
                         <form onSubmit={handleSubmit} className={styles.form}>
+
                             <div className={styles.field}>
-                                <label>E-mail</label>
+                                <label className={styles.label}>adres e-mail</label>
                                 <input
                                     type="email"
                                     value={email}
@@ -83,7 +100,7 @@ export default function LoginPage() {
                             </div>
 
                             <div className={styles.field}>
-                                <label>Hasło</label>
+                                <label className={styles.label}>hasło</label>
                                 <input
                                     type="password"
                                     value={password}
@@ -93,18 +110,18 @@ export default function LoginPage() {
                                 />
                             </div>
 
-                            <button type="submit" className={styles.primaryButton}>Zaloguj się</button>
+                            <button type="submit" className={styles.primaryButton}>
+                                Zaloguj się
+                            </button>
 
-                            <div className={styles.divider}>
-                                <span className={styles.dividerText}>lub</span>
-                            </div>
+                            <div className={styles.divider}>lub</div>
 
                             <button
                                 type="button"
                                 className={styles.socialButtonGoogle}
                                 onClick={handleGoogleLogin}
                             >
-                                Zaloguj się przez Google
+                                Kontynuuj przez Google
                             </button>
                         </form>
 
@@ -112,10 +129,11 @@ export default function LoginPage() {
                         {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
 
                         <p className={styles.bottomText}>
-                            Nie posiadasz konta? <Link to="/register" className={styles.linkStrong}>Zarejestruj się</Link>
+                            Nie masz konta? <Link to="/register" className={styles.linkStrong}>Zarejestruj się</Link>
                         </p>
                     </div>
                 </section>
+
             </div>
         </main>
     );
