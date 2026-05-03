@@ -9,84 +9,162 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 80px;
+    margin-bottom: 70px;
 }
 
-.logo img {
-    height: 40px;
+.logo {
+    height: 70px;
 }
 
 .navLinks {
     display: flex;
-    gap: 32px;
-    font-size: 14px;
-    opacity: 0.8;
+    gap: 34px;
+    align-items: center;
 }
-
-.actions {
-    display: flex;
-    gap: 16px;
-}
-
-.login {
+.navButton {
     background: transparent;
     border: none;
     color: white;
-    font-weight: 600;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 18px;
+    font-weight: 300;
     cursor: pointer;
+    opacity: 0.75;
+    transition: all 0.2s ease;
 }
 
-.register {
-    background: linear-gradient(135deg, #7c3aed, #6366f1);
-    border: none;
-    padding: 10px 18px;
-    border-radius: 20px;
-    color: white;
-    cursor: pointer;
-    font-weight: 600;
-}
+    .navButton:hover {
+        opacity: 1;
+        transform: translateY(-2px);
+    }
 
-.hero {
-    text-align: center;
-    max-width: 900px;
-    margin: 0 auto 60px auto;
-}
-
-.title {
-    font-size: 36px;
+.activeNav {
     font-weight: 800;
-    margin-bottom: 16px;
+    opacity: 1;
 }
 
-.description {
-    opacity: 0.7;
-    margin-bottom: 32px;
-}
-
-.cta {
-    background: linear-gradient(135deg, #7c3aed, #6366f1);
+.profileButton {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
     border: none;
-    padding: 14px 28px;
-    border-radius: 20px;
-    color: white;
+    background: #0f0f1a;
     cursor: pointer;
-    font-weight: 700;
-    margin-bottom: 12px;
+    transition: all 0.2s ease;
 }
 
-.subtext {
-    font-size: 12px;
-    opacity: 0.6;
+    .profileButton:hover {
+        transform: translateY(-2px);
+        background: #1d1435;
+    }
+
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.offer {
-    margin-top: 40px;
+    .content h1 {
+        text-align: center;
+        font-size: 30px;
+        font-weight: 800;
+        margin-bottom: 42px;
+    }
+
+.collectionsBox {
+    min-height: 460px;
+    border: 1px solid #7C3AED;
+    border-radius: 24px;
+    background: rgba(10, 8, 28, 0.45);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+    padding: 36px 52px;
+}
+
+.tabs {
     display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 70px;
+}
+
+    .tabs button {
+        background: transparent;
+        border: none;
+        color: white;
+        font-family: 'Figtree', system-ui, sans-serif;
+        font-size: 17px;
+        font-weight: 300;
+        cursor: pointer;
+        opacity: 0.9;
+    }
+
+        .tabs button:hover {
+            color: #A78BFA;
+        }
+
+.activeTab {
+    font-weight: 800 !important;
+    border-bottom: 3px solid #7C3AED !important;
+    padding-bottom: 6px;
+}
+
+.addTab {
+    width: 24px;
+    height: 24px;
+    border: 1px solid white !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
     justify-content: center;
 }
 
-    .offer img {
-        width: 100%;
-        max-width: 1000px;
-        border-radius: 16px;
+.emptyState {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+    .emptyState h2 {
+        font-size: 28px;
+        line-height: 1.25;
+        font-weight: 300;
+        margin-bottom: 56px;
+    }
+
+    .emptyState p {
+        font-size: 17px;
+        font-weight: 300;
+        margin-bottom: 24px;
+    }
+
+.addGameButton {
+    min-width: 480px;
+    padding: 22px 34px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(124, 58, 237, 0.45);
+    color: white;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 28px;
+    font-weight: 300;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    transition: all 0.2s ease;
+}
+
+    .addGameButton span {
+        width: 34px;
+        height: 34px;
+        border: 3px solid white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .addGameButton:hover {
+        background: rgba(124, 58, 237, 0.65);
+        transform: translateY(-2px);
     }

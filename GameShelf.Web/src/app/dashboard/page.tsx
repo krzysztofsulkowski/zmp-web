@@ -1,67 +1,55 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import styles from './Dashboard.module.css';
 import logo from '@/assets/logo.svg';
-import offer from '@/assets/offer.svg';
 
-export default function LandingPage() {
+export default function Dashboard() {
     const navigate = useNavigate();
-
 
     return (
         <main className={styles.page}>
-            <div className={styles.navbar}>
-                <div className={styles.logo}>
-                    <img src={logo} alt="logo" />
-                </div>
+            <nav className={styles.navbar}>
+                <img src={logo} alt="GameShelf" className={styles.logo} />
 
                 <div className={styles.navLinks}>
-                    <span>STRONA GŁÓWNA</span>
-                    <span>FAQ</span>
-                    <span>O NAS</span>
+                    <button className={styles.navButton} onClick={() => navigate('/community')}>SPOŁECZNOŚĆ</button>
+                    <button className={styles.navButton} onClick={() => navigate('/friends')}>ZNAJOMI</button>
+                    <button className={styles.navButton} onClick={() => navigate('/faq')}>FAQ</button>
+                    <button className={styles.navButton} onClick={() => navigate('/about')}>O NAS</button>
                 </div>
 
-                <div className={styles.actions}>
-                    <button
-                        className={styles.login}
-                        onClick={() => navigate('/login')}
-                    >
-                        LOGOWANIE
-                    </button>
+                <button className={styles.profileButton} onClick={() => navigate('/profile')}></button>
+            </nav>
 
-                    <button
-                        className={styles.register}
-                        onClick={() => navigate('/register')}
-                    >
-                        REJESTRACJA
-                    </button>
+            <section className={styles.content}>
+                <h1>Twoje kolekcje</h1>
+
+                <div className={styles.collectionsBox}>
+                    <div className={styles.tabs}>
+                        <button className={styles.activeTab}>Biblioteka</button>
+                        <button>Ulubione</button>
+                        <button>Planowane</button>
+                        <button>Lista życzeń</button>
+                        <button>W trakcie</button>
+                        <button>Ukończone</button>
+                        <button>Porzucone</button>
+                        <button className={styles.addTab}>+</button>
+                    </div>
+
+                    <div className={styles.emptyState}>
+                        <h2>
+                            Biblioteka to miejsce, w którym znajdziesz wszystkie
+                            swoje gry - bez podziału na kategorie.
+                        </h2>
+
+                        <p>Dodaj swoją pierwszą grę, aby rozpocząć budowanie kolekcji.</p>
+
+                        <button className={styles.addGameButton}>
+                            <span>+</span>
+                            dodaj pierwszą grę
+                        </button>
+                    </div>
                 </div>
-            </div>
-
-            <div className={styles.hero}>
-                <h1 className={styles.title}>
-                    Twoje gry w jednym miejscu. I ludzie, którzy grają w to samo.
-                </h1>
-
-                <p className={styles.description}>
-                    Uporządkuj gry z różnych platform i sprawdzaj, w co grają Twoi znajomi - w jednym miejscu, bez przełączania między aplikacjami.
-                </p>
-
-                <button
-                    className={styles.cta}
-                    onClick={() => navigate('/register')}
-                >
-                    DOŁĄCZ DO NAS!
-                </button>
-
-                <p className={styles.subtext}>
-                    Zarejestruj się za darmo i rozpocznij tworzenie kolekcji!
-                </p>
-            </div>
-
-            <div className={styles.offer}>
-                <img src={offer} alt="offer" />
-            </div>
+            </section>
         </main>
     );
 }
