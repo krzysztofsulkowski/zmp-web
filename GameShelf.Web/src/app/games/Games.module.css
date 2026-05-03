@@ -144,3 +144,109 @@
         .backButton:hover {
             background: #6D28D9;
         }
+
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal {
+    width: 480px;
+    padding: 30px;
+    border-radius: 22px;
+    background: #120d2b;
+    border: 1px solid #7C3AED;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+    .modal h2 {
+        text-align: center;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+.modalGamePreview {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+}
+
+    .modalGamePreview img,
+    .modalPlaceholder {
+        width: 150px;
+        height: 90px;
+        border-radius: 14px;
+        object-fit: cover;
+        background: #0f0f1a;
+    }
+
+.modalPlaceholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #c4b5fd;
+}
+
+.modalGamePreview h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.modalGamePreview p {
+    font-size: 14px;
+    font-weight: 300;
+    margin-bottom: 4px;
+}
+
+.modalLabel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+    .modalLabel select {
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid #7C3AED;
+        background: #0f0f1a;
+        color: white;
+        font-family: 'Figtree', system-ui, sans-serif;
+        font-size: 15px;
+    }
+
+.modalActions {
+    display: flex;
+    gap: 12px;
+}
+
+    .modalActions button {
+        flex: 1;
+        padding: 11px 16px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Figtree', system-ui, sans-serif;
+        font-weight: 700;
+    }
+
+        .modalActions button:first-child {
+            background: transparent;
+            color: white;
+            border: 1px solid #7C3AED;
+        }
+
+        .modalActions button:last-child {
+            background: #7C3AED;
+            color: white;
+        }
