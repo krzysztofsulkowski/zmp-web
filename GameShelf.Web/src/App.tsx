@@ -11,6 +11,7 @@ import FriendsPage from './app/friends/page';
 import FaqPage from './app/faq/page';
 import AboutPage from './app/about/page';
 import ProfilePage from './app/profile/page';
+import GamesPage from './app/games/page';
 
 import './App.css';
 
@@ -35,9 +36,6 @@ function App() {
         {/*http://localhost:5173/dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
 
-         {/*http://localhost:5173/dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
-
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
         <Route path="/community" element={<CommunityPage />} />
@@ -49,6 +47,8 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
 
         <Route path="/profile" element={<ProfilePage />} />
+
+        <Route path="/games" element={<GamesPage />} />
 
       </Routes>
     </Router>

@@ -8,7 +8,7 @@ import arrowRight from '@/assets/arrow-right.svg';
 
 type CollectionTab = 'library' | 'favorites' | 'planned' | 'wishlist' | 'playing' | 'completed' | 'abandoned';
 
-type CustomCollection = {
+type Collection = {
     id: number;
     name: string;
     isPublic?: boolean;
@@ -77,7 +77,8 @@ export default function Dashboard() {
     const tabsRef = useRef<HTMLDivElement | null>(null);
 
     const [activeTab, setActiveTab] = useState<CollectionTab>('library');
-    const [customCollections, setCustomCollections] = useState<CustomCollection[]>([]);
+    const [allCollections, setAllCollections] = useState<Collection[]>([]);
+    const [customCollections, setCustomCollections] = useState<Collection[]>([]);
     const [activeCustomCollectionId, setActiveCustomCollectionId] = useState<number | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showRenameModal, setShowRenameModal] = useState(false);
@@ -99,6 +100,34 @@ export default function Dashboard() {
             left: direction === 'left' ? -220 : 220,
             behavior: 'smooth'
         });
+    };
+
+    const getActiveDefaultCollectionId = () => {
+        const activeTabData = tabs.find((tab) => tab.key === activeTab);
+
+        if (!activeTabData) {
+            return null;
+        }
+
+        const collection = allCollections.find((item) => item.name === activeTabData.label);
+
+        return collection?.id ?? null;
+    };
+
+    const handleAddGame = () => {
+        const collectionId = activeCustomCollectionId ?? getActiveDefaultCollectionId();
+
+        if (activeTab === 'library' && activeCustomCollectionId === null) {
+            navigate('/games');
+            return;
+        }
+
+        if (collectionId === null || collectionId === undefined) {
+            console.error('Brak ID aktywnej kolekcji');
+            return;
+        }
+
+        navigate(`/games?collectionId=${collectionId}`);
     };
 
     const loadCollections = async () => {
@@ -123,8 +152,10 @@ export default function Dashboard() {
                 ? data.data
                 : [];
 
+        setAllCollections(collections);
+
         const customOnly = collections.filter(
-            (collection: CustomCollection) => !defaultCollectionNames.includes(collection.name)
+            (collection: Collection) => !defaultCollectionNames.includes(collection.name)
         );
 
         setCustomCollections(customOnly);
@@ -207,6 +238,14 @@ export default function Dashboard() {
                 )
             );
 
+            setAllCollections((prev) =>
+                prev.map((collection) =>
+                    collection.id === activeCustomCollection.id
+                        ? { ...collection, name: editedCollectionName.trim() }
+                        : collection
+                )
+            );
+
             setShowRenameModal(false);
             setEditedCollectionName('');
         } catch (err) {
@@ -234,6 +273,10 @@ export default function Dashboard() {
             }
 
             setCustomCollections((prev) =>
+                prev.filter((collection) => collection.id !== activeCustomCollection.id)
+            );
+
+            setAllCollections((prev) =>
                 prev.filter((collection) => collection.id !== activeCustomCollection.id)
             );
 
@@ -358,7 +401,7 @@ export default function Dashboard() {
                                 <h2>{activeEmptyState.title}</h2>
                                 <p>{activeEmptyState.description}</p>
 
-                                <button className={styles.addGameButton}>
+                                <button className={styles.addGameButton} onClick={handleAddGame}>
                                     <img src={addIcon} alt="add" />
                                     {activeEmptyState.button}
                                 </button>
@@ -371,7 +414,7 @@ export default function Dashboard() {
 
                                 <p>Dodaj pierwszą grę do tej kolekcji, aby zacząć ją budować.</p>
 
-                                <button className={styles.addGameButton}>
+                                <button className={styles.addGameButton} onClick={handleAddGame}>
                                     <img src={addIcon} alt="add" />
                                     dodaj grę do kolekcji
                                 </button>
@@ -426,8 +469,7 @@ export default function Dashboard() {
                     <div className={styles.modal}>
                         <h2>Ustawienia prywatności</h2>
 
-                        <p className={styles.modalText}>
-                        </p>
+                        <p className={styles.modalText}></p>
 
                         <div className={styles.modalActions}>
                             <button onClick={() => setShowPrivacyModal(false)}>Zamknij</button>
