@@ -338,3 +338,54 @@
     background: #dc2626 !important;
     color: white !important;
 }
+
+.dashboardGamesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 28px;
+    margin-top: 32px;
+}
+
+.dashboardGameCard {
+    background: rgba(10, 8, 28, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.55);
+    border-radius: 22px;
+    overflow: hidden;
+    text-align: left;
+}
+
+.dashboardGameImage {
+    width: 100%;
+    height: 160px;
+    background: #0f0f1a;
+}
+
+    .dashboardGameImage img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.dashboardGamePlaceholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #c4b5fd;
+}
+
+.dashboardGameInfo {
+    padding: 16px;
+}
+
+    .dashboardGameInfo h2 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .dashboardGameInfo p {
+        font-size: 14px;
+        font-weight: 300;
+        margin-bottom: 6px;
+    }

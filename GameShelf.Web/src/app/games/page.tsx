@@ -158,15 +158,31 @@ export default function GamesPage() {
         try {
             const token = localStorage.getItem('authToken');
 
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/games/add-to-collection/${selectedGame.id}?collectionId=${selectedCollectionId}`, {
+            const addResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/games/add-to-collection/${selectedGame.id}?collectionId=${selectedCollectionId}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
 
-            if (!response.ok) {
+            if (!addResponse.ok) {
                 throw new Error('Nie udało się dodać gry');
+            }
+
+            const rateResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/games/rate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    gameId: selectedGame.id,
+                    rating: Number(selectedRating)
+                })
+            });
+
+            if (!rateResponse.ok) {
+                throw new Error('Nie udało się zapisać oceny');
             }
 
             setMessage('Gra została dodana do kolekcji.');
@@ -258,10 +274,7 @@ export default function GamesPage() {
 
                         <label className={styles.modalLabel}>
                             Kolekcja
-                            <select
-                                value={selectedCollectionId}
-                                onChange={(e) => setSelectedCollectionId(e.target.value)}
-                            >
+                            <select value={selectedCollectionId} onChange={(e) => setSelectedCollectionId(e.target.value)}>
                                 {collections.map((collection) => (
                                     <option key={collection.id} value={collection.id}>
                                         {collection.name}
@@ -272,10 +285,7 @@ export default function GamesPage() {
 
                         <label className={styles.modalLabel}>
                             Ocena
-                            <select
-                                value={selectedRating}
-                                onChange={(e) => setSelectedRating(e.target.value)}
-                            >
+                            <select value={selectedRating} onChange={(e) => setSelectedRating(e.target.value)}>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                                 <option value="3">3</option>

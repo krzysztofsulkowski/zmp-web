@@ -14,6 +14,30 @@ type Collection = {
     isPublic?: boolean;
 };
 
+type CollectionGame = {
+    gameId: number;
+    title: string;
+    imageUrl: string;
+    description: string;
+    genreName: string;
+    platformName: string;
+    collectionId: number;
+    collectionName: string;
+    addedAt: string;
+    rating?: number;
+};
+
+type CollectionWithGames = {
+    collectionId: number;
+    collectionName: string;
+    isPublic: boolean;
+    games: CollectionGame[];
+};
+
+type CollectionsWithGamesResponse = {
+    data?: CollectionWithGames[];
+};
+
 const tabs: { key: CollectionTab; label: string }[] = [
     { key: 'library', label: 'Biblioteka' },
     { key: 'favorites', label: 'Ulubione' },
@@ -79,6 +103,7 @@ export default function Dashboard() {
     const [activeTab, setActiveTab] = useState<CollectionTab>('library');
     const [allCollections, setAllCollections] = useState<Collection[]>([]);
     const [customCollections, setCustomCollections] = useState<Collection[]>([]);
+    const [collectionsWithGames, setCollectionsWithGames] = useState<CollectionWithGames[]>([]);
     const [activeCustomCollectionId, setActiveCustomCollectionId] = useState<number | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showRenameModal, setShowRenameModal] = useState(false);
@@ -90,6 +115,18 @@ export default function Dashboard() {
 
     const activeEmptyState = emptyStates[activeTab];
     const activeCustomCollection = customCollections.find((collection) => collection.id === activeCustomCollectionId);
+
+    const getImageUrl = (imageUrl: string) => {
+        if (!imageUrl) {
+            return '';
+        }
+
+        if (imageUrl.startsWith('http')) {
+            return imageUrl;
+        }
+
+        return `${import.meta.env.VITE_API_URL}${imageUrl}`;
+    };
 
     const scrollTabs = (direction: 'left' | 'right') => {
         if (!tabsRef.current) {
@@ -112,6 +149,26 @@ export default function Dashboard() {
         const collection = allCollections.find((item) => item.name === activeTabData.label);
 
         return collection?.id ?? null;
+    };
+
+    const getActiveGames = () => {
+        if (activeTab === 'library' && activeCustomCollectionId === null) {
+            return collectionsWithGames.flatMap((collection) => collection.games);
+        }
+
+        const activeCollectionId = activeCustomCollectionId ?? getActiveDefaultCollectionId();
+
+        if (activeCollectionId === null || activeCollectionId === undefined) {
+            return [];
+        }
+
+        const collection = collectionsWithGames.find((item) => item.collectionId === activeCollectionId);
+
+        return collection?.games ?? [];
+    };
+
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString('pl-PL');
     };
 
     const handleAddGame = () => {
@@ -146,7 +203,7 @@ export default function Dashboard() {
 
         const data = await response.json();
 
-        const collections = Array.isArray(data)
+        const collections: Collection[] = Array.isArray(data)
             ? data
             : Array.isArray(data.data)
                 ? data.data
@@ -155,14 +212,44 @@ export default function Dashboard() {
         setAllCollections(collections);
 
         const customOnly = collections.filter(
-            (collection: Collection) => !defaultCollectionNames.includes(collection.name)
+            (collection) => !defaultCollectionNames.includes(collection.name)
         );
 
         setCustomCollections(customOnly);
     };
 
+    const loadCollectionGames = async () => {
+        const token = localStorage.getItem('authToken');
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/collections/grouped-with-games`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                draw: 1,
+                start: 0,
+                length: 100,
+                searchValue: '',
+                orderColumn: 0,
+                orderDir: 'asc',
+                extraFilters: {}
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Błąd pobierania gier w kolekcjach');
+        }
+
+        const data = await response.json() as CollectionsWithGamesResponse;
+
+        setCollectionsWithGames(data.data ?? []);
+    };
+
     useEffect(() => {
         loadCollections().catch((err) => console.error(err));
+        loadCollectionGames().catch((err) => console.error(err));
     }, []);
 
     const createCollection = async () => {
@@ -193,6 +280,7 @@ export default function Dashboard() {
             const createdId = createdCollection.id ?? createdCollection.data?.id;
 
             await loadCollections();
+            await loadCollectionGames();
 
             if (typeof createdId === 'number') {
                 setActiveCustomCollectionId(createdId);
@@ -246,6 +334,14 @@ export default function Dashboard() {
                 )
             );
 
+            setCollectionsWithGames((prev) =>
+                prev.map((collection) =>
+                    collection.collectionId === activeCustomCollection.id
+                        ? { ...collection, collectionName: editedCollectionName.trim() }
+                        : collection
+                )
+            );
+
             setShowRenameModal(false);
             setEditedCollectionName('');
         } catch (err) {
@@ -280,6 +376,10 @@ export default function Dashboard() {
                 prev.filter((collection) => collection.id !== activeCustomCollection.id)
             );
 
+            setCollectionsWithGames((prev) =>
+                prev.filter((collection) => collection.collectionId !== activeCustomCollection.id)
+            );
+
             setActiveCustomCollectionId(null);
             setActiveTab('library');
             setShowDeleteModal(false);
@@ -288,6 +388,8 @@ export default function Dashboard() {
             console.error(err);
         }
     };
+
+    const activeGames = getActiveGames();
 
     return (
         <main className={styles.page}>
@@ -395,32 +497,55 @@ export default function Dashboard() {
                         )}
                     </div>
 
-                    <div className={styles.emptyState}>
-                        {activeCustomCollectionId === null ? (
-                            <>
-                                <h2>{activeEmptyState.title}</h2>
-                                <p>{activeEmptyState.description}</p>
+                    {activeGames.length > 0 ? (
+                        <div className={styles.dashboardGamesGrid}>
+                            {activeGames.map((game) => (
+                                <article key={`${game.collectionId}-${game.gameId}`} className={styles.dashboardGameCard}>
+                                    <div className={styles.dashboardGameImage}>
+                                        {game.imageUrl ? (
+                                            <img src={getImageUrl(game.imageUrl)} alt={game.title} />
+                                        ) : (
+                                            <div className={styles.dashboardGamePlaceholder}>Brak obrazu</div>
+                                        )}
+                                    </div>
 
-                                <button className={styles.addGameButton} onClick={handleAddGame}>
-                                    <img src={addIcon} alt="add" />
-                                    {activeEmptyState.button}
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <h2>
-                                    Kolekcja {activeCustomCollection?.name} jest jeszcze pusta.
-                                </h2>
+                                    <div className={styles.dashboardGameInfo}>
+                                        <h2>{game.title}</h2>
+                                        <p>{game.genreName || 'Brak gatunku'} · {game.platformName || 'Brak platformy'}</p>
+                                        <p>Dodano: {game.addedAt ? formatDate(game.addedAt) : 'Brak daty'}</p>
+                                        <p>Ocena: {game.rating ? `${game.rating}/5` : 'Brak oceny'}</p>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className={styles.emptyState}>
+                            {activeCustomCollectionId === null ? (
+                                <>
+                                    <h2>{activeEmptyState.title}</h2>
+                                    <p>{activeEmptyState.description}</p>
 
-                                <p>Dodaj pierwszą grę do tej kolekcji, aby zacząć ją budować.</p>
+                                    <button className={styles.addGameButton} onClick={handleAddGame}>
+                                        <img src={addIcon} alt="add" />
+                                        {activeEmptyState.button}
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <h2>
+                                        Kolekcja {activeCustomCollection?.name} jest jeszcze pusta.
+                                    </h2>
 
-                                <button className={styles.addGameButton} onClick={handleAddGame}>
-                                    <img src={addIcon} alt="add" />
-                                    dodaj grę do kolekcji
-                                </button>
-                            </>
-                        )}
-                    </div>
+                                    <p>Dodaj pierwszą grę do tej kolekcji, aby zacząć ją budować.</p>
+
+                                    <button className={styles.addGameButton} onClick={handleAddGame}>
+                                        <img src={addIcon} alt="add" />
+                                        dodaj grę do kolekcji
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
             </section>
 
