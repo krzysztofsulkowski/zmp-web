@@ -11,6 +11,7 @@ type CollectionTab = 'library' | 'favorites' | 'planned' | 'wishlist' | 'playing
 type CustomCollection = {
     id: number;
     name: string;
+    isPublic?: boolean;
 };
 
 const tabs: { key: CollectionTab; label: string }[] = [
@@ -78,10 +79,16 @@ export default function Dashboard() {
     const [activeTab, setActiveTab] = useState<CollectionTab>('library');
     const [customCollections, setCustomCollections] = useState<CustomCollection[]>([]);
     const [activeCustomCollectionId, setActiveCustomCollectionId] = useState<number | null>(null);
-    const [showModal, setShowModal] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showRenameModal, setShowRenameModal] = useState(false);
+    const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
     const [newCollectionName, setNewCollectionName] = useState('');
+    const [editedCollectionName, setEditedCollectionName] = useState('');
 
     const activeEmptyState = emptyStates[activeTab];
+    const activeCustomCollection = customCollections.find((collection) => collection.id === activeCustomCollectionId);
 
     const scrollTabs = (direction: 'left' | 'right') => {
         if (!tabsRef.current) {
@@ -151,7 +158,7 @@ export default function Dashboard() {
                 throw new Error('Błąd tworzenia kolekcji');
             }
 
-            const createdCollection = await response.json();
+            const createdCollection = await response.json() as { id?: number; data?: { id?: number } };
             const createdId = createdCollection.id ?? createdCollection.data?.id;
 
             await loadCollections();
@@ -160,8 +167,80 @@ export default function Dashboard() {
                 setActiveCustomCollectionId(createdId);
             }
 
-            setShowModal(false);
+            setShowCreateModal(false);
             setNewCollectionName('');
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const updateCollectionName = async () => {
+        if (!activeCustomCollection || !editedCollectionName.trim()) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('authToken');
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/collections/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    id: activeCustomCollection.id,
+                    name: editedCollectionName.trim(),
+                    isPublic: activeCustomCollection.isPublic ?? true
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Błąd aktualizacji kolekcji');
+            }
+
+            setCustomCollections((prev) =>
+                prev.map((collection) =>
+                    collection.id === activeCustomCollection.id
+                        ? { ...collection, name: editedCollectionName.trim() }
+                        : collection
+                )
+            );
+
+            setShowRenameModal(false);
+            setEditedCollectionName('');
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const deleteCollection = async () => {
+        if (!activeCustomCollection) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('authToken');
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/collections/delete/${activeCustomCollection.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Błąd usuwania kolekcji');
+            }
+
+            setCustomCollections((prev) =>
+                prev.filter((collection) => collection.id !== activeCustomCollection.id)
+            );
+
+            setActiveCustomCollectionId(null);
+            setActiveTab('library');
+            setShowDeleteModal(false);
+            setShowSettingsDropdown(false);
         } catch (err) {
             console.error(err);
         }
@@ -199,6 +278,7 @@ export default function Dashboard() {
                                     onClick={() => {
                                         setActiveTab(tab.key);
                                         setActiveCustomCollectionId(null);
+                                        setShowSettingsDropdown(false);
                                     }}
                                 >
                                     {tab.label}
@@ -209,13 +289,16 @@ export default function Dashboard() {
                                 <button
                                     key={collection.id}
                                     className={activeCustomCollectionId === collection.id ? styles.activeTab : ''}
-                                    onClick={() => setActiveCustomCollectionId(collection.id)}
+                                    onClick={() => {
+                                        setActiveCustomCollectionId(collection.id);
+                                        setShowSettingsDropdown(false);
+                                    }}
                                 >
                                     {collection.name}
                                 </button>
                             ))}
 
-                            <button className={styles.addTab} onClick={() => setShowModal(true)}>
+                            <button className={styles.addTab} onClick={() => setShowCreateModal(true)}>
                                 <img src={addIcon} alt="add" />
                             </button>
                         </div>
@@ -223,6 +306,50 @@ export default function Dashboard() {
                         <button className={styles.tabsArrow} onClick={() => scrollTabs('right')}>
                             <img src={arrowRight} alt="scroll right" />
                         </button>
+
+                        {activeCustomCollection && (
+                            <div className={styles.collectionSettings}>
+                                <button
+                                    className={styles.collectionSettingsButton}
+                                    onClick={() => setShowSettingsDropdown((prev) => !prev)}
+                                >
+                                    Ustawienia
+                                </button>
+
+                                {showSettingsDropdown && (
+                                    <div className={styles.collectionSettingsDropdown}>
+                                        <button
+                                            onClick={() => {
+                                                setEditedCollectionName(activeCustomCollection.name);
+                                                setShowRenameModal(true);
+                                                setShowSettingsDropdown(false);
+                                            }}
+                                        >
+                                            Zmień nazwę kolekcji
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                setShowPrivacyModal(true);
+                                                setShowSettingsDropdown(false);
+                                            }}
+                                        >
+                                            Ustawienia prywatności
+                                        </button>
+
+                                        <button
+                                            className={styles.deleteOption}
+                                            onClick={() => {
+                                                setShowDeleteModal(true);
+                                                setShowSettingsDropdown(false);
+                                            }}
+                                        >
+                                            Usuń kolekcję
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className={styles.emptyState}>
@@ -239,7 +366,7 @@ export default function Dashboard() {
                         ) : (
                             <>
                                 <h2>
-                                    Kolekcja {customCollections.find((collection) => collection.id === activeCustomCollectionId)?.name} jest jeszcze pusta.
+                                    Kolekcja {activeCustomCollection?.name} jest jeszcze pusta.
                                 </h2>
 
                                 <p>Dodaj pierwszą grę do tej kolekcji, aby zacząć ją budować.</p>
@@ -254,7 +381,7 @@ export default function Dashboard() {
                 </div>
             </section>
 
-            {showModal && (
+            {showCreateModal && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
                         <h2>Nowa kolekcja</h2>
@@ -267,8 +394,60 @@ export default function Dashboard() {
                         />
 
                         <div className={styles.modalActions}>
-                            <button onClick={() => setShowModal(false)}>Anuluj</button>
+                            <button onClick={() => setShowCreateModal(false)}>Anuluj</button>
                             <button onClick={createCollection}>Zapisz</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showRenameModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <h2>Zmień nazwę kolekcji</h2>
+
+                        <input
+                            type="text"
+                            placeholder="Nowa nazwa kolekcji"
+                            value={editedCollectionName}
+                            onChange={(e) => setEditedCollectionName(e.target.value)}
+                        />
+
+                        <div className={styles.modalActions}>
+                            <button onClick={() => setShowRenameModal(false)}>Anuluj</button>
+                            <button onClick={updateCollectionName}>Zapisz</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showPrivacyModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <h2>Ustawienia prywatności</h2>
+
+                        <p className={styles.modalText}>
+                        </p>
+
+                        <div className={styles.modalActions}>
+                            <button onClick={() => setShowPrivacyModal(false)}>Zamknij</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showDeleteModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <h2>Usuń kolekcję</h2>
+
+                        <p className={styles.modalText}>
+                            Czy na pewno chcesz usunąć kolekcję {activeCustomCollection?.name}?
+                        </p>
+
+                        <div className={styles.modalActions}>
+                            <button onClick={() => setShowDeleteModal(false)}>Anuluj</button>
+                            <button className={styles.dangerButton} onClick={deleteCollection}>Usuń</button>
                         </div>
                     </div>
                 </div>
