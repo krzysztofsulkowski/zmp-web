@@ -25,8 +25,7 @@ function App() {
         {/* Strona główna przekierowuje do landing page */}
         <Route path="/" element={<LandingPage />} />
         
-        {/* Dowolny inny adres (404) przekierowuje do landing page */}
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/landing" element={<LandingPage />} />
 
         {/*http://localhost:5173/dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
