@@ -138,7 +138,7 @@
 .primaryButton {
     width: 100%;
     padding: 12px;
-    border-radius: 30px;
+    border-radius: 20px;
     border: none;
     background: #7C3AED;
     color: white;
@@ -147,6 +147,7 @@
     font-family: 'Figtree', system-ui, sans-serif;
     font-weight: 700;
     margin-top: 20px;
+
 }
 
 .divider {
@@ -207,4 +208,12 @@
     .rightPanel {
         padding: 24px;
     }
+}
+
+.primaryButton {
+    border: none !important;
+    border-color: transparent !important;
+}
+button {
+    border: none;
 }

@@ -6,6 +6,11 @@ import AuthCallback from './app/auth/callback/page';
 import Dashboard from './app/Dashboard';
 import ForgotPasswordPage from './app/auth/forgot-password/page';
 import LandingPage from './app/auth/landing/page';
+import CommunityPage from './app/community/page';
+import FriendsPage from './app/friends/page';
+import FaqPage from './app/faq/page';
+import AboutPage from './app/about/page';
+import ProfilePage from './app/profile/page';
 
 import './App.css';
 
@@ -34,6 +39,16 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
 
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+        <Route path="/community" element={<CommunityPage />} />
+
+        <Route path="/friends" element={<FriendsPage />} />
+
+        <Route path="/faq" element={<FaqPage />} />
+
+        <Route path="/about" element={<AboutPage />} />
+
+        <Route path="/profile" element={<ProfilePage />} />
 
       </Routes>
     </Router>
