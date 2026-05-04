@@ -250,3 +250,19 @@
             background: #7C3AED;
             color: white;
         }
+
+.modalCheckboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 15px;
+    font-weight: 400;
+    margin-top: 14px;
+}
+
+    .modalCheckboxLabel input {
+        width: 18px;
+        height: 18px;
+        accent-color: #7C3AED;
+    }

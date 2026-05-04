@@ -26,7 +26,6 @@ type CollectionGame = {
     collectionId: number;
     collectionName: string;
     addedAt: string;
-    rating?: number;
     type?: string;
 };
 
@@ -116,7 +115,6 @@ export default function Dashboard() {
     const [activeCustomCollectionId, setActiveCustomCollectionId] = useState<number | null>(null);
 
     const [sortOption, setSortOption] = useState<SortOption>('newest');
-    const [selectedRating, setSelectedRating] = useState('');
     const [selectedGenre, setSelectedGenre] = useState('');
     const [selectedType, setSelectedType] = useState('');
     const [selectedPlatform, setSelectedPlatform] = useState('');
@@ -207,7 +205,6 @@ export default function Dashboard() {
 
     const resetFilters = () => {
         setSortOption('newest');
-        setSelectedRating('');
         setSelectedGenre('');
         setSelectedType('');
         setSelectedPlatform('');
@@ -225,10 +222,6 @@ export default function Dashboard() {
 
     const applyFiltersAndSorting = (games: CollectionGame[]) => {
         let result = [...games];
-
-        if (selectedRating) {
-            result = result.filter((game) => String(game.rating ?? '') === selectedRating);
-        }
 
         if (selectedGenre) {
             result = result.filter((game) => game.genreName === selectedGenre);
@@ -639,15 +632,6 @@ export default function Dashboard() {
                                     ))}
                                 </select>
 
-                                <select value={selectedRating} onChange={(e) => setSelectedRating(e.target.value)}>
-                                    <option value="">Wszystkie oceny</option>
-                                    <option value="5">5 gwiazdek</option>
-                                    <option value="4">4 gwiazdki</option>
-                                    <option value="3">3 gwiazdki</option>
-                                    <option value="2">2 gwiazdki</option>
-                                    <option value="1">1 gwiazdka</option>
-                                </select>
-
                                 <select value={sortOption} onChange={(e) => setSortOption(e.target.value as SortOption)}>
                                     <option value="newest">Sortuj: od najnowszych</option>
                                     <option value="oldest">Sortuj: od najstarszych</option>
@@ -679,7 +663,6 @@ export default function Dashboard() {
                                                 <h2>{game.title}</h2>
                                                 <p>{game.genreName || 'Brak gatunku'} · {game.platformName || 'Brak platformy'}</p>
                                                 <p>Dodano: {game.addedAt ? formatDate(game.addedAt) : 'Brak daty'}</p>
-                                                <p>Ocena: {game.rating ? `${game.rating}/5` : 'Brak oceny'}</p>
                                             </div>
                                         </article>
                                     );

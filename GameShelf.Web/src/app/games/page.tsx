@@ -36,12 +36,13 @@ export default function GamesPage() {
     const [searchValue, setSearchValue] = useState('');
     const [games, setGames] = useState<Game[]>([]);
     const [collections, setCollections] = useState<Collection[]>([]);
+    const [favoriteCollectionId, setFavoriteCollectionId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
 
     const [selectedGame, setSelectedGame] = useState<Game | null>(null);
     const [selectedCollectionId, setSelectedCollectionId] = useState('');
-    const [selectedRating, setSelectedRating] = useState('5');
+    const [isFavorite, setIsFavorite] = useState(false);
 
     const loadCollections = async () => {
         const token = localStorage.getItem('authToken');
@@ -65,14 +66,22 @@ export default function GamesPage() {
                 ? data.data
                 : [];
 
-        const collectionsWithoutLibrary = result.filter((collection) => collection.name !== 'Biblioteka');
+        const favoriteCollection = result.find((collection) => collection.name === 'Ulubione');
+        const availableCollections = result.filter(
+            (collection) => collection.name !== 'Biblioteka' && collection.name !== 'Ulubione'
+        );
 
-        setCollections(collectionsWithoutLibrary);
+        setFavoriteCollectionId(favoriteCollection?.id ?? null);
+        setCollections(availableCollections);
 
-        if (collectionId) {
-            setSelectedCollectionId(collectionId);
-        } else if (collectionsWithoutLibrary.length > 0) {
-            setSelectedCollectionId(String(collectionsWithoutLibrary[0].id));
+        const selectedFromUrl = availableCollections.find(
+            (collection) => String(collection.id) === collectionId
+        );
+
+        if (selectedFromUrl) {
+            setSelectedCollectionId(String(selectedFromUrl.id));
+        } else if (availableCollections.length > 0) {
+            setSelectedCollectionId(String(availableCollections[0].id));
         }
     };
 
@@ -133,13 +142,15 @@ export default function GamesPage() {
 
     const openAddGameModal = (game: Game) => {
         setSelectedGame(game);
-        setSelectedRating('5');
+        setIsFavorite(false);
 
-        if (collectionId) {
-            setSelectedCollectionId(collectionId);
-        }
+        const selectedFromUrl = collections.find(
+            (collection) => String(collection.id) === collectionId
+        );
 
-        if (!collectionId && collections.length > 0) {
+        if (selectedFromUrl) {
+            setSelectedCollectionId(String(selectedFromUrl.id));
+        } else if (collections.length > 0) {
             setSelectedCollectionId(String(collections[0].id));
         }
 
@@ -148,6 +159,22 @@ export default function GamesPage() {
 
     const closeModal = () => {
         setSelectedGame(null);
+        setIsFavorite(false);
+    };
+
+    const addGameToCollection = async (gameId: number, targetCollectionId: string | number) => {
+        const token = localStorage.getItem('authToken');
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/games/add-to-collection/${gameId}?collectionId=${targetCollectionId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Nie udało się dodać gry');
+        }
     };
 
     const saveGameToCollection = async () => {
@@ -156,37 +183,15 @@ export default function GamesPage() {
         }
 
         try {
-            const token = localStorage.getItem('authToken');
+            await addGameToCollection(selectedGame.id, selectedCollectionId);
 
-            const addResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/games/add-to-collection/${selectedGame.id}?collectionId=${selectedCollectionId}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!addResponse.ok) {
-                throw new Error('Nie udało się dodać gry');
-            }
-
-            const rateResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/games/rate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    gameId: selectedGame.id,
-                    rating: Number(selectedRating)
-                })
-            });
-
-            if (!rateResponse.ok) {
-                throw new Error('Nie udało się zapisać oceny');
+            if (isFavorite && favoriteCollectionId) {
+                await addGameToCollection(selectedGame.id, favoriteCollectionId);
             }
 
             setMessage('Gra została dodana do kolekcji.');
             setSelectedGame(null);
+            setIsFavorite(false);
         } catch (err) {
             console.error(err);
             setMessage('Nie udało się dodać gry.');
@@ -283,15 +288,13 @@ export default function GamesPage() {
                             </select>
                         </label>
 
-                        <label className={styles.modalLabel}>
-                            Ocena
-                            <select value={selectedRating} onChange={(e) => setSelectedRating(e.target.value)}>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                            </select>
+                        <label className={styles.modalCheckboxLabel}>
+                            <input
+                                type="checkbox"
+                                checked={isFavorite}
+                                onChange={(e) => setIsFavorite(e.target.checked)}
+                            />
+                            Oznacz jako ulubioną grę
                         </label>
 
                         <div className={styles.modalActions}>
