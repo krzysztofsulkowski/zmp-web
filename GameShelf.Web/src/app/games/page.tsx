@@ -28,6 +28,8 @@ type GamesResponse = {
     data?: Game[];
 };
 
+const favoriteGamesStorageKey = 'favoriteGameIds';
+
 export default function GamesPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -36,13 +38,21 @@ export default function GamesPage() {
     const [searchValue, setSearchValue] = useState('');
     const [games, setGames] = useState<Game[]>([]);
     const [collections, setCollections] = useState<Collection[]>([]);
-    const [favoriteCollectionId, setFavoriteCollectionId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
 
     const [selectedGame, setSelectedGame] = useState<Game | null>(null);
     const [selectedCollectionId, setSelectedCollectionId] = useState('');
     const [isFavorite, setIsFavorite] = useState(false);
+
+    const saveFavoriteGameId = (gameId: number) => {
+        const savedIds = localStorage.getItem(favoriteGamesStorageKey);
+        const currentIds: number[] = savedIds ? JSON.parse(savedIds) : [];
+
+        if (!currentIds.includes(gameId)) {
+            localStorage.setItem(favoriteGamesStorageKey, JSON.stringify([...currentIds, gameId]));
+        }
+    };
 
     const loadCollections = async () => {
         const token = localStorage.getItem('authToken');
@@ -66,12 +76,10 @@ export default function GamesPage() {
                 ? data.data
                 : [];
 
-        const favoriteCollection = result.find((collection) => collection.name === 'Ulubione');
         const availableCollections = result.filter(
             (collection) => collection.name !== 'Biblioteka' && collection.name !== 'Ulubione'
         );
 
-        setFavoriteCollectionId(favoriteCollection?.id ?? null);
         setCollections(availableCollections);
 
         const selectedFromUrl = availableCollections.find(
@@ -185,8 +193,8 @@ export default function GamesPage() {
         try {
             await addGameToCollection(selectedGame.id, selectedCollectionId);
 
-            if (isFavorite && favoriteCollectionId) {
-                await addGameToCollection(selectedGame.id, favoriteCollectionId);
+            if (isFavorite) {
+                saveFavoriteGameId(selectedGame.id);
             }
 
             setMessage('Gra została dodana do kolekcji.');

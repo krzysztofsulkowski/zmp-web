@@ -45,6 +45,8 @@ type CollectionsWithGamesResponse = {
     data?: CollectionWithGames[];
 };
 
+const favoriteGamesStorageKey = 'favoriteGameIds';
+
 const tabs: { key: CollectionTab; label: string }[] = [
     { key: 'library', label: 'Biblioteka' },
     { key: 'favorites', label: 'Ulubione' },
@@ -72,7 +74,7 @@ const emptyStates: Record<CollectionTab, { title: string; description: string; b
         button: 'dodaj pierwszą grę'
     },
     favorites: {
-        title: 'Kolekcja Ulubione to miejsce, w którym znajdziesz wszystkie gry ocenione przez Ciebie na 5 gwiazdek - Twoje absolutne top tytuły.',
+        title: 'Kolekcja Ulubione to miejsce, w którym znajdziesz gry oznaczone przez Ciebie jako najlepsze - Twoje absolutne top tytuły.',
         description: 'Dodaj swoją pierwszą grę, aby rozpocząć budowanie kolekcji.',
         button: 'dodaj ulubioną grę'
     },
@@ -141,6 +143,16 @@ export default function Dashboard() {
         });
     };
 
+    const getFavoriteGameIds = () => {
+        const savedIds = localStorage.getItem(favoriteGamesStorageKey);
+
+        if (!savedIds) {
+            return [];
+        }
+
+        return JSON.parse(savedIds) as number[];
+    };
+
     const getActiveDefaultCollectionId = () => {
         const activeTabData = tabs.find((tab) => tab.key === activeTab);
 
@@ -156,6 +168,17 @@ export default function Dashboard() {
     const getActiveGames = () => {
         if (activeTab === 'library' && activeCustomCollectionId === null) {
             return collectionsWithGames.flatMap((collection) => collection.games);
+        }
+
+        if (activeTab === 'favorites' && activeCustomCollectionId === null) {
+            const favoriteIds = getFavoriteGameIds();
+
+            return collectionsWithGames
+                .flatMap((collection) => collection.games)
+                .filter((game, index, games) =>
+                    favoriteIds.includes(game.gameId) &&
+                    games.findIndex((item) => item.gameId === game.gameId) === index
+                );
         }
 
         const activeCollectionId = activeCustomCollectionId ?? getActiveDefaultCollectionId();
@@ -190,7 +213,10 @@ export default function Dashboard() {
     const handleAddGame = () => {
         const collectionId = activeCustomCollectionId ?? getActiveDefaultCollectionId();
 
-        if (activeTab === 'library' && activeCustomCollectionId === null) {
+        if (
+            (activeTab === 'library' || activeTab === 'favorites') &&
+            activeCustomCollectionId === null
+        ) {
             navigate('/games');
             return;
         }
