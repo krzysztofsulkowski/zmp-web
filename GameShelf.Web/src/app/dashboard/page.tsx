@@ -119,6 +119,9 @@ export default function Dashboard() {
     const [sortOption, setSortOption] = useState<SortOption>('newest');
     const [selectedGenre, setSelectedGenre] = useState('');
     const [selectedPlatform, setSelectedPlatform] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const tilesPerPage = 15;
+    const gamesPerPage = tilesPerPage - 1;
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showRenameModal, setShowRenameModal] = useState(false);
@@ -232,6 +235,8 @@ export default function Dashboard() {
         setSortOption('newest');
         setSelectedGenre('');
         setSelectedPlatform('');
+        setSelectedPlatform('');
+        setCurrentPage(1);
     };
 
     const getUniqueValues = (games: CollectionGame[], field: 'genreName' | 'platformName' | 'type') => {
@@ -516,9 +521,14 @@ export default function Dashboard() {
 
     const activeGames = getActiveGames();
     const filteredGames = applyFiltersAndSorting(activeGames);
+    const totalPages = Math.ceil(filteredGames.length / gamesPerPage);
+    const firstGameIndex = (currentPage - 1) * gamesPerPage;
+    const visibleGames = filteredGames.slice(firstGameIndex, firstGameIndex + gamesPerPage);
     const genreOptions = getUniqueValues(activeGames, 'genreName');
     const platformOptions = getUniqueValues(activeGames, 'platformName');
     const typeOptions = getUniqueValues(activeGames, 'type');
+
+
 
     return (
         <main className={styles.page}>
@@ -659,7 +669,7 @@ export default function Dashboard() {
                                     <span>dodaj kolejną grę</span>
                                 </button>
 
-                                {filteredGames.map((game) => {
+                                {visibleGames.map((game) => {
                                     const imageUrl = getGameImageUrl(game);
 
                                     return (
@@ -681,6 +691,27 @@ export default function Dashboard() {
                                     );
                                 })}
                             </div>
+                            {totalPages > 1 && (
+                                <div className={styles.pagination}>
+                                    <button
+                                        onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
+                                        disabled={currentPage === 1}
+                                    >
+                                        Poprzednia
+                                    </button>
+
+                                    <span>
+                                        {currentPage} / {totalPages}
+                                    </span>
+
+                                    <button
+                                        onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        Następna
+                                    </button>
+                                </div>
+                            )}
                         </>
                     ) : (
                         <div className={styles.emptyState}>
