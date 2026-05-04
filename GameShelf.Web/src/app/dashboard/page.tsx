@@ -118,7 +118,6 @@ export default function Dashboard() {
 
     const [sortOption, setSortOption] = useState<SortOption>('newest');
     const [selectedGenre, setSelectedGenre] = useState('');
-    const [selectedType, setSelectedType] = useState('');
     const [selectedPlatform, setSelectedPlatform] = useState('');
 
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -232,7 +231,6 @@ export default function Dashboard() {
     const resetFilters = () => {
         setSortOption('newest');
         setSelectedGenre('');
-        setSelectedType('');
         setSelectedPlatform('');
     };
 
@@ -251,10 +249,6 @@ export default function Dashboard() {
 
         if (selectedGenre) {
             result = result.filter((game) => game.genreName === selectedGenre);
-        }
-
-        if (selectedType) {
-            result = result.filter((game) => game.type === selectedType);
         }
 
         if (selectedPlatform) {
@@ -648,13 +642,6 @@ export default function Dashboard() {
                                     <option value="">Wszystkie kategorie</option>
                                     {genreOptions.map((genre) => (
                                         <option key={genre} value={genre}>{genre}</option>
-                                    ))}
-                                </select>
-
-                                <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
-                                    <option value="">Wszystkie rodzaje</option>
-                                    {typeOptions.map((type) => (
-                                        <option key={type} value={type}>{type}</option>
                                     ))}
                                 </select>
 
