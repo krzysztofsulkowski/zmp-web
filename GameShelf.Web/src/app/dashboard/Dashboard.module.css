@@ -80,6 +80,7 @@
     align-items: center;
     gap: 16px;
     margin-bottom: 70px;
+    justify-content: space-between;
 }
 
 .tabs {
@@ -90,6 +91,7 @@
     scroll-behavior: smooth;
     scrollbar-width: none;
     max-width: 100%;
+    flex: 1;
 }
 
     .tabs::-webkit-scrollbar {

@@ -27,6 +27,11 @@ type CollectionGame = {
     rating?: number;
 };
 
+type AvailableGameImage = {
+    id: number;
+    imageUrl: string;
+};
+
 type CollectionWithGames = {
     collectionId: number;
     collectionName: string;
@@ -104,6 +109,7 @@ export default function Dashboard() {
     const [allCollections, setAllCollections] = useState<Collection[]>([]);
     const [customCollections, setCustomCollections] = useState<Collection[]>([]);
     const [collectionsWithGames, setCollectionsWithGames] = useState<CollectionWithGames[]>([]);
+    const [gameImages, setGameImages] = useState<Record<number, string>>({});
     const [activeCustomCollectionId, setActiveCustomCollectionId] = useState<number | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showRenameModal, setShowRenameModal] = useState(false);
@@ -115,18 +121,6 @@ export default function Dashboard() {
 
     const activeEmptyState = emptyStates[activeTab];
     const activeCustomCollection = customCollections.find((collection) => collection.id === activeCustomCollectionId);
-
-    const getImageUrl = (imageUrl: string) => {
-        if (!imageUrl) {
-            return '';
-        }
-
-        if (imageUrl.startsWith('http')) {
-            return imageUrl;
-        }
-
-        return `${import.meta.env.VITE_API_URL}${imageUrl}`;
-    };
 
     const scrollTabs = (direction: 'left' | 'right') => {
         if (!tabsRef.current) {
@@ -169,6 +163,20 @@ export default function Dashboard() {
 
     const formatDate = (date: string) => {
         return new Date(date).toLocaleDateString('pl-PL');
+    };
+
+    const getGameImageUrl = (game: CollectionGame) => {
+        const imageUrl = game.imageUrl || gameImages[game.gameId];
+
+        if (!imageUrl) {
+            return '';
+        }
+
+        if (imageUrl.startsWith('http')) {
+            return imageUrl;
+        }
+
+        return `${import.meta.env.VITE_API_URL}${imageUrl}`;
     };
 
     const handleAddGame = () => {
@@ -247,9 +255,46 @@ export default function Dashboard() {
         setCollectionsWithGames(data.data ?? []);
     };
 
+    const loadGameImages = async () => {
+        const token = localStorage.getItem('authToken');
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/games/available-table`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                draw: 1,
+                start: 0,
+                length: 1000,
+                searchValue: '',
+                orderColumn: 0,
+                orderDir: 'asc',
+                extraFilters: {}
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Błąd pobierania okładek gier');
+        }
+
+        const data = await response.json();
+
+        const games: AvailableGameImage[] = Array.isArray(data.data) ? data.data : [];
+
+        const images = games.reduce<Record<number, string>>((result, game) => {
+            result[game.id] = game.imageUrl;
+            return result;
+        }, {});
+
+        setGameImages(images);
+    };
+
     useEffect(() => {
         loadCollections().catch((err) => console.error(err));
         loadCollectionGames().catch((err) => console.error(err));
+        loadGameImages().catch((err) => console.error(err));
     }, []);
 
     const createCollection = async () => {
@@ -281,6 +326,7 @@ export default function Dashboard() {
 
             await loadCollections();
             await loadCollectionGames();
+            await loadGameImages();
 
             if (typeof createdId === 'number') {
                 setActiveCustomCollectionId(createdId);
@@ -499,24 +545,28 @@ export default function Dashboard() {
 
                     {activeGames.length > 0 ? (
                         <div className={styles.dashboardGamesGrid}>
-                            {activeGames.map((game) => (
-                                <article key={`${game.collectionId}-${game.gameId}`} className={styles.dashboardGameCard}>
-                                    <div className={styles.dashboardGameImage}>
-                                        {game.imageUrl ? (
-                                            <img src={getImageUrl(game.imageUrl)} alt={game.title} />
-                                        ) : (
-                                            <div className={styles.dashboardGamePlaceholder}>Brak obrazu</div>
-                                        )}
-                                    </div>
+                            {activeGames.map((game) => {
+                                const imageUrl = getGameImageUrl(game);
 
-                                    <div className={styles.dashboardGameInfo}>
-                                        <h2>{game.title}</h2>
-                                        <p>{game.genreName || 'Brak gatunku'} · {game.platformName || 'Brak platformy'}</p>
-                                        <p>Dodano: {game.addedAt ? formatDate(game.addedAt) : 'Brak daty'}</p>
-                                        <p>Ocena: {game.rating ? `${game.rating}/5` : 'Brak oceny'}</p>
-                                    </div>
-                                </article>
-                            ))}
+                                return (
+                                    <article key={`${game.collectionId}-${game.gameId}`} className={styles.dashboardGameCard}>
+                                        <div className={styles.dashboardGameImage}>
+                                            {imageUrl ? (
+                                                <img src={imageUrl} alt={game.title} />
+                                            ) : (
+                                                <div className={styles.dashboardGamePlaceholder}>Brak obrazu</div>
+                                            )}
+                                        </div>
+
+                                        <div className={styles.dashboardGameInfo}>
+                                            <h2>{game.title}</h2>
+                                            <p>{game.genreName || 'Brak gatunku'} · {game.platformName || 'Brak platformy'}</p>
+                                            <p>Dodano: {game.addedAt ? formatDate(game.addedAt) : 'Brak daty'}</p>
+                                            <p>Ocena: {game.rating ? `${game.rating}/5` : 'Brak oceny'}</p>
+                                        </div>
+                                    </article>
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className={styles.emptyState}>
