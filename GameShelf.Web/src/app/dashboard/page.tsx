@@ -536,6 +536,7 @@ export default function Dashboard() {
                 <img src={logo} alt="GameShelf" className={styles.logo} />
 
                 <div className={styles.navLinks}>
+                    <button className={styles.activeNav} onClick={() => navigate('/dashboard')}>STRONA GŁÓWNA</button>
                     <button onClick={() => navigate('/community')}>SPOŁECZNOŚĆ</button>
                     <button onClick={() => navigate('/friends')}>ZNAJOMI</button>
                     <button onClick={() => navigate('/faq')}>FAQ</button>

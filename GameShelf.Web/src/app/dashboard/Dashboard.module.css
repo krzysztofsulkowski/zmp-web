@@ -39,6 +39,12 @@
             transform: translateY(-2px);
         }
 
+
+.activeNav {
+    font-weight: 800 !important;
+    opacity: 1 !important;
+}
+
 .profileButton {
     width: 54px;
     height: 54px;
