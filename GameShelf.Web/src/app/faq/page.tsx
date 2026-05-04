@@ -1,67 +1,77 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import styles from './Faq.module.css';
 import logo from '@/assets/logo.svg';
-import offer from '@/assets/offer.svg';
 
-export default function LandingPage() {
+const faqItems = [
+    {
+        question: 'Czym jest GameShelf?',
+        answer: 'GameShelf to aplikacja do organizowania własnej biblioteki gier. Możesz dodawać gry do kolekcji, oznaczać ulubione tytuły i porządkować wszystko w jednym miejscu.'
+    },
+    {
+        question: 'Czy mogę tworzyć własne kolekcje?',
+        answer: 'Tak. Oprócz domyślnych kolekcji możesz tworzyć własne listy i nadawać im dowolne nazwy.'
+    },
+    {
+        question: 'Jak dodać grę do kolekcji?',
+        answer: 'Wystarczy wejść w wybraną kolekcję, kliknąć przycisk dodawania gry, wyszukać tytuł i zapisać go w odpowiedniej kolekcji.'
+    },
+    {
+        question: 'Czy jedna gra może być w kilku kolekcjach?',
+        answer: 'Tak, gra może pojawiać się w różnych kolekcjach, zależnie od tego, jak chcesz uporządkować swoją bibliotekę.'
+    },
+    {
+        question: 'Jak działa kolekcja Ulubione?',
+        answer: 'Do kolekcji Ulubione trafiają gry oznaczone przez Ciebie jako ulubione podczas dodawania gry.'
+    },
+    {
+        question: 'Czy mogę filtrować i sortować gry?',
+        answer: 'Tak. Na dashboardzie możesz filtrować gry po platformie i kategorii oraz sortować je alfabetycznie albo według daty dodania.'
+    },
+    {
+        question: 'Czy aplikacja jest darmowa?',
+        answer: 'Tak, funkcje aplikacji są dostępne za darmo.'
+    },
+    {
+        question: 'Czy mogę korzystać z aplikacji na różnych urządzeniach?',
+        answer: 'GameShelf działa jako aplikacja webowa, desktopowa i mobilna.'
+    }
+];
+
+export default function FaqPage() {
     const navigate = useNavigate();
-
 
     return (
         <main className={styles.page}>
-            <div className={styles.navbar}>
-                <div className={styles.logo}>
-                    <img src={logo} alt="logo" />
-                </div>
+            <nav className={styles.navbar}>
+                <img src={logo} alt="GameShelf" className={styles.logo} />
 
                 <div className={styles.navLinks}>
-                    <span>STRONA GŁÓWNA</span>
-                    <span>FAQ</span>
-                    <span>O NAS</span>
+                    <button onClick={() => navigate('/dashboard')}>STRONA GŁÓWNA</button>
+                    <button onClick={() => navigate('/community')}>SPOŁECZNOŚĆ</button>
+                    <button onClick={() => navigate('/friends')}>ZNAJOMI</button>
+                    <button className={styles.activeNav}>FAQ</button>
+                    <button onClick={() => navigate('/about')}>O NAS</button>
                 </div>
 
-                <div className={styles.actions}>
-                    <button
-                        className={styles.login}
-                        onClick={() => navigate('/login')}
-                    >
-                        LOGOWANIE
-                    </button>
+                <button className={styles.profileButton} onClick={() => navigate('/profile')}></button>
+            </nav>
 
-                    <button
-                        className={styles.register}
-                        onClick={() => navigate('/register')}
-                    >
-                        REJESTRACJA
-                    </button>
+            <section className={styles.content}>
+                <h1>Najczęściej zadawane pytania</h1>
+
+                <p className={styles.subtitle}>
+                    Tutaj znajdziesz krótkie odpowiedzi na najważniejsze pytania dotyczące korzystania z GameShelf.
+                </p>
+
+                <div className={styles.faqBox}>
+                    {faqItems.map((item) => (
+                        <article key={item.question} className={styles.faqItem}>
+                            <h2>{item.question}</h2>
+                            <p>{item.answer}</p>
+                        </article>
+                    ))}
                 </div>
-            </div>
-
-            <div className={styles.hero}>
-                <h1 className={styles.title}>
-                    Twoje gry w jednym miejscu. I ludzie, którzy grają w to samo.
-                </h1>
-
-                <p className={styles.description}>
-                    Uporządkuj gry z różnych platform i sprawdzaj, w co grają Twoi znajomi - w jednym miejscu, bez przełączania między aplikacjami.
-                </p>
-
-                <button
-                    className={styles.cta}
-                    onClick={() => navigate('/register')}
-                >
-                    DOŁĄCZ DO NAS!
-                </button>
-
-                <p className={styles.subtext}>
-                    Zarejestruj się za darmo i rozpocznij tworzenie kolekcji!
-                </p>
-            </div>
-
-            <div className={styles.offer}>
-                <img src={offer} alt="offer" />
-            </div>
+            </section>
         </main>
     );
 }
