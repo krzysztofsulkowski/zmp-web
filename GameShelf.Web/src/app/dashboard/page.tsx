@@ -8,6 +8,8 @@ import arrowRight from '@/assets/arrow-right.svg';
 
 type CollectionTab = 'library' | 'favorites' | 'planned' | 'wishlist' | 'playing' | 'completed' | 'abandoned';
 
+type SortOption = 'newest' | 'oldest' | 'titleAsc' | 'titleDesc';
+
 type Collection = {
     id: number;
     name: string;
@@ -25,6 +27,7 @@ type CollectionGame = {
     collectionName: string;
     addedAt: string;
     rating?: number;
+    type?: string;
 };
 
 type AvailableGameImage = {
@@ -111,6 +114,13 @@ export default function Dashboard() {
     const [collectionsWithGames, setCollectionsWithGames] = useState<CollectionWithGames[]>([]);
     const [gameImages, setGameImages] = useState<Record<number, string>>({});
     const [activeCustomCollectionId, setActiveCustomCollectionId] = useState<number | null>(null);
+
+    const [sortOption, setSortOption] = useState<SortOption>('newest');
+    const [selectedRating, setSelectedRating] = useState('');
+    const [selectedGenre, setSelectedGenre] = useState('');
+    const [selectedType, setSelectedType] = useState('');
+    const [selectedPlatform, setSelectedPlatform] = useState('');
+
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showRenameModal, setShowRenameModal] = useState(false);
     const [showPrivacyModal, setShowPrivacyModal] = useState(false);
@@ -193,6 +203,62 @@ export default function Dashboard() {
         }
 
         navigate(`/games?collectionId=${collectionId}`);
+    };
+
+    const resetFilters = () => {
+        setSortOption('newest');
+        setSelectedRating('');
+        setSelectedGenre('');
+        setSelectedType('');
+        setSelectedPlatform('');
+    };
+
+    const getUniqueValues = (games: CollectionGame[], field: 'genreName' | 'platformName' | 'type') => {
+        return Array.from(
+            new Set(
+                games
+                    .map((game) => game[field])
+                    .filter((value): value is string => Boolean(value))
+            )
+        );
+    };
+
+    const applyFiltersAndSorting = (games: CollectionGame[]) => {
+        let result = [...games];
+
+        if (selectedRating) {
+            result = result.filter((game) => String(game.rating ?? '') === selectedRating);
+        }
+
+        if (selectedGenre) {
+            result = result.filter((game) => game.genreName === selectedGenre);
+        }
+
+        if (selectedType) {
+            result = result.filter((game) => game.type === selectedType);
+        }
+
+        if (selectedPlatform) {
+            result = result.filter((game) => game.platformName === selectedPlatform);
+        }
+
+        result.sort((firstGame, secondGame) => {
+            if (sortOption === 'titleAsc') {
+                return firstGame.title.localeCompare(secondGame.title);
+            }
+
+            if (sortOption === 'titleDesc') {
+                return secondGame.title.localeCompare(firstGame.title);
+            }
+
+            if (sortOption === 'oldest') {
+                return new Date(firstGame.addedAt).getTime() - new Date(secondGame.addedAt).getTime();
+            }
+
+            return new Date(secondGame.addedAt).getTime() - new Date(firstGame.addedAt).getTime();
+        });
+
+        return result;
     };
 
     const loadCollections = async () => {
@@ -436,6 +502,10 @@ export default function Dashboard() {
     };
 
     const activeGames = getActiveGames();
+    const filteredGames = applyFiltersAndSorting(activeGames);
+    const genreOptions = getUniqueValues(activeGames, 'genreName');
+    const platformOptions = getUniqueValues(activeGames, 'platformName');
+    const typeOptions = getUniqueValues(activeGames, 'type');
 
     return (
         <main className={styles.page}>
@@ -470,6 +540,7 @@ export default function Dashboard() {
                                         setActiveTab(tab.key);
                                         setActiveCustomCollectionId(null);
                                         setShowSettingsDropdown(false);
+                                        resetFilters();
                                     }}
                                 >
                                     {tab.label}
@@ -483,6 +554,7 @@ export default function Dashboard() {
                                     onClick={() => {
                                         setActiveCustomCollectionId(collection.id);
                                         setShowSettingsDropdown(false);
+                                        resetFilters();
                                     }}
                                 >
                                     {collection.name}
@@ -544,30 +616,76 @@ export default function Dashboard() {
                     </div>
 
                     {activeGames.length > 0 ? (
-                        <div className={styles.dashboardGamesGrid}>
-                            {activeGames.map((game) => {
-                                const imageUrl = getGameImageUrl(game);
+                        <>
+                            <div className={styles.gameControls}>
+                                <select value={selectedPlatform} onChange={(e) => setSelectedPlatform(e.target.value)}>
+                                    <option value="">Wszystkie platformy</option>
+                                    {platformOptions.map((platform) => (
+                                        <option key={platform} value={platform}>{platform}</option>
+                                    ))}
+                                </select>
 
-                                return (
-                                    <article key={`${game.collectionId}-${game.gameId}`} className={styles.dashboardGameCard}>
-                                        <div className={styles.dashboardGameImage}>
-                                            {imageUrl ? (
-                                                <img src={imageUrl} alt={game.title} />
-                                            ) : (
-                                                <div className={styles.dashboardGamePlaceholder}>Brak obrazu</div>
-                                            )}
-                                        </div>
+                                <select value={selectedGenre} onChange={(e) => setSelectedGenre(e.target.value)}>
+                                    <option value="">Wszystkie kategorie</option>
+                                    {genreOptions.map((genre) => (
+                                        <option key={genre} value={genre}>{genre}</option>
+                                    ))}
+                                </select>
 
-                                        <div className={styles.dashboardGameInfo}>
-                                            <h2>{game.title}</h2>
-                                            <p>{game.genreName || 'Brak gatunku'} · {game.platformName || 'Brak platformy'}</p>
-                                            <p>Dodano: {game.addedAt ? formatDate(game.addedAt) : 'Brak daty'}</p>
-                                            <p>Ocena: {game.rating ? `${game.rating}/5` : 'Brak oceny'}</p>
-                                        </div>
-                                    </article>
-                                );
-                            })}
-                        </div>
+                                <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
+                                    <option value="">Wszystkie rodzaje</option>
+                                    {typeOptions.map((type) => (
+                                        <option key={type} value={type}>{type}</option>
+                                    ))}
+                                </select>
+
+                                <select value={selectedRating} onChange={(e) => setSelectedRating(e.target.value)}>
+                                    <option value="">Wszystkie oceny</option>
+                                    <option value="5">5 gwiazdek</option>
+                                    <option value="4">4 gwiazdki</option>
+                                    <option value="3">3 gwiazdki</option>
+                                    <option value="2">2 gwiazdki</option>
+                                    <option value="1">1 gwiazdka</option>
+                                </select>
+
+                                <select value={sortOption} onChange={(e) => setSortOption(e.target.value as SortOption)}>
+                                    <option value="newest">Sortuj: od najnowszych</option>
+                                    <option value="oldest">Sortuj: od najstarszych</option>
+                                    <option value="titleAsc">Sortuj: A-Z</option>
+                                    <option value="titleDesc">Sortuj: Z-A</option>
+                                </select>
+                            </div>
+
+                            <div className={styles.dashboardGamesGrid}>
+                                <button className={styles.addGameTile} onClick={handleAddGame}>
+                                    <img src={addIcon} alt="add" />
+                                    <span>dodaj kolejną grę</span>
+                                </button>
+
+                                {filteredGames.map((game) => {
+                                    const imageUrl = getGameImageUrl(game);
+
+                                    return (
+                                        <article key={`${game.collectionId}-${game.gameId}`} className={styles.dashboardGameCard}>
+                                            <div className={styles.dashboardGameImage}>
+                                                {imageUrl ? (
+                                                    <img src={imageUrl} alt={game.title} />
+                                                ) : (
+                                                    <div className={styles.dashboardGamePlaceholder}>Brak obrazu</div>
+                                                )}
+                                            </div>
+
+                                            <div className={styles.dashboardGameInfo}>
+                                                <h2>{game.title}</h2>
+                                                <p>{game.genreName || 'Brak gatunku'} · {game.platformName || 'Brak platformy'}</p>
+                                                <p>Dodano: {game.addedAt ? formatDate(game.addedAt) : 'Brak daty'}</p>
+                                                <p>Ocena: {game.rating ? `${game.rating}/5` : 'Brak oceny'}</p>
+                                            </div>
+                                        </article>
+                                    );
+                                })}
+                            </div>
+                        </>
                     ) : (
                         <div className={styles.emptyState}>
                             {activeCustomCollectionId === null ? (
