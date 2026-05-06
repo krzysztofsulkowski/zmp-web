@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import styles from "./Login.module.css";
-import styles from "./Landing.module.css";
 import logo from "@/assets/logo.svg";
 export default function LoginPage() {
     const [email, setEmail] = useState('');

@@ -3,9 +3,15 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import RegisterPage from './app/auth/register/page';
 import LoginPage from './app/auth/login/page';
 import AuthCallback from './app/auth/callback/page';
-import Dashboard from './app/Dashboard';
+import Dashboard from './app/dashboard/page';
 import ForgotPasswordPage from './app/auth/forgot-password/page';
 import LandingPage from './app/auth/landing/page';
+import CommunityPage from './app/community/page';
+import FriendsPage from './app/friends/page';
+import FaqPage from './app/faq/page';
+import AboutPage from './app/about/page';
+import ProfilePage from './app/profile/page';
+import GamesPage from './app/games/page';
 
 import './App.css';
 
@@ -25,16 +31,24 @@ function App() {
         {/* Strona główna przekierowuje do landing page */}
         <Route path="/" element={<LandingPage />} />
         
-        {/* Dowolny inny adres (404) przekierowuje do landing page */}
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/landing" element={<LandingPage />} />
 
         {/*http://localhost:5173/dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
 
-         {/*http://localhost:5173/dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
-
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+        <Route path="/community" element={<CommunityPage />} />
+
+        <Route path="/friends" element={<FriendsPage />} />
+
+        <Route path="/faq" element={<FaqPage />} />
+
+        <Route path="/about" element={<AboutPage />} />
+
+        <Route path="/profile" element={<ProfilePage />} />
+
+        <Route path="/games" element={<GamesPage />} />
 
       </Routes>
     </Router>

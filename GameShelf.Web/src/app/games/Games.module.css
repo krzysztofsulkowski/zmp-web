@@ -1,0 +1,268 @@
+.page {
+    min-height: 100vh;
+    background: radial-gradient(circle at top left, #3b1d73, #0f172a);
+    color: white;
+    padding: 24px 40px;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 70px;
+}
+
+.logo {
+    height: 70px;
+}
+
+.backButton {
+    border: none;
+    border-radius: 18px;
+    background: #7C3AED;
+    color: white;
+    padding: 12px 22px;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.content {
+    max-width: 1500px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+    .content h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+.subtitle {
+    font-size: 18px;
+    font-weight: 300;
+    margin-bottom: 32px;
+}
+
+.searchInput {
+    width: 100%;
+    max-width: 600px;
+    padding: 16px 20px;
+    border-radius: 18px;
+    border: 1px solid #7C3AED;
+    background: rgba(10, 8, 28, 0.65);
+    color: white;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 17px;
+    margin-bottom: 24px;
+}
+
+    .searchInput:focus {
+        outline: none;
+        border-color: white;
+    }
+
+.message {
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+.statusText {
+    font-size: 16px;
+    font-weight: 300;
+    margin-top: 24px;
+}
+
+.gamesGrid {
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 28px;
+}
+
+.gameCard {
+    background: rgba(10, 8, 28, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.55);
+    border-radius: 22px;
+    overflow: hidden;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.imageWrapper {
+    width: 100%;
+    height: 180px;
+    background: #0f0f1a;
+}
+
+    .imageWrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.placeholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #c4b5fd;
+}
+
+.gameInfo {
+    padding: 14px 16px;
+}
+
+    .gameInfo h2 {
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .gameInfo p {
+        font-size: 13px;
+        font-weight: 300;
+        margin-bottom: 12px;
+    }
+
+    .gameInfo button {
+        width: 100%;
+        border: none;
+        border-radius: 12px;
+        background: #7C3AED;
+        color: white;
+        padding: 9px 12px;
+        font-family: 'Figtree', system-ui, sans-serif;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .gameInfo button:hover,
+        .backButton:hover {
+            background: #6D28D9;
+        }
+
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal {
+    width: 480px;
+    padding: 30px;
+    border-radius: 22px;
+    background: #120d2b;
+    border: 1px solid #7C3AED;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+    .modal h2 {
+        text-align: center;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+.modalGamePreview {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+}
+
+    .modalGamePreview img,
+    .modalPlaceholder {
+        width: 150px;
+        height: 90px;
+        border-radius: 14px;
+        object-fit: cover;
+        background: #0f0f1a;
+    }
+
+.modalPlaceholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #c4b5fd;
+}
+
+.modalGamePreview h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.modalGamePreview p {
+    font-size: 14px;
+    font-weight: 300;
+    margin-bottom: 4px;
+}
+
+.modalLabel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+    .modalLabel select {
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid #7C3AED;
+        background: #0f0f1a;
+        color: white;
+        font-family: 'Figtree', system-ui, sans-serif;
+        font-size: 15px;
+    }
+
+.modalActions {
+    display: flex;
+    gap: 12px;
+}
+
+    .modalActions button {
+        flex: 1;
+        padding: 11px 16px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Figtree', system-ui, sans-serif;
+        font-weight: 700;
+    }
+
+        .modalActions button:first-child {
+            background: transparent;
+            color: white;
+            border: 1px solid #7C3AED;
+        }
+
+        .modalActions button:last-child {
+            background: #7C3AED;
+            color: white;
+        }
+
+.modalCheckboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 15px;
+    font-weight: 400;
+    margin-top: 14px;
+}
+
+    .modalCheckboxLabel input {
+        width: 18px;
+        height: 18px;
+        accent-color: #7C3AED;
+    }

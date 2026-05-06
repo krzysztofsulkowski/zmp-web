@@ -1,0 +1,313 @@
+.page {
+    min-height: 100vh;
+    background: radial-gradient(circle at top left, #3b1d73, #0f172a);
+    color: white;
+    padding: 24px 40px;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 80px;
+}
+
+.logo img {
+    height: 70px;
+}
+
+.navLinks {
+    display: flex;
+    gap: 32px;
+    font-size: 20px;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 300;
+}
+
+.actions {
+    display: flex;
+    gap: 16px;
+}
+
+.login {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 800;
+}
+
+.register {
+    border: none;
+    padding: 10px 18px;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    background: #7C3AED;
+    font-size: 20px;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 800;
+}
+
+.hero {
+    text-align: center;
+    max-width: 1900px;
+    margin: 0 auto 60px auto;
+}
+
+.title {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    margin-top: 300px;
+}
+
+.description {
+    font-size: 20px;
+    font-weight: 200;
+    margin-bottom: 32px;
+}
+
+.cta {
+    border: none;
+    padding: 14px 28px;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    background: #7C3AED;
+    font-size: 20px;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.subtext {
+    font-size: 15px;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 200;
+}
+
+.offer {
+    margin-top: 100px;
+    margin-right: -40px;
+    display: flex;
+    justify-content: flex-end;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(120px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.offerVisible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+    .offer img {
+        width: 100%;
+        max-width: 1000px;
+        border-radius: 16px;
+        margin-right: -10px;
+        margin-top: 90px;
+    }
+
+.login,
+.register,
+.cta {
+    transition: all 0.2s ease;
+}
+
+    .login:hover {
+        opacity: 0.75;
+        transform: translateY(-2px);
+    }
+
+    .register:hover,
+    .cta:hover {
+        transform: translateY(-2px);
+        background: #6D28D9;
+    }
+
+    .register:active,
+    .cta:active {
+        transform: translateY(0);
+    }
+
+.features {
+    margin-top: 300px;
+    padding-bottom: 80px;
+}
+
+.featuresTitle {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 56px;
+}
+
+.featureCards {
+    max-width: 1100px;
+    margin: 0 auto 40px auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 44px;
+}
+
+.featureCard {
+    min-height: 210px;
+    padding: 32px 28px;
+    border-radius: 24px;
+    background: rgba(10, 8, 28, 0.55);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+}
+
+    .featureCard h3 {
+        text-align: center;
+        font-size: 21px;
+        font-weight: 800;
+        margin-bottom: 22px;
+    }
+
+.cardLine,
+.deviceLine {
+    height: 1px;
+    background: #7C3AED;
+    opacity: 0.9;
+}
+
+.cardLine {
+    margin-bottom: 22px;
+}
+
+.featureCard p {
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 300;
+    text-align: justify;
+}
+
+.devicesCard {
+    max-width: 1010px;
+    min-height: 280px;
+    margin: 0 auto;
+    padding: 36px 44px;
+    border-radius: 28px;
+    background: rgba(10, 8, 28, 0.6);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    overflow: hidden;
+}
+
+.devicesText {
+    max-width: 560px;
+}
+
+    .devicesText h3 {
+        text-align: center;
+        font-size: 21px;
+        font-weight: 800;
+        margin-bottom: 22px;
+    }
+
+.deviceLine {
+    margin-bottom: 28px;
+}
+
+.devicesText p {
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 300;
+    text-align: justify;
+    margin-bottom: 24px;
+}
+
+.downloadButtons {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+}
+
+.downloadButton {
+    border: none;
+    border-radius: 16px;
+    background: #7C3AED;
+    color: white;
+    padding: 10px 22px;
+    min-width: 150px;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .downloadButton:hover {
+        transform: translateY(-2px);
+        background: #6D28D9;
+    }
+
+    .downloadButton:active {
+        transform: translateY(0);
+    }
+
+.mockups {
+    width: 650px;
+    max-width: none;
+    margin-right: -120px;
+    margin-bottom: -40px;
+}
+.devicesCard {
+    overflow: visible;
+}
+
+.commandCenter {
+    max-width: 1100px;
+    margin: -200px auto 180px auto;
+    display: flex;
+    align-items: center;
+    min-height: 200px;
+    position: relative;
+    z-index: 2;
+    transform: translateX(-120px);
+}
+
+.commandText {
+    max-width: 500px;
+}
+
+    .commandText h2 {
+        font-size: 42px;
+        line-height: 1.1;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .commandText p {
+        font-size: 20px;
+        line-height: 1.45;
+        font-weight: 300;
+    }
+
+.commandCenter {
+    max-width: 1100px;
+    margin: -460px auto 180px auto;
+    transform: translateX(-120px) translateY(60px);
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    min-height: 360px;
+    position: relative;
+    z-index: 2;
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.commandVisible {
+    opacity: 1;
+    transform: translateX(-120px) translateY(0);
+}
+

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import styles from './Landing.module.css';
+import styles from './About.module.css';
 import logo from '@/assets/logo.svg';
 import offer from '@/assets/offer.svg';
 
