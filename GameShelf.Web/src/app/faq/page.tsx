@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Faq.module.css';
 import logo from '@/assets/logo.svg';
@@ -38,7 +39,14 @@ const faqItems = [
 ];
 
 export default function FaqPage() {
+
     const navigate = useNavigate();
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        navigate('/login');
+    };
 
     return (
         <main className={styles.page}>
@@ -53,7 +61,24 @@ export default function FaqPage() {
                     <button onClick={() => navigate('/about')}>O NAS</button>
                 </div>
 
-                <button className={styles.profileButton} onClick={() => navigate('/profile')}></button>
+                <div className={styles.profileWrapper}>
+                    <button
+                        className={styles.profileButton}
+                        onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                    ></button>
+
+                    {isProfileMenuOpen && (
+                        <div className={styles.profileMenu}>
+                            <button onClick={() => navigate('/profile')}>
+                                Ustawienia
+                            </button>
+
+                            <button onClick={handleLogout}>
+                                Wyloguj się
+                            </button>
+                        </div>
+                    )}
+                </div>
             </nav>
 
             <section className={styles.content}>

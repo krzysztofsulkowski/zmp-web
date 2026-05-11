@@ -109,6 +109,13 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const tabsRef = useRef<HTMLDivElement | null>(null);
 
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        navigate('/login');
+    };
+
     const [activeTab, setActiveTab] = useState<CollectionTab>('library');
     const [allCollections, setAllCollections] = useState<Collection[]>([]);
     const [customCollections, setCustomCollections] = useState<Collection[]>([]);
@@ -543,7 +550,24 @@ export default function Dashboard() {
                     <button onClick={() => navigate('/about')}>O NAS</button>
                 </div>
 
-                <button className={styles.profileButton} onClick={() => navigate('/profile')}></button>
+                <div className={styles.profileWrapper}>
+                    <button
+                        className={styles.profileButton}
+                        onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                    ></button>
+
+                    {isProfileMenuOpen && (
+                        <div className={styles.profileMenu}>
+                            <button onClick={() => navigate('/profile')}>
+                                Ustawienia
+                            </button>
+
+                            <button onClick={handleLogout}>
+                                Wyloguj się
+                            </button>
+                        </div>
+                    )}
+                </div>
             </nav>
 
             <section className={styles.content}>
