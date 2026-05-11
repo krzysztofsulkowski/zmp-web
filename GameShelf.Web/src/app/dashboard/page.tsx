@@ -45,6 +45,10 @@ type CollectionsWithGamesResponse = {
     data?: CollectionWithGames[];
 };
 
+type UserProfile = {
+    avatarUrl: string;
+};
+
 const favoriteGamesStorageKey = 'favoriteGameIds';
 
 const tabs: { key: CollectionTab; label: string }[] = [
@@ -111,9 +115,42 @@ export default function Dashboard() {
 
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
+    const [avatarUrl, setAvatarUrl] = useState('');
+
     const handleLogout = () => {
         localStorage.removeItem('authToken');
         navigate('/login');
+    };
+
+    const getAvatarUrl = (url: string) => {
+        if (!url) {
+            return '';
+        }
+
+        if (url.startsWith('http')) {
+            return url;
+        }
+
+        return `${import.meta.env.VITE_API_URL}${url}`;
+    };
+
+    const loadUserAvatar = async () => {
+        const token = localStorage.getItem('authToken');
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/authentication/me`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data = await response.json() as UserProfile;
+
+        setAvatarUrl(getAvatarUrl(data.avatarUrl ?? ''));
     };
 
     const [activeTab, setActiveTab] = useState<CollectionTab>('library');
@@ -386,6 +423,7 @@ export default function Dashboard() {
         loadCollections().catch((err) => console.error(err));
         loadCollectionGames().catch((err) => console.error(err));
         loadGameImages().catch((err) => console.error(err));
+        loadUserAvatar().catch((err) => console.error(err));
     }, []);
 
     const createCollection = async () => {
@@ -554,7 +592,9 @@ export default function Dashboard() {
                     <button
                         className={styles.profileButton}
                         onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    ></button>
+                    >
+                        {avatarUrl && <img src={avatarUrl} alt="Avatar użytkownika" />}
+                    </button>
 
                     {isProfileMenuOpen && (
                         <div className={styles.profileMenu}>

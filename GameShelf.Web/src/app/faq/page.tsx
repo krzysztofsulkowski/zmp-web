@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Faq.module.css';
 import logo from '@/assets/logo.svg';
+
+type UserProfile = {
+    avatarUrl: string;
+};
 
 const faqItems = [
     {
@@ -39,14 +43,49 @@ const faqItems = [
 ];
 
 export default function FaqPage() {
-
     const navigate = useNavigate();
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState('');
 
     const handleLogout = () => {
         localStorage.removeItem('authToken');
         navigate('/login');
     };
+
+    const getAvatarUrl = (url: string) => {
+        if (!url) {
+            return '';
+        }
+
+        if (url.startsWith('http')) {
+            return url;
+        }
+
+        return `${import.meta.env.VITE_API_URL}${url}`;
+    };
+
+    const loadUserAvatar = async () => {
+        const token = localStorage.getItem('authToken');
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/authentication/me`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data = await response.json() as UserProfile;
+
+        setAvatarUrl(getAvatarUrl(data.avatarUrl ?? ''));
+    };
+
+    useEffect(() => {
+        loadUserAvatar().catch((error) => console.error(error));
+    }, []);
 
     return (
         <main className={styles.page}>
@@ -65,7 +104,9 @@ export default function FaqPage() {
                     <button
                         className={styles.profileButton}
                         onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    ></button>
+                    >
+                        {avatarUrl && <img src={avatarUrl} alt="Avatar użytkownika" />}
+                    </button>
 
                     {isProfileMenuOpen && (
                         <div className={styles.profileMenu}>

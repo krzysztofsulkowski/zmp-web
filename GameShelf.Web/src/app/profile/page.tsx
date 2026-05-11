@@ -21,6 +21,7 @@ export default function ProfilePage() {
     const [username, setUsername] = useState('');
     const [bio, setBio] = useState('');
     const [avatar, setAvatar] = useState<File | null>(null);
+    const [avatarUrl, setAvatarUrl] = useState('');
     const [previewAvatar, setPreviewAvatar] = useState('');
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -32,16 +33,16 @@ export default function ProfilePage() {
         navigate('/login');
     };
 
-    const getAvatarUrl = (avatarUrl: string) => {
-        if (!avatarUrl) {
+    const getAvatarUrl = (url: string) => {
+        if (!url) {
             return '';
         }
 
-        if (avatarUrl.startsWith('http')) {
-            return avatarUrl;
+        if (url.startsWith('http')) {
+            return url;
         }
 
-        return `${import.meta.env.VITE_API_URL}${avatarUrl}`;
+        return `${import.meta.env.VITE_API_URL}${url}`;
     };
 
     const loadProfile = async () => {
@@ -60,11 +61,13 @@ export default function ProfilePage() {
             }
 
             const data = await response.json() as UserProfile;
+            const resolvedAvatarUrl = getAvatarUrl(data.avatarUrl ?? '');
 
             setUser(data);
             setUsername(data.userName ?? '');
             setBio(data.bio ?? '');
-            setPreviewAvatar(getAvatarUrl(data.avatarUrl ?? ''));
+            setAvatarUrl(resolvedAvatarUrl);
+            setPreviewAvatar(resolvedAvatarUrl);
         } catch (error) {
             console.error(error);
             setMessage('Nie udało się pobrać danych profilu.');
@@ -80,8 +83,11 @@ export default function ProfilePage() {
             return;
         }
 
+        const localPreviewUrl = URL.createObjectURL(file);
+
         setAvatar(file);
-        setPreviewAvatar(URL.createObjectURL(file));
+        setPreviewAvatar(localPreviewUrl);
+        setAvatarUrl(localPreviewUrl);
     };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -116,14 +122,16 @@ export default function ProfilePage() {
             }
 
             setMessage('Profil został zaktualizowany.');
-            await loadProfile();
             setAvatar(null);
+            await loadProfile();
         } catch (error) {
             console.error(error);
+
             if (error instanceof Error) {
                 setMessage(error.message);
                 return;
             }
+
             setMessage('Nie udało się zapisać zmian.');
         } finally {
             setIsSaving(false);
@@ -151,7 +159,9 @@ export default function ProfilePage() {
                     <button
                         className={styles.profileButton}
                         onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    ></button>
+                    >
+                        {avatarUrl && <img src={avatarUrl} alt="Avatar użytkownika" />}
+                    </button>
 
                     {isProfileMenuOpen && (
                         <div className={styles.profileMenu}>
