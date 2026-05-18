@@ -12,6 +12,7 @@ import FaqPage from './app/faq/page';
 import AboutPage from './app/about/page';
 import ProfilePage from './app/profile/page';
 import GamesPage from './app/games/page';
+import ResetPasswordPage from './app/auth/reset-password/page';
 
 import './App.css';
 
@@ -40,6 +41,8 @@ function App() {
                 <Route path="/landing" element={<LandingPage />} />
 
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
 
                 <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
