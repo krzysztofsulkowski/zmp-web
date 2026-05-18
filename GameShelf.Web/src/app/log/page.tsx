@@ -1,133 +1,125 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Log.module.css';
-import logo from '@/assets/logo.svg';
 
-type UserProfile = {
-    avatarUrl: string;
+type HistoryLog = {
+    creationDate: string;
+    eventType: string;
+    objectId: string;
+    objectType: string;
+    before: string;
+    after: string;
+    userId: string;
+    userEmail: string;
 };
 
-export default function AboutPage() {
+type LogsResponse = {
+    data: HistoryLog[];
+};
+
+export default function LogsPage() {
     const navigate = useNavigate();
 
-    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    const [avatarUrl, setAvatarUrl] = useState('');
+    const [logs, setLogs] = useState<HistoryLog[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    const handleLogout = () => {
-        localStorage.removeItem('authToken');
-        navigate('/login');
-    };
+    const loadLogs = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
 
-    const getAvatarUrl = (url: string) => {
-        if (!url) {
-            return '';
-        }
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/historyLog/get-history-logs`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    draw: 1,
+                    start: 0,
+                    length: 100,
+                    searchValue: '',
+                    orderColumn: 0,
+                    orderDir: 'desc',
+                    extraFilters: {}
+                })
+            });
 
-        if (url.startsWith('http')) {
-            return url;
-        }
-
-        return `${import.meta.env.VITE_API_URL}${url}`;
-    };
-
-    const loadUserAvatar = async () => {
-        const token = localStorage.getItem('authToken');
-
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/authentication/me`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`
+            if (!response.ok) {
+                throw new Error('Nie udało się pobrać logów.');
             }
-        });
 
-        if (!response.ok) {
-            return;
+            const data = await response.json() as LogsResponse;
+
+            setLogs(data.data ?? []);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Wystąpił nieoczekiwany błąd.');
+        } finally {
+            setLoading(false);
         }
-
-        const data = await response.json() as UserProfile;
-
-        setAvatarUrl(getAvatarUrl(data.avatarUrl ?? ''));
     };
 
     useEffect(() => {
-        loadUserAvatar().catch((error) => console.error(error));
+        loadLogs();
     }, []);
 
     return (
         <main className={styles.page}>
-            <nav className={styles.navbar}>
-                <img src={logo} alt="GameShelf" className={styles.logo} />
+            <section className={styles.panel}>
+                <div className={styles.header}>
+                    <div>
+                        <h1>Logi systemowe</h1>
+                        <p>Historia zmian wykonanych w aplikacji.</p>
+                    </div>
 
-                <div className={styles.navLinks}>
-                    <button onClick={() => navigate('/dashboard')}>STRONA GŁÓWNA</button>
-                    <button onClick={() => navigate('/community')}>SPOŁECZNOŚĆ</button>
-                    <button onClick={() => navigate('/friends')}>ZNAJOMI</button>
-                    <button onClick={() => navigate('/faq')}>FAQ</button>
-                    <button className={styles.activeNav}>O NAS</button>
-                </div>
-
-                <div className={styles.profileWrapper}>
-                    <button
-                        className={styles.profileButton}
-                        onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    >
-                        {avatarUrl && <img src={avatarUrl} alt="Avatar użytkownika" />}
+                    <button onClick={() => navigate('/admin')}>
+                        Wróć
                     </button>
-
-                    {isProfileMenuOpen && (
-                        <div className={styles.profileMenu}>
-                            <button onClick={() => navigate('/profile')}>
-                                Ustawienia
-                            </button>
-
-                            <button onClick={handleLogout}>
-                                Wyloguj się
-                            </button>
-                        </div>
-                    )}
                 </div>
-            </nav>
 
-            <section className={styles.content}>
-                <h1>O GameShelf</h1>
+                {loading && <div className={styles.state}>Ładowanie logów...</div>}
 
-                <p className={styles.subtitle}>
-                    GameShelf powstał z myślą o graczach, którzy chcą mieć wszystkie swoje gry
-                    w jednym miejscu. Niezależnie od platformy możesz tworzyć własne kolekcje,
-                    organizować bibliotekę i wracać do ulubionych tytułów bez chaosu.
-                </p>
+                {!loading && error && <div className={styles.error}>{error}</div>}
 
-                <div className={styles.aboutBox}>
-                    <article className={styles.aboutCard}>
-                        <h2>Nasza wizja</h2>
+                {!loading && !error && (
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Zdarzenie</th>
+                                    <th>Użytkownik</th>
+                                    <th>Obiekt</th>
+                                    <th>ID</th>
+                                    <th>Przed</th>
+                                    <th>Po</th>
+                                </tr>
+                            </thead>
 
-                        <p>
-                            Chcemy stworzyć wygodne miejsce do organizowania gier i dzielenia się
-                            nimi ze znajomymi. GameShelf łączy prostotę, nowoczesny wygląd i funkcje,
-                            które pomagają utrzymać porządek w bibliotece.
-                        </p>
-                    </article>
-
-                    <article className={styles.aboutCard}>
-                        <h2>Dostępność wszędzie</h2>
-
-                        <p>
-                            Aplikacja działa na różnych urządzeniach — w przeglądarce, na desktopie
-                            i telefonie. Dzięki temu możesz mieć dostęp do swojej kolekcji zawsze,
-                            kiedy tego potrzebujesz.
-                        </p>
-                    </article>
-
-                    <article className={styles.aboutCard}>
-                        <h2>Dla graczy</h2>
-
-                        <p>
-                            GameShelf został zaprojektowany z myślą o osobach, które grają regularnie
-                            i chcą lepiej zarządzać swoimi tytułami, planami zakupowymi oraz ulubionymi
-                            seriami.
-                        </p>
-                    </article>
-                </div>
+                            <tbody>
+                                {logs.map((log, index) => (
+                                    <tr key={`${log.creationDate}-${index}`}>
+                                        <td>{new Date(log.creationDate).toLocaleString('pl-PL')}</td>
+                                        <td>
+                                            <span className={styles.badge}>
+                                                {log.eventType}
+                                            </span>
+                                        </td>
+                                        <td>{log.userEmail || '-'}</td>
+                                        <td>{log.objectType || '-'}</td>
+                                        <td className={styles.muted}>{log.objectId || '-'}</td>
+                                        <td>
+                                            <pre>{log.before || '-'}</pre>
+                                        </td>
+                                        <td>
+                                            <pre>{log.after || '-'}</pre>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </section>
         </main>
     );

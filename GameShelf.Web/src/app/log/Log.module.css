@@ -1,177 +1,136 @@
 .page {
     min-height: 100vh;
-    background: radial-gradient(circle at top left, #3b1d73, #0f172a);
-    color: white;
-    padding: 24px 40px;
+    background: radial-gradient(circle at top left, #3b1d73, #0f0f1a);
+    padding: 32px;
 }
 
-.navbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 70px;
-}
-
-.logo {
-    height: 70px;
-}
-
-.navLinks {
-    display: flex;
-    gap: 34px;
-    align-items: center;
-}
-
-    .navLinks button {
-        background: transparent;
-        border: none;
-        color: white;
-        font-family: 'Figtree', system-ui, sans-serif;
-        font-size: 18px;
-        font-weight: 300;
-        cursor: pointer;
-        opacity: 0.75;
-        transition: all 0.2s ease;
-    }
-
-        .navLinks button:hover {
-            opacity: 1;
-            transform: translateY(-2px);
-        }
-
-.activeNav {
-    font-weight: 800 !important;
-    opacity: 1 !important;
-}
-
-.profileButton {
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    border: none;
-    background: #0f0f1a;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-    .profileButton:hover {
-        transform: translateY(-2px);
-        background: #1d1435;
-    }
-
-.content {
-    max-width: 1050px;
+.panel {
+    max-width: 1600px;
     margin: 0 auto;
+    background: white;
+    border-radius: 28px;
+    padding: 28px;
 }
 
-    .content h1 {
-        text-align: center;
-        font-size: 38px;
-        font-weight: 700;
-        margin-bottom: 18px;
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    gap: 20px;
+}
+
+    .header h1 {
+        color: #111;
+        font-size: 30px;
+        margin-bottom: 6px;
     }
 
-.subtitle {
-    max-width: 760px;
-    margin: 0 auto 54px auto;
+    .header p {
+        color: #71717a;
+        font-size: 14px;
+    }
+
+    .header button {
+        border: none;
+        border-radius: 999px;
+        background: #7C3AED;
+        color: white;
+        padding: 11px 22px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e4e4e7;
+    border-radius: 18px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+    .table th {
+        background: #f4f4f5;
+        color: #3f3f46;
+        text-align: left;
+        padding: 14px 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .table td {
+        border-top: 1px solid #e4e4e7;
+        padding: 12px;
+        vertical-align: top;
+        color: #18181b;
+    }
+
+    .table tr:hover {
+        background: #fafafa;
+    }
+
+.badge {
+    display: inline-block;
+    background: #ede9fe;
+    color: #5b21b6;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.muted {
+    color: #71717a;
+    max-width: 180px;
+    word-break: break-word;
+}
+
+.table pre {
+    max-width: 260px;
+    max-height: 90px;
+    overflow: auto;
+    margin: 0;
+    padding: 8px;
+    border-radius: 10px;
+    background: #f4f4f5;
+    color: #27272a;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.state,
+.error {
+    padding: 24px;
+    border-radius: 18px;
+    background: #f4f4f5;
     text-align: center;
-    font-size: 18px;
-    line-height: 1.7;
-    font-weight: 300;
-    opacity: 0.92;
+    font-size: 14px;
 }
 
-.aboutBox {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+.error {
+    color: #dc2626;
 }
-
-.aboutCard {
-    padding: 30px;
-    border-radius: 24px;
-    background: rgba(10, 8, 28, 0.58);
-    border: 1px solid rgba(124, 58, 237, 0.55);
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
-    transition: all 0.2s ease;
-}
-
-    .aboutCard:hover {
-        transform: translateY(-4px);
-        border-color: rgba(139, 92, 246, 0.9);
-    }
-
-    .aboutCard h2 {
-        font-size: 22px;
-        font-weight: 700;
-        margin-bottom: 16px;
-    }
-
-    .aboutCard p {
-        font-size: 15px;
-        line-height: 1.6;
-        font-weight: 300;
-        opacity: 0.92;
-    }
 
 @media (max-width: 900px) {
-    .aboutBox {
-        grid-template-columns: 1fr;
+    .page {
+        padding: 18px;
     }
 
-    .navLinks {
-        gap: 16px;
+    .panel {
+        padding: 20px;
+        border-radius: 22px;
     }
 
-        .navLinks button {
-            font-size: 14px;
-        }
-}
-
-
-.profileWrapper {
-    position: relative;
-}
-
-.profileMenu {
-    position: absolute;
-    top: 66px;
-    right: 0;
-    width: 170px;
-    padding: 10px;
-    border-radius: 14px;
-    background: rgba(10, 8, 28, 0.96);
-    border: 1px solid rgba(124, 58, 237, 0.55);
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
-    z-index: 20;
-}
-
-    .profileMenu button {
-        width: 100%;
-        padding: 11px 12px;
-        border: none;
-        border-radius: 10px;
-        background: transparent;
-        color: white;
-        font-family: 'Figtree', system-ui, sans-serif;
-        font-size: 14px;
-        text-align: left;
-        cursor: pointer;
-        transition: all 0.2s ease;
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
     }
-
-        .profileMenu button:hover {
-            background: rgba(124, 58, 237, 0.25);
-        }
-
-.profileButton {
-    overflow: hidden;
-    padding: 0;
 }
-
-    .profileButton img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }

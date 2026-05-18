@@ -16,7 +16,7 @@ export default function AdminPage() {
                 <div className={styles.buttons}>
                     <button
                         className={styles.adminButton}
-                        onClick={() => navigate('/logs')}
+                        onClick={() => navigate('/log')}
                     >
                         Logi systemowe
                     </button>
