@@ -1,0 +1,67 @@
+.page {
+    min-height: 100vh;
+    background: radial-gradient(circle at top left, #3b1d73, #0f0f1a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.card {
+    width: 100%;
+    max-width: 600px;
+    background: white;
+    border-radius: 30px;
+    padding: 60px;
+    text-align: center;
+}
+
+    .card h1 {
+        color: #111;
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+
+    .card p {
+        color: #52525b;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 32px;
+    }
+
+    .card button {
+        border: none;
+        border-radius: 30px;
+        background: #7C3AED;
+        color: white;
+        padding: 12px 28px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 40px;
+}
+
+.adminButton {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 20px;
+    background: #7C3AED;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .adminButton:hover {
+        background: #6D28D9;
+        transform: translateY(-2px);
+    }
