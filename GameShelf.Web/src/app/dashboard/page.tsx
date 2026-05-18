@@ -119,7 +119,7 @@ export default function Dashboard() {
 
     const handleLogout = () => {
         localStorage.removeItem('authToken');
-        navigate('/login');
+        navigate('/login', { replace: true });
     };
 
     const getAvatarUrl = (url: string) => {

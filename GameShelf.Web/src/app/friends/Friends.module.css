@@ -179,7 +179,7 @@
     .friendActions button {
         border: none;
         border-radius: 12px;
-        background: linear-gradient(135deg, #7c3aed, #6366f1);
+        background: #7C3AED;
         color: white;
         font-family: 'Figtree', system-ui, sans-serif;
         font-size: 14px;

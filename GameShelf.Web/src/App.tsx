@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 import RegisterPage from './app/auth/register/page';
 import LoginPage from './app/auth/login/page';
@@ -15,44 +15,50 @@ import GamesPage from './app/games/page';
 
 import './App.css';
 
+function ProtectedRoute() {
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+        return <Navigate to="/login" replace />;
+    }
+
+    return <Outlet />;
+}
+
 function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* http://localhost:5173/login */}
-        <Route path="/login" element={<LoginPage />} />
-        
-        {/* http://localhost:5173/register */}
-        <Route path="/register" element={<RegisterPage />} />
-        
-        {/* Powrót z Google Login */}
-        <Route path="/auth-callback" element={<AuthCallback />} />
+    return (
+        <Router>
+            <Routes>
+                <Route path="/login" element={<LoginPage />} />
 
-        {/* Strona główna przekierowuje do landing page */}
-        <Route path="/" element={<LandingPage />} />
-        
-        <Route path="/landing" element={<LandingPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
-        {/*http://localhost:5173/dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/auth-callback" element={<AuthCallback />} />
 
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/" element={<LandingPage />} />
 
-        <Route path="/community" element={<CommunityPage />} />
+                <Route path="/landing" element={<LandingPage />} />
 
-        <Route path="/friends" element={<FriendsPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-        <Route path="/faq" element={<FaqPage />} />
+                <Route element={<ProtectedRoute />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
 
-        <Route path="/about" element={<AboutPage />} />
+                    <Route path="/community" element={<CommunityPage />} />
 
-        <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/friends" element={<FriendsPage />} />
 
-        <Route path="/games" element={<GamesPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
 
-      </Routes>
-    </Router>
-  );
+                    <Route path="/games" element={<GamesPage />} />
+
+                    <Route path="/faq" element={<FaqPage />} />
+
+                    <Route path="/about" element={<AboutPage />} />
+                </Route>
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;
