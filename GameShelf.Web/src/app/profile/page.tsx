@@ -1,67 +1,231 @@
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import styles from './Profile.module.css';
 import logo from '@/assets/logo.svg';
-import offer from '@/assets/offer.svg';
 
-export default function LandingPage() {
+type UserProfile = {
+    userId: string;
+    userName: string;
+    email: string;
+    avatarUrl: string;
+    bio: string;
+    roleId: string;
+    roleName: string;
+    isLocked: boolean;
+};
+
+export default function ProfilePage() {
     const navigate = useNavigate();
 
+    const [user, setUser] = useState<UserProfile | null>(null);
+    const [username, setUsername] = useState('');
+    const [bio, setBio] = useState('');
+    const [avatar, setAvatar] = useState<File | null>(null);
+    const [avatarUrl, setAvatarUrl] = useState('');
+    const [previewAvatar, setPreviewAvatar] = useState('');
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [message, setMessage] = useState('');
+
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        navigate('/login');
+    };
+
+    const getAvatarUrl = (url: string) => {
+        if (!url) {
+            return '';
+        }
+
+        if (url.startsWith('http')) {
+            return url;
+        }
+
+        return `${import.meta.env.VITE_API_URL}${url}`;
+    };
+
+    const loadProfile = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/authentication/me`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Nie udało się pobrać profilu');
+            }
+
+            const data = await response.json() as UserProfile;
+            const resolvedAvatarUrl = getAvatarUrl(data.avatarUrl ?? '');
+
+            setUser(data);
+            setUsername(data.userName ?? '');
+            setBio(data.bio ?? '');
+            setAvatarUrl(resolvedAvatarUrl);
+            setPreviewAvatar(resolvedAvatarUrl);
+        } catch (error) {
+            console.error(error);
+            setMessage('Nie udało się pobrać danych profilu.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        const localPreviewUrl = URL.createObjectURL(file);
+
+        setAvatar(file);
+        setPreviewAvatar(localPreviewUrl);
+        setAvatarUrl(localPreviewUrl);
+    };
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        try {
+            setIsSaving(true);
+            setMessage('');
+
+            const token = localStorage.getItem('authToken');
+            const formData = new FormData();
+
+            formData.append('UserName', username);
+            formData.append('Bio', bio);
+
+            if (avatar) {
+                formData.append('Avatar', avatar);
+            }
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/authentication/update-profile`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                const backendMessage = errorData.detail ?? 'Nie udało się zapisać zmian';
+                throw new Error(backendMessage);
+            }
+
+            setMessage('Profil został zaktualizowany.');
+            setAvatar(null);
+            await loadProfile();
+        } catch (error) {
+            console.error(error);
+
+            if (error instanceof Error) {
+                setMessage(error.message);
+                return;
+            }
+
+            setMessage('Nie udało się zapisać zmian.');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    useEffect(() => {
+        loadProfile();
+    }, []);
 
     return (
         <main className={styles.page}>
-            <div className={styles.navbar}>
-                <div className={styles.logo}>
-                    <img src={logo} alt="logo" />
-                </div>
+            <nav className={styles.navbar}>
+                <img src={logo} alt="GameShelf" className={styles.logo} />
 
                 <div className={styles.navLinks}>
-                    <span>STRONA GŁÓWNA</span>
-                    <span>FAQ</span>
-                    <span>O NAS</span>
+                    <button onClick={() => navigate('/dashboard')}>STRONA GŁÓWNA</button>
+                    <button onClick={() => navigate('/community')}>SPOŁECZNOŚĆ</button>
+                    <button onClick={() => navigate('/friends')}>ZNAJOMI</button>
+                    <button onClick={() => navigate('/faq')}>FAQ</button>
+                    <button onClick={() => navigate('/about')}>O NAS</button>
                 </div>
 
-                <div className={styles.actions}>
+                <div className={styles.profileWrapper}>
                     <button
-                        className={styles.login}
-                        onClick={() => navigate('/login')}
+                        className={styles.profileButton}
+                        onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                     >
-                        LOGOWANIE
+                        {avatarUrl && <img src={avatarUrl} alt="Avatar użytkownika" />}
                     </button>
 
-                    <button
-                        className={styles.register}
-                        onClick={() => navigate('/register')}
-                    >
-                        REJESTRACJA
-                    </button>
+                    {isProfileMenuOpen && (
+                        <div className={styles.profileMenu}>
+                            <button onClick={() => navigate('/profile')}>Ustawienia</button>
+                            <button onClick={handleLogout}>Wyloguj się</button>
+                        </div>
+                    )}
                 </div>
-            </div>
+            </nav>
 
-            <div className={styles.hero}>
-                <h1 className={styles.title}>
-                    Twoje gry w jednym miejscu. I ludzie, którzy grają w to samo.
-                </h1>
+            <section className={styles.content}>
+                <h1>Ustawienia profilu</h1>
 
-                <p className={styles.description}>
-                    Uporządkuj gry z różnych platform i sprawdzaj, w co grają Twoi znajomi - w jednym miejscu, bez przełączania między aplikacjami.
-                </p>
+                {isLoading ? (
+                    <p className={styles.status}>Ładowanie profilu...</p>
+                ) : (
+                    <form className={styles.profileCard} onSubmit={handleSubmit}>
+                        <div className={styles.avatarSection}>
+                            <div className={styles.avatarPreview}>
+                                {previewAvatar ? (
+                                    <img src={previewAvatar} alt="Avatar użytkownika" />
+                                ) : (
+                                    <span>{username ? username.charAt(0).toUpperCase() : '?'}</span>
+                                )}
+                            </div>
 
-                <button
-                    className={styles.cta}
-                    onClick={() => navigate('/register')}
-                >
-                    DOŁĄCZ DO NAS!
-                </button>
+                            <label className={styles.avatarUpload}>
+                                Zmień avatar
+                                <input type="file" accept="image/*" onChange={handleAvatarChange} />
+                            </label>
+                        </div>
 
-                <p className={styles.subtext}>
-                    Zarejestruj się za darmo i rozpocznij tworzenie kolekcji!
-                </p>
-            </div>
+                        <div className={styles.formGroup}>
+                            <label>Nazwa użytkownika</label>
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(event) => setUsername(event.target.value)}
+                                placeholder="Wpisz nazwę użytkownika"
+                            />
+                        </div>
 
-            <div className={styles.offer}>
-                <img src={offer} alt="offer" />
-            </div>
+                        <div className={styles.formGroup}>
+                            <label>Email</label>
+                            <input type="email" value={user?.email ?? ''} disabled />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <label>Bio</label>
+                            <textarea
+                                value={bio}
+                                onChange={(event) => setBio(event.target.value)}
+                                placeholder="Napisz coś o sobie"
+                            />
+                        </div>
+
+                        {message && <p className={styles.message}>{message}</p>}
+
+                        <button className={styles.saveButton} type="submit" disabled={isSaving}>
+                            {isSaving ? 'Zapisywanie...' : 'Zapisz zmiany'}
+                        </button>
+                    </form>
+                )}
+            </section>
         </main>
     );
 }

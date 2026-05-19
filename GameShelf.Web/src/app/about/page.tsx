@@ -1,67 +1,134 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import styles from './About.module.css';
 import logo from '@/assets/logo.svg';
-import offer from '@/assets/offer.svg';
 
-export default function LandingPage() {
+type UserProfile = {
+    avatarUrl: string;
+};
+
+export default function AboutPage() {
     const navigate = useNavigate();
 
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState('');
+
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        navigate('/login');
+    };
+
+    const getAvatarUrl = (url: string) => {
+        if (!url) {
+            return '';
+        }
+
+        if (url.startsWith('http')) {
+            return url;
+        }
+
+        return `${import.meta.env.VITE_API_URL}${url}`;
+    };
+
+    const loadUserAvatar = async () => {
+        const token = localStorage.getItem('authToken');
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/authentication/me`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data = await response.json() as UserProfile;
+
+        setAvatarUrl(getAvatarUrl(data.avatarUrl ?? ''));
+    };
+
+    useEffect(() => {
+        loadUserAvatar().catch((error) => console.error(error));
+    }, []);
 
     return (
         <main className={styles.page}>
-            <div className={styles.navbar}>
-                <div className={styles.logo}>
-                    <img src={logo} alt="logo" />
-                </div>
+            <nav className={styles.navbar}>
+                <img src={logo} alt="GameShelf" className={styles.logo} />
 
                 <div className={styles.navLinks}>
-                    <span>STRONA GŁÓWNA</span>
-                    <span>FAQ</span>
-                    <span>O NAS</span>
+                    <button onClick={() => navigate('/dashboard')}>STRONA GŁÓWNA</button>
+                    <button onClick={() => navigate('/community')}>SPOŁECZNOŚĆ</button>
+                    <button onClick={() => navigate('/friends')}>ZNAJOMI</button>
+                    <button onClick={() => navigate('/faq')}>FAQ</button>
+                    <button className={styles.activeNav}>O NAS</button>
                 </div>
 
-                <div className={styles.actions}>
+                <div className={styles.profileWrapper}>
                     <button
-                        className={styles.login}
-                        onClick={() => navigate('/login')}
+                        className={styles.profileButton}
+                        onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                     >
-                        LOGOWANIE
+                        {avatarUrl && <img src={avatarUrl} alt="Avatar użytkownika" />}
                     </button>
 
-                    <button
-                        className={styles.register}
-                        onClick={() => navigate('/register')}
-                    >
-                        REJESTRACJA
-                    </button>
+                    {isProfileMenuOpen && (
+                        <div className={styles.profileMenu}>
+                            <button onClick={() => navigate('/profile')}>
+                                Ustawienia
+                            </button>
+
+                            <button onClick={handleLogout}>
+                                Wyloguj się
+                            </button>
+                        </div>
+                    )}
                 </div>
-            </div>
+            </nav>
 
-            <div className={styles.hero}>
-                <h1 className={styles.title}>
-                    Twoje gry w jednym miejscu. I ludzie, którzy grają w to samo.
-                </h1>
+            <section className={styles.content}>
+                <h1>O GameShelf</h1>
 
-                <p className={styles.description}>
-                    Uporządkuj gry z różnych platform i sprawdzaj, w co grają Twoi znajomi - w jednym miejscu, bez przełączania między aplikacjami.
+                <p className={styles.subtitle}>
+                    GameShelf powstał z myślą o graczach, którzy chcą mieć wszystkie swoje gry
+                    w jednym miejscu. Niezależnie od platformy możesz tworzyć własne kolekcje,
+                    organizować bibliotekę i wracać do ulubionych tytułów bez chaosu.
                 </p>
 
-                <button
-                    className={styles.cta}
-                    onClick={() => navigate('/register')}
-                >
-                    DOŁĄCZ DO NAS!
-                </button>
+                <div className={styles.aboutBox}>
+                    <article className={styles.aboutCard}>
+                        <h2>Nasza wizja</h2>
 
-                <p className={styles.subtext}>
-                    Zarejestruj się za darmo i rozpocznij tworzenie kolekcji!
-                </p>
-            </div>
+                        <p>
+                            Chcemy stworzyć wygodne miejsce do organizowania gier i dzielenia się
+                            nimi ze znajomymi. GameShelf łączy prostotę, nowoczesny wygląd i funkcje,
+                            które pomagają utrzymać porządek w bibliotece.
+                        </p>
+                    </article>
 
-            <div className={styles.offer}>
-                <img src={offer} alt="offer" />
-            </div>
+                    <article className={styles.aboutCard}>
+                        <h2>Dostępność wszędzie</h2>
+
+                        <p>
+                            Aplikacja działa na różnych urządzeniach — w przeglądarce, na desktopie
+                            i telefonie. Dzięki temu możesz mieć dostęp do swojej kolekcji zawsze,
+                            kiedy tego potrzebujesz.
+                        </p>
+                    </article>
+
+                    <article className={styles.aboutCard}>
+                        <h2>Dla graczy</h2>
+
+                        <p>
+                            GameShelf został zaprojektowany z myślą o osobach, które grają regularnie
+                            i chcą lepiej zarządzać swoimi tytułami, planami zakupowymi oraz ulubionymi
+                            seriami.
+                        </p>
+                    </article>
+                </div>
+            </section>
         </main>
     );
 }

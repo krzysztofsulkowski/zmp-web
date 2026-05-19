@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 import RegisterPage from './app/auth/register/page';
 import LoginPage from './app/auth/login/page';
@@ -12,47 +12,111 @@ import FaqPage from './app/faq/page';
 import AboutPage from './app/about/page';
 import ProfilePage from './app/profile/page';
 import GamesPage from './app/games/page';
+import ResetPasswordPage from './app/auth/reset-password/page';
+import AdminPage from './app/admin/page';
+import LogPage from './app/log/page';
+import AdminGamesPage from './app/admin-games/page';
+import UsersPage from './app/users/page';
 
 import './App.css';
 
+function getRolesFromToken(token: string) {
+    const payloadBase64 = token.split('.')[1];
+
+    if (!payloadBase64) {
+        return [];
+    }
+
+    const payloadJson = atob(
+        payloadBase64.replace(/-/g, '+').replace(/_/g, '/')
+    );
+
+    const payload = JSON.parse(payloadJson) as Record<string, unknown>;
+
+    const role =
+        payload.role ??
+        payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+
+    return Array.isArray(role) ? role : [role];
+}
+
+function ProtectedRoute() {
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+        return <Navigate to="/login" replace />;
+    }
+
+    const roles = getRolesFromToken(token);
+
+    if (roles.includes('Administrator')) {
+        return <Navigate to="/admin" replace />;
+    }
+
+    return <Outlet />;
+}
+
+function AdminRoute() {
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+        return <Navigate to="/login" replace />;
+    }
+
+    const roles = getRolesFromToken(token);
+
+    if (!roles.includes('Administrator')) {
+        return <Navigate to="/dashboard" replace />;
+    }
+
+    return <Outlet />;
+}
+
 function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* http://localhost:5173/login */}
-        <Route path="/login" element={<LoginPage />} />
-        
-        {/* http://localhost:5173/register */}
-        <Route path="/register" element={<RegisterPage />} />
-        
-        {/* Powrót z Google Login */}
-        <Route path="/auth-callback" element={<AuthCallback />} />
+    return (
+        <Router>
+            <Routes>
 
-        {/* Strona główna przekierowuje do landing page */}
-        <Route path="/" element={<LandingPage />} />
-        
-        <Route path="/landing" element={<LandingPage />} />
+                <Route path="/login" element={<LoginPage />} />
 
-        {/*http://localhost:5173/dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/auth-callback" element={<AuthCallback />} />
 
-        <Route path="/community" element={<CommunityPage />} />
+                <Route path="/" element={<LandingPage />} />
 
-        <Route path="/friends" element={<FriendsPage />} />
+                <Route path="/landing" element={<LandingPage />} />
 
-        <Route path="/faq" element={<FaqPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-        <Route path="/about" element={<AboutPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/faq" element={<FaqPage />} />
 
-        <Route path="/games" element={<GamesPage />} />
+                <Route path="/about" element={<AboutPage />} />
 
-      </Routes>
-    </Router>
-  );
+                <Route element={<ProtectedRoute />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+
+                    <Route path="/community" element={<CommunityPage />} />
+
+                    <Route path="/friends" element={<FriendsPage />} />
+
+                    <Route path="/profile" element={<ProfilePage />} />
+
+                    <Route path="/games" element={<GamesPage />} />
+                </Route>
+
+                <Route element={<AdminRoute />}>
+                    <Route path="/admin" element={<AdminPage />} />
+                    <Route path="/log" element={<LogPage />} />
+                    <Route path="/admin-games" element={<AdminGamesPage />} />
+                    <Route path="/users" element={<UsersPage />} />
+                </Route>
+
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;

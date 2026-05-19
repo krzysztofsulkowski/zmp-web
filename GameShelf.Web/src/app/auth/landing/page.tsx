@@ -50,12 +50,6 @@ export default function LandingPage() {
                     <img src={logo} alt="logo" />
                 </div>
 
-                <div className={styles.navLinks}>
-                    <span>STRONA GŁÓWNA</span>
-                    <span>FAQ</span>
-                    <span>O NAS</span>
-                </div>
-
                 <div className={styles.actions}>
                     <button
                         className={styles.login}

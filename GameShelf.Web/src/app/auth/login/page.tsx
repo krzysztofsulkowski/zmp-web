@@ -62,7 +62,25 @@ export default function LoginPage() {
             setError(null);
             setSuccessMessage("Zalogowano pomyślnie!");
 
-            setTimeout(() => navigate('/dashboard'), 1000);
+            const payloadBase64 = token.split('.')[1];
+
+            const payloadJson = atob(
+                payloadBase64.replace(/-/g, '+').replace(/_/g, '/')
+            );
+
+            const payload = JSON.parse(payloadJson) as Record<string, unknown>;
+
+            const role =
+                payload.role ??
+                payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+
+            const roles = Array.isArray(role) ? role : [role];
+
+            const targetPath = roles.includes('Administrator')
+                ? '/admin'
+                : '/dashboard';
+
+            setTimeout(() => navigate(targetPath), 1000);
 
         } catch (err: any) {
             setError(err.message || 'Błąd logowania');
