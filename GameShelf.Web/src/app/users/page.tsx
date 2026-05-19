@@ -1,133 +1,228 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Users.module.css';
-import logo from '@/assets/logo.svg';
 
-type UserProfile = {
-    avatarUrl: string;
+type Role = {
+    id: string;
+    name: string;
+    normalizedName: string;
+    concurrencyStamp: string;
 };
 
-export default function AboutPage() {
+type User = {
+    userId: string;
+    userName: string;
+    email: string;
+    avatarUrl: string;
+    bio: string;
+    roleId: string;
+    roleName: string;
+    isLocked: boolean;
+    availableRoles: Role[];
+};
+
+type UsersResponse = {
+    data: User[];
+};
+
+export default function UsersPage() {
     const navigate = useNavigate();
 
-    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    const [avatarUrl, setAvatarUrl] = useState('');
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
-    const handleLogout = () => {
-        localStorage.removeItem('authToken');
-        navigate('/login');
-    };
+    const loadUsers = async () => {
+        try {
+            setLoading(true);
+            setError('');
 
-    const getAvatarUrl = (url: string) => {
-        if (!url) {
-            return '';
-        }
+            const token = localStorage.getItem('authToken');
 
-        if (url.startsWith('http')) {
-            return url;
-        }
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/adminPanel/users/get-all-users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    draw: 1,
+                    start: 0,
+                    length: 100,
+                    searchValue: '',
+                    orderColumn: 0,
+                    orderDir: 'asc',
+                    extraFilters: {
+                        additionalProp1: '',
+                        additionalProp2: '',
+                        additionalProp3: ''
+                    }
+                })
+            });
 
-        return `${import.meta.env.VITE_API_URL}${url}`;
-    };
-
-    const loadUserAvatar = async () => {
-        const token = localStorage.getItem('authToken');
-
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/authentication/me`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.detail || 'Nie udało się pobrać użytkowników.');
             }
-        });
 
-        if (!response.ok) {
-            return;
+            const data = await response.json() as UsersResponse;
+
+            setUsers(data.data ?? []);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Wystąpił nieoczekiwany błąd.');
+        } finally {
+            setLoading(false);
         }
+    };
 
-        const data = await response.json() as UserProfile;
+    const lockUser = async (userId: string) => {
+        await changeUserLockStatus(userId, true);
+    };
 
-        setAvatarUrl(getAvatarUrl(data.avatarUrl ?? ''));
+    const unlockUser = async (userId: string) => {
+        await changeUserLockStatus(userId, false);
+    };
+
+    const changeUserLockStatus = async (userId: string, shouldLock: boolean) => {
+        try {
+            setError('');
+            setSuccessMessage('');
+
+            const token = localStorage.getItem('authToken');
+
+            const endpoint = shouldLock
+                ? `/api/adminPanel/users/lock-user/${userId}`
+                : `/api/adminPanel/users/unlock-user/${userId}`;
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(shouldLock ? 'Nie udało się zablokować użytkownika.' : 'Nie udało się odblokować użytkownika.');
+            }
+
+            setSuccessMessage(shouldLock ? 'Użytkownik został zablokowany.' : 'Użytkownik został odblokowany.');
+            await loadUsers();
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Wystąpił nieoczekiwany błąd.');
+        }
     };
 
     useEffect(() => {
-        loadUserAvatar().catch((error) => console.error(error));
+        loadUsers();
     }, []);
 
     return (
         <main className={styles.page}>
-            <nav className={styles.navbar}>
-                <img src={logo} alt="GameShelf" className={styles.logo} />
+            <section className={styles.panel}>
+                <div className={styles.header}>
+                    <div>
+                        <h1>Użytkownicy</h1>
+                        <p>Lista kont zarejestrowanych w systemie.</p>
+                    </div>
 
-                <div className={styles.navLinks}>
-                    <button onClick={() => navigate('/dashboard')}>STRONA GŁÓWNA</button>
-                    <button onClick={() => navigate('/community')}>SPOŁECZNOŚĆ</button>
-                    <button onClick={() => navigate('/friends')}>ZNAJOMI</button>
-                    <button onClick={() => navigate('/faq')}>FAQ</button>
-                    <button className={styles.activeNav}>O NAS</button>
-                </div>
-
-                <div className={styles.profileWrapper}>
-                    <button
-                        className={styles.profileButton}
-                        onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    >
-                        {avatarUrl && <img src={avatarUrl} alt="Avatar użytkownika" />}
+                    <button onClick={() => navigate('/admin')}>
+                        Wróć
                     </button>
-
-                    {isProfileMenuOpen && (
-                        <div className={styles.profileMenu}>
-                            <button onClick={() => navigate('/profile')}>
-                                Ustawienia
-                            </button>
-
-                            <button onClick={handleLogout}>
-                                Wyloguj się
-                            </button>
-                        </div>
-                    )}
                 </div>
-            </nav>
 
-            <section className={styles.content}>
-                <h1>O GameShelf</h1>
+                {successMessage && <div className={styles.success}>{successMessage}</div>}
 
-                <p className={styles.subtitle}>
-                    GameShelf powstał z myślą o graczach, którzy chcą mieć wszystkie swoje gry
-                    w jednym miejscu. Niezależnie od platformy możesz tworzyć własne kolekcje,
-                    organizować bibliotekę i wracać do ulubionych tytułów bez chaosu.
-                </p>
+                {loading && <div className={styles.state}>Ładowanie użytkowników...</div>}
 
-                <div className={styles.aboutBox}>
-                    <article className={styles.aboutCard}>
-                        <h2>Nasza wizja</h2>
+                {!loading && error && <div className={styles.error}>{error}</div>}
 
-                        <p>
-                            Chcemy stworzyć wygodne miejsce do organizowania gier i dzielenia się
-                            nimi ze znajomymi. GameShelf łączy prostotę, nowoczesny wygląd i funkcje,
-                            które pomagają utrzymać porządek w bibliotece.
-                        </p>
-                    </article>
+                {!loading && !error && (
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Nazwa</th>
+                                    <th>Email</th>
+                                    <th>Rola</th>
+                                    <th>Status</th>
+                                    <th>Bio</th>
+                                    <th>Akcje</th>
+                                </tr>
+                            </thead>
 
-                    <article className={styles.aboutCard}>
-                        <h2>Dostępność wszędzie</h2>
+                            <tbody>
+                                {users.map((user) => (
+                                    <tr key={user.userId}>
+                                        <td>
+                                            <div className={styles.userCell}>
+                                                <div className={styles.avatar}>
+                                                    {user.avatarUrl ? (
+                                                        <img
+                                                            src={`${import.meta.env.VITE_API_URL}${user.avatarUrl}`}
+                                                            alt={user.userName}
+                                                        />
+                                                    ) : (
+                                                        <span>{user.userName?.charAt(0)?.toUpperCase() || '?'}</span>
+                                                    )}
+                                                </div>
 
-                        <p>
-                            Aplikacja działa na różnych urządzeniach — w przeglądarce, na desktopie
-                            i telefonie. Dzięki temu możesz mieć dostęp do swojej kolekcji zawsze,
-                            kiedy tego potrzebujesz.
-                        </p>
-                    </article>
+                                                <div>
+                                                    <strong>{user.userName || '-'}</strong>
+                                                    <p>{user.userId}</p>
+                                                </div>
+                                            </div>
+                                        </td>
 
-                    <article className={styles.aboutCard}>
-                        <h2>Dla graczy</h2>
+                                        <td>{user.email || '-'}</td>
 
-                        <p>
-                            GameShelf został zaprojektowany z myślą o osobach, które grają regularnie
-                            i chcą lepiej zarządzać swoimi tytułami, planami zakupowymi oraz ulubionymi
-                            seriami.
-                        </p>
-                    </article>
-                </div>
+                                        <td>
+                                            <span className={styles.roleBadge}>
+                                                {user.roleName || '-'}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span className={user.isLocked ? styles.lockedBadge : styles.activeBadge}>
+                                                {user.isLocked ? 'Zablokowany' : 'Aktywny'}
+                                            </span>
+                                        </td>
+
+                                        <td className={styles.bio}>
+                                            {user.bio || '-'}
+                                        </td>
+
+                                        <td>
+                                            <div className={styles.actions}>
+                                                {user.isLocked ? (
+                                                    <button
+                                                        className={styles.unlockButton}
+                                                        onClick={() => unlockUser(user.userId)}
+                                                    >
+                                                        Odblokuj
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        className={styles.lockButton}
+                                                        onClick={() => lockUser(user.userId)}
+                                                    >
+                                                        Zablokuj
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+
+                        {users.length === 0 && (
+                            <div className={styles.empty}>
+                                Brak użytkowników do wyświetlenia.
+                            </div>
+                        )}
+                    </div>
+                )}
             </section>
         </main>
     );
