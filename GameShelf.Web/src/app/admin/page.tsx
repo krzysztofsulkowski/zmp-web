@@ -23,7 +23,7 @@ export default function AdminPage() {
 
                     <button
                         className={styles.adminButton}
-                        onClick={() => navigate('/games')}
+                        onClick={() => navigate('/admin-games')}
                     >
                         Gry
                     </button>
