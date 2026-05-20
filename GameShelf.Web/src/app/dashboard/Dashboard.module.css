@@ -518,3 +518,99 @@
     .collectionIconButton:hover {
         background: #6D28D9;
     }
+
+.statsSection {
+    margin-top: 64px;
+    text-align: center;
+}
+
+    .statsSection h2 {
+        color: white;
+        font-size: 24px;
+        font-weight: 800;
+        margin-bottom: 32px;
+    }
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.statCard {
+    min-height: 230px;
+    border: 1px solid #7C3AED;
+    border-radius: 20px;
+    background: rgba(10, 8, 28, 0.45);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+    .statCard p {
+        color: white;
+        font-size: 17px;
+        font-weight: 600;
+        line-height: 1.25;
+        margin-bottom: 24px;
+    }
+
+    .statCard strong {
+        color: white;
+        font-size: 64px;
+        font-weight: 800;
+    }
+
+
+
+.donutChart {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.donutHole {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: #1c1035;
+    z-index: 1;
+}
+
+.chartLegend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 18px;
+    width: 100%;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.legendColor {
+    width: 11px;
+    height: 11px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 1000px) {
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+}

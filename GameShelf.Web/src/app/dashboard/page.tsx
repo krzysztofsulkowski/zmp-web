@@ -55,6 +55,19 @@ type UserProfile = {
     avatarUrl: string;
 };
 
+type StatItem = {
+    label: string;
+    value: number;
+};
+
+type MyLibraryStats = {
+    totalGames: number;
+    addedRecentlyCount: number;
+    gamesByGenre: StatItem[];
+    gamesByPlatform: StatItem[];
+    gamesByCollection: StatItem[];
+};
+
 const favoriteGamesStorageKey = 'favoriteGameIds';
 
 const tabs: { key: CollectionTab; label: string }[] = [
@@ -165,6 +178,7 @@ export default function Dashboard() {
     const [collectionsWithGames, setCollectionsWithGames] = useState<CollectionWithGames[]>([]);
     const [gameImages, setGameImages] = useState<Record<number, string>>({});
     const [activeCustomCollectionId, setActiveCustomCollectionId] = useState<number | null>(null);
+    const [libraryStats, setLibraryStats] = useState<MyLibraryStats | null>(null);
 
     const [sortOption, setSortOption] = useState<SortOption>('newest');
     const [selectedGenre, setSelectedGenre] = useState('');
@@ -177,7 +191,6 @@ export default function Dashboard() {
     const [showRenameModal, setShowRenameModal] = useState(false);
     const [showPrivacyModal, setShowPrivacyModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
     const [newCollectionName, setNewCollectionName] = useState('');
     const [editedCollectionName, setEditedCollectionName] = useState('');
 
@@ -487,6 +500,7 @@ export default function Dashboard() {
         loadCollectionGames().catch((err) => console.error(err));
         loadGameImages().catch((err) => console.error(err));
         loadUserAvatar().catch((err) => console.error(err));
+        loadLibraryStats().catch((err) => console.error(err));
     }, []);
 
     const createCollection = async () => {
@@ -621,10 +635,28 @@ export default function Dashboard() {
             setActiveCustomCollectionId(null);
             setActiveTab('library');
             setShowDeleteModal(false);
-            setShowSettingsDropdown(false);
         } catch (err) {
             console.error(err);
         }
+    };
+
+    const loadLibraryStats = async () => {
+        const token = localStorage.getItem('authToken');
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/statistics/my-library`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Błąd pobierania statystyk');
+        }
+
+        const data = await response.json() as MyLibraryStats;
+
+        setLibraryStats(data);
     };
 
     const activeGames = getActiveGames();
@@ -634,9 +666,39 @@ export default function Dashboard() {
     const visibleGames = filteredGames.slice(firstGameIndex, firstGameIndex + gamesPerPage);
     const genreOptions = getUniqueValues(activeGames, 'genreName');
     const platformOptions = getUniqueValues(activeGames, 'platformName');
-    const typeOptions = getUniqueValues(activeGames, 'type');
 
+    const getChartGradient = (items: StatItem[]) => {
+        const total = items.reduce((sum, item) => sum + item.value, 0);
 
+        if (total === 0) {
+            return '#3f335c';
+        }
+
+        let current = 0;
+
+        return items
+            .map((item, index) => {
+                const start = current;
+                const percentage = (item.value / total) * 100;
+                current += percentage;
+                const end = current;
+
+                return `${chartColors[index % chartColors.length]} ${start}% ${end}%`;
+            })
+            .join(', ');
+    };
+
+    const getTopStatLabel = (items: StatItem[]) => {
+        if (items.length === 0) {
+            return 'Brak danych';
+        }
+
+        const sortedItems = [...items].sort((a, b) => b.value - a.value);
+
+        return `${sortedItems[0].label}: ${sortedItems[0].value}`;
+    };
+
+    const chartColors = ['#7C3AED', '#A78BFA', '#C4B5FD', '#EDE9FE', '#FFFFFF'];
 
     return (
         <main className={styles.page}>
@@ -690,7 +752,6 @@ export default function Dashboard() {
                                     onClick={() => {
                                         setActiveTab(tab.key);
                                         setActiveCustomCollectionId(null);
-                                        setShowSettingsDropdown(false);
                                         resetFilters();
                                     }}
                                 >
@@ -704,7 +765,6 @@ export default function Dashboard() {
                                     className={activeCustomCollectionId === collection.id ? styles.activeTab : ''}
                                     onClick={() => {
                                         setActiveCustomCollectionId(collection.id);
-                                        setShowSettingsDropdown(false);
                                         resetFilters();
                                     }}
                                 >
@@ -868,7 +928,71 @@ export default function Dashboard() {
                         </div>
                     )}
                 </div>
+
+                {libraryStats && (
+                    <section className={styles.statsSection}>
+                        <h2>Twoje statystyki</h2>
+
+                        <div className={styles.statsGrid}>
+                            <div className={styles.statCard}>
+                                <p>Posiadasz następującą liczbę gier w swojej bibliotece:</p>
+                                <strong>{libraryStats.totalGames}</strong>
+                            </div>
+
+                            <div className={styles.statCard}>
+                                <p>Liczba gier z podziałem na kategorie:</p>
+
+                                <div
+                                    className={styles.donutChart}
+                                    style={{ background: `conic-gradient(${getChartGradient(libraryStats.gamesByGenre)})` }}
+                                >
+                                    <div className={styles.donutHole}></div>
+                                </div>
+
+                            <div className={styles.chartLegend}>
+                                    {libraryStats.gamesByGenre
+                                        .filter((item) => item.value > 0)
+                                        .map((item, index) => (
+                                            <div key={item.label} className={styles.legendItem}>
+                                        <span
+                                            className={styles.legendColor}
+                                            style={{ background: chartColors[index % chartColors.length] }}
+                                        />
+                                        <span>{item.label}: {item.value}</span>
+                                    </div>
+
+                                ))}
+                            </div>
+                            </div>
+                            <div className={styles.statCard}>
+                                <p>Liczba gier z podziałem na kolekcje:</p>
+
+                                <div
+                                    className={styles.donutChart}
+                                    style={{ background: `conic-gradient(${getChartGradient(libraryStats.gamesByCollection)})` }}
+                                >
+                                    <div className={styles.donutHole}></div>
+                                </div>
+                            <div className={styles.chartLegend}>
+                                    {libraryStats.gamesByCollection
+                                        .filter((item) => item.value > 0)
+                                        .map((item, index) => (
+                                            <div key={item.label} className={styles.legendItem}>
+                                        <span
+                                            className={styles.legendColor}
+                                            style={{ background: chartColors[index % chartColors.length] }}
+                                        />
+                                        <span>{item.label}: {item.value}</span>
+                                    </div>
+                                ))}
+                                    </div>
+                                </div>
+                        </div>
+                    </section>
+                )}
             </section>
+
+            
 
             {showCreateModal && (
                 <div className={styles.modalOverlay}>
