@@ -286,54 +286,6 @@
             color: white;
         }
 
-.collectionSettings {
-    position: relative;
-    flex: 0 0 auto;
-}
-
-.collectionSettingsButton {
-    border: 1px solid #7C3AED;
-    border-radius: 14px;
-    background: rgba(124, 58, 237, 0.25);
-    color: white;
-    padding: 8px 14px;
-    font-family: 'Figtree', system-ui, sans-serif;
-    cursor: pointer;
-}
-
-.collectionSettingsDropdown {
-    position: absolute;
-    top: 42px;
-    right: 0;
-    width: 220px;
-    background: #120d2b;
-    border: 1px solid #7C3AED;
-    border-radius: 14px;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    z-index: 20;
-}
-
-    .collectionSettingsDropdown button {
-        background: transparent;
-        border: none;
-        color: white;
-        text-align: left;
-        padding: 10px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-family: 'Figtree', system-ui, sans-serif;
-    }
-
-        .collectionSettingsDropdown button:hover {
-            background: rgba(124, 58, 237, 0.25);
-        }
-
-.deleteOption {
-    color: #ff8a8a !important;
-}
 
 .modalText {
     text-align: center;
@@ -536,4 +488,32 @@
         height: 100%;
         object-fit: cover;
         display: block;
+    }
+
+.collectionActionButtons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.collectionIconButton {
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 14px;
+    background: #5C4E7E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+    .collectionIconButton img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .collectionIconButton:hover {
+        background: #6D28D9;
     }

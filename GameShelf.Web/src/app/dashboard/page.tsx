@@ -5,6 +5,11 @@ import logo from "@/assets/logo.svg";
 import addIcon from '@/assets/add.svg';
 import arrowLeft from '@/assets/arrow-left.svg';
 import arrowRight from '@/assets/arrow-right.svg';
+import editIcon from '@/assets/edit.svg';
+import deleteIcon from '@/assets/delete.svg';
+import eyeOnIcon from '@/assets/eye-on.svg';
+import eyeOffIcon from '@/assets/eye-off.svg';
+import linkIcon from '@/assets/link.svg';
 
 type CollectionTab = 'library' | 'favorites' | 'planned' | 'wishlist' | 'playing' | 'completed' | 'abandoned';
 
@@ -14,6 +19,7 @@ type Collection = {
     id: number;
     name: string;
     isPublic?: boolean;
+    shareCode?: string;
 };
 
 type CollectionGame = {
@@ -211,6 +217,14 @@ export default function Dashboard() {
         return collection?.id ?? null;
     };
 
+    const activeDefaultCollectionId = getActiveDefaultCollectionId();
+
+    const activeCollection = activeCustomCollectionId !== null
+        ? activeCustomCollection
+        : allCollections.find((collection) => collection.id === activeDefaultCollectionId);
+
+    const isManualCollection = activeCustomCollectionId !== null;
+
     const getActiveGames = () => {
         if (activeTab === 'library' && activeCustomCollectionId === null) {
             return collectionsWithGames.flatMap((collection) => collection.games);
@@ -322,6 +336,55 @@ export default function Dashboard() {
 
         return result;
     };
+
+    const updateCollectionPrivacy = async () => {
+        if (!activeCollection) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('authToken');
+            const newIsPublic = !(activeCollection.isPublic ?? true);
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/collections/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    id: activeCollection.id,
+                    name: activeCollection.name,
+                    isPublic: newIsPublic
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Błąd zmiany widoczności kolekcji');
+            }
+
+            await loadCollections();
+            await loadCollectionGames();
+
+            setShowPrivacyModal(false);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const copyCollectionLink = async () => {
+        if (!activeCollection?.shareCode) {
+            alert('Brak kodu udostępniania dla tej kolekcji.');
+            return;
+        }
+
+        const link = `${window.location.origin}/collections/share/${activeCollection.shareCode}`;
+
+        await navigator.clipboard.writeText(link);
+
+        alert('Link do kolekcji został skopiowany.');
+    };
+
 
     const loadCollections = async () => {
         const token = localStorage.getItem('authToken');
@@ -658,49 +721,7 @@ export default function Dashboard() {
                             <img src={arrowRight} alt="scroll right" />
                         </button>
 
-                        {activeCustomCollection && (
-                            <div className={styles.collectionSettings}>
-                                <button
-                                    className={styles.collectionSettingsButton}
-                                    onClick={() => setShowSettingsDropdown((prev) => !prev)}
-                                >
-                                    Ustawienia
-                                </button>
-
-                                {showSettingsDropdown && (
-                                    <div className={styles.collectionSettingsDropdown}>
-                                        <button
-                                            onClick={() => {
-                                                setEditedCollectionName(activeCustomCollection.name);
-                                                setShowRenameModal(true);
-                                                setShowSettingsDropdown(false);
-                                            }}
-                                        >
-                                            Zmień nazwę kolekcji
-                                        </button>
-
-                                        <button
-                                            onClick={() => {
-                                                setShowPrivacyModal(true);
-                                                setShowSettingsDropdown(false);
-                                            }}
-                                        >
-                                            Ustawienia prywatności
-                                        </button>
-
-                                        <button
-                                            className={styles.deleteOption}
-                                            onClick={() => {
-                                                setShowDeleteModal(true);
-                                                setShowSettingsDropdown(false);
-                                            }}
-                                        >
-                                            Usuń kolekcję
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                      
                     </div>
 
                     {activeGames.length > 0 ? (
@@ -726,6 +747,46 @@ export default function Dashboard() {
                                     <option value="titleAsc">Sortuj: A-Z</option>
                                     <option value="titleDesc">Sortuj: Z-A</option>
                                 </select>
+
+                                <div className={styles.collectionActionButtons}>
+                                    {isManualCollection && (
+                                        <>
+                                            <button
+                                                className={styles.collectionIconButton}
+                                                onClick={() => {
+                                                    setEditedCollectionName(activeCollection?.name ?? '');
+                                                    setShowRenameModal(true);
+                                                }}
+                                            >
+                                                <img src={editIcon} alt="Edytuj kolekcję" />
+                                            </button>
+
+                                            <button
+                                                className={styles.collectionIconButton}
+                                                onClick={() => setShowDeleteModal(true)}
+                                            >
+                                                <img src={deleteIcon} alt="Usuń kolekcję" />
+                                            </button>
+                                        </>
+                                    )}
+
+                                    <button
+                                        className={styles.collectionIconButton}
+                                        onClick={() => setShowPrivacyModal(true)}
+                                    >
+                                        <img
+                                            src={(activeCollection?.isPublic ?? true) ? eyeOnIcon : eyeOffIcon}
+                                            alt="Widoczność kolekcji"
+                                        />
+                                    </button>
+
+                                    <button
+                                        className={styles.collectionIconButton}
+                                        onClick={copyCollectionLink}
+                                    >
+                                        <img src={linkIcon} alt="Kopiuj link" />
+                                    </button>
+                                </div>
                             </div>
 
                             <div className={styles.dashboardGamesGrid}>
@@ -852,12 +913,15 @@ export default function Dashboard() {
             {showPrivacyModal && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
-                        <h2>Ustawienia prywatności</h2>
+                        <h2>Zmień widoczność kolekcji</h2>
 
-                        <p className={styles.modalText}></p>
+                        <p className={styles.modalText}>
+                            Czy na pewno chcesz ustawić kolekcję {activeCollection?.name} jako {(activeCollection?.isPublic ?? true) ? 'prywatną' : 'publiczną'}?
+                        </p>
 
                         <div className={styles.modalActions}>
-                            <button onClick={() => setShowPrivacyModal(false)}>Zamknij</button>
+                            <button onClick={() => setShowPrivacyModal(false)}>Anuluj</button>
+                            <button onClick={updateCollectionPrivacy}>Zapisz</button>
                         </div>
                     </div>
                 </div>
