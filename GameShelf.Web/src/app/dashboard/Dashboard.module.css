@@ -313,6 +313,7 @@
     border-radius: 22px;
     overflow: hidden;
     text-align: left;
+    position: relative;
 }
 
 .dashboardGameImage {
@@ -345,12 +346,32 @@
         margin-bottom: 8px;
     }
 
-    .dashboardGameInfo p {
-        font-size: 14px;
-        font-weight: 300;
-        margin-bottom: 6px;
+.gameMeta {
+    font-size: 13px;
+    color: #c4b5fd;
+}
+
+.gameDate {
+    font-size: 11px;
+    color: #8b8b9e;
+}
+
+.gameTitleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+    .gameTitleRow h2 {
+        margin: 0;
     }
 
+.favoriteStar {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
 
 .gameControls {
     display: flex;

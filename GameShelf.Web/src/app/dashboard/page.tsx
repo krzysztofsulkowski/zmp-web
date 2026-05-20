@@ -10,6 +10,7 @@ import deleteIcon from '@/assets/delete.svg';
 import eyeOnIcon from '@/assets/eye-on.svg';
 import eyeOffIcon from '@/assets/eye-off.svg';
 import linkIcon from '@/assets/link.svg';
+import starIcon from '@/assets/star.svg';
 
 type CollectionTab = 'library' | 'favorites' | 'planned' | 'wishlist' | 'playing' | 'completed' | 'abandoned';
 
@@ -857,21 +858,43 @@ export default function Dashboard() {
 
                                 {visibleGames.map((game) => {
                                     const imageUrl = getGameImageUrl(game);
+                                    const isFavorite = getFavoriteGameIds().includes(game.gameId);
 
                                     return (
-                                        <article key={`${game.collectionId}-${game.gameId}`} className={styles.dashboardGameCard}>
+                                        <article
+                                            key={`${game.collectionId}-${game.gameId}`}
+                                            className={styles.dashboardGameCard}
+                                        >
                                             <div className={styles.dashboardGameImage}>
                                                 {imageUrl ? (
                                                     <img src={imageUrl} alt={game.title} />
                                                 ) : (
-                                                    <div className={styles.dashboardGamePlaceholder}>Brak obrazu</div>
+                                                    <div className={styles.dashboardGamePlaceholder}>
+                                                        Brak obrazu
+                                                    </div>
                                                 )}
                                             </div>
 
                                             <div className={styles.dashboardGameInfo}>
-                                                <h2>{game.title}</h2>
-                                                <p>{game.genreName || 'Brak gatunku'} · {game.platformName || 'Brak platformy'}</p>
-                                                <p>Dodano: {game.addedAt ? formatDate(game.addedAt) : 'Brak daty'}</p>
+                                                <div className={styles.gameTitleRow}>
+                                                    <h2>{game.title}</h2>
+
+                                                    {isFavorite && (
+                                                        <img
+                                                            src={starIcon}
+                                                            alt="Ulubiona gra"
+                                                            className={styles.favoriteStar}
+                                                        />
+                                                    )}
+                                                </div>
+
+                                                <p className={styles.gameMeta}>
+                                                    {game.genreName || 'Brak gatunku'} · {game.platformName || 'Brak platformy'}
+                                                </p>
+
+                                                <p className={styles.gameDate}>
+                                                    Dodano: {game.addedAt ? formatDate(game.addedAt) : 'Brak daty'}
+                                                </p>
                                             </div>
                                         </article>
                                     );
