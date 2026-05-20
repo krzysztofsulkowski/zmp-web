@@ -230,6 +230,21 @@ export default function GamesPage() {
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                 />
+                <br></br>
+                {searchValue.trim() && (
+                    <div className={styles.proposeWrapper}>
+                        <span className={styles.proposeText}>
+                            Nie widzisz gry, której szukasz?
+                        </span>
+
+                        <button
+                            className={styles.proposeButton}
+                            onClick={() => navigate('/propose-game')}
+                        >
+                               Zaproponuj nową
+                        </button>
+                    </div>
+                )}
 
                 {message && <p className={styles.message}>{message}</p>}
 
@@ -269,6 +284,7 @@ export default function GamesPage() {
             {selectedGame && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
+
                         <h2>Dodaj grę do kolekcji</h2>
 
                         <div className={styles.modalGamePreview}>

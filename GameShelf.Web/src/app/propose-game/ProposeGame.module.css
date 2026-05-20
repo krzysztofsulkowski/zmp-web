@@ -1,0 +1,118 @@
+.page {
+    min-height: 100vh;
+    background: radial-gradient(circle at top left, #3b1d73, #0f172a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    font-family: 'Figtree', system-ui, sans-serif;
+}
+
+.card {
+    width: 100%;
+    max-width: 700px;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 32px 42px 40px;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.backButton {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    border: none;
+    background: transparent;
+    color: #0F0F14;
+    font-size: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.title {
+    text-align: center;
+    color: #0F0F14;
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 36px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .field label {
+        color: #0F0F14;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+.input,
+.select,
+.textarea,
+.fileInput {
+    width: 100%;
+    border: 1px solid #484848;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: 'Figtree', system-ui, sans-serif;
+    box-sizing: border-box;
+}
+
+    .input:focus,
+    .select:focus,
+    .textarea:focus {
+        outline: none;
+        border-color: #7C3AED;
+    }
+
+.select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('@/assets/arrow-down-black.svg');
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px;
+    padding-right: 42px;
+}
+
+
+.textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.fileInput {
+    padding: 8px;
+}
+
+.submitButton {
+    margin-top: 12px;
+    border: none;
+    border-radius: 14px;
+    background: #7C3AED;
+    color: white;
+    height: 48px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 600;
+}
+
+    .submitButton:hover {
+        background: #6D28D9;
+    }

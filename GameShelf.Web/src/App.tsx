@@ -12,6 +12,7 @@ import FaqPage from './app/faq/page';
 import AboutPage from './app/about/page';
 import ProfilePage from './app/profile/page';
 import GamesPage from './app/games/page';
+import ProposeGamePage from './app/propose-game/page';
 import ResetPasswordPage from './app/auth/reset-password/page';
 import AdminPage from './app/admin/page';
 import LogPage from './app/log/page';
@@ -105,6 +106,8 @@ function App() {
                     <Route path="/profile" element={<ProfilePage />} />
 
                     <Route path="/games" element={<GamesPage />} />
+
+                    <Route path="/propose-game" element={<ProposeGamePage />} />
                 </Route>
 
                 <Route element={<AdminRoute />}>
