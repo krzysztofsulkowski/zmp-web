@@ -442,14 +442,28 @@ export default function Dashboard() {
     const moveSelectedGame = async () => {
         if (!selectedGame || !targetCollectionId) return;
         if (Number(targetCollectionId) === selectedGame.collectionId) return;
+
+        const actualSource = collectionsWithGames.find((c) =>
+            c.games.some((g) => g.gameId === selectedGame.gameId)
+        );
+
+        const currentCollectionId = actualSource?.collectionId ?? selectedGame.collectionId;
+
         try {
             const token = localStorage.getItem('authToken');
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/games/move-game`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ gameId: selectedGame.gameId, currentCollectionId: selectedGame.collectionId, targetCollectionId: Number(targetCollectionId) })
+                body: JSON.stringify({
+                    gameId: selectedGame.gameId,
+                    currentCollectionId: currentCollectionId,
+                    targetCollectionId: Number(targetCollectionId)
+                })
             });
-            if (!response.ok) throw new Error('Nie udało się przenieść gry.');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.detail || 'Nie udało się przenieść gry.');
+            }
             await loadCollectionGames();
             await loadLibraryStats();
             closeGameModal();
@@ -623,7 +637,11 @@ export default function Dashboard() {
                                             key={`${game.collectionId}-${game.gameId}`}
                                             className={styles.dashboardGameCard}
                                             onClick={() => {
-                                                setSelectedGame(game);
+                                                const gameWithCorrectCollection = collectionsWithGames
+                                                    .flatMap((c) => c.games)
+                                                    .find((g) => g.gameId === game.gameId && g.collectionId === game.collectionId)
+                                                    ?? game;
+                                                setSelectedGame(gameWithCorrectCollection);
                                                 setIsFavoriteChecked(getFavoriteGameIds().includes(game.gameId));
                                             }}
                                         >
@@ -785,7 +803,12 @@ export default function Dashboard() {
                                     options={[
                                         { value: '', label: 'Wybierz kolekcję...' },
                                         ...allCollections
-                                            .filter((c) => c.id !== selectedGame.collectionId)
+                                            .filter((c) => {
+                                                const actualSourceId = collectionsWithGames.find((coll) =>
+                                                    coll.games.some((g) => g.gameId === selectedGame.gameId)
+                                                )?.collectionId ?? selectedGame.collectionId;
+                                                return c.id !== actualSourceId && c.name !== 'Ulubione';
+                                            })
                                             .map((c) => ({ value: String(c.id), label: c.name }))
                                     ]}
                                 />
