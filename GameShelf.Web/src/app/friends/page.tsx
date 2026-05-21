@@ -43,7 +43,7 @@ export default function FriendsPage() {
         user.userName ?? user.username ?? 'Nieznany użytkownik';
 
     const getUserId = (user: FriendUser) =>
-        user.userId ?? user.friendId ?? user.id;
+        user.friendId ?? user.userId ?? user.id;
 
     const getAuthHeaders = () => {
         const token = localStorage.getItem('authToken');
@@ -69,6 +69,7 @@ export default function FriendsPage() {
         });
         if (!response.ok) return;
         const data = await response.json();
+        console.log('friends raw:', JSON.stringify(data, null, 2));
         setFriends(Array.isArray(data) ? data : data.data ?? []);
     };
 
@@ -94,7 +95,15 @@ export default function FriendsPage() {
             });
             if (!response.ok) throw new Error();
             const data = await response.json() as SearchResponse | FriendUser[];
-            setSearchResults(Array.isArray(data) ? data : data.data ?? []);
+            const raw: FriendUser[] = Array.isArray(data) ? data : data.data ?? [];
+            const friendIds = new Set(friends.map((f) => getUserId(f)));
+            const query = searchValue.toLowerCase();
+            const filtered = raw.filter((u) => {
+                if (friendIds.has(getUserId(u))) return false;
+                const name = getUserName(u).toLowerCase();
+                return name.includes(query);
+            });
+            setSearchResults(filtered);
         } catch {
             showMessage('Nie udało się wyszukać użytkowników.', 'error');
         } finally {
@@ -142,14 +151,18 @@ export default function FriendsPage() {
         }
     };
 
-    const rejectOrRemove = async (friendId: string) => {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/friends/reject-or-remove/${friendId}`, {
-            method: 'DELETE',
-            headers: getAuthHeaders()
-        });
-        if (response.ok) {
+    const rejectOrRemove = async (friendId: string, isFriend = false) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/friends/reject-or-remove/${friendId}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders()
+            });
+            if (!response.ok) throw new Error();
             await loadPendingRequests();
             await loadFriends();
+            showMessage(isFriend ? 'Znajomy został usunięty.' : 'Zaproszenie odrzucone.');
+        } catch {
+            showMessage(isFriend ? 'Nie udało się usunąć znajomego.' : 'Nie udało się odrzucić zaproszenia.', 'error');
         }
     };
 
@@ -225,11 +238,11 @@ export default function FriendsPage() {
                                                     className={styles.primaryButton}
                                                     onClick={() => navigate(`/friends/${getUserId(friend)}`)}
                                                 >
-                                                    Kolekcje
+                                                    Wyświetl profil
                                                 </button>
                                                 <button
                                                     className={styles.ghostButton}
-                                                    onClick={() => rejectOrRemove(getUserId(friend))}
+                                                    onClick={() => rejectOrRemove(getUserId(friend), true)}
                                                 >
                                                     Usuń
                                                 </button>
