@@ -25,7 +25,7 @@ export default function AdminPage() {
                 <h1>Panel administratora</h1>
 
                 <div className={styles.buttons}>
-                    <button className={styles.adminButton} onClick={() => navigate('/logs')}>
+                    <button className={styles.adminButton} onClick={() => navigate('/log')}>
                         Logi systemowe
                         <img src={arrow} alt="" width={25} />
                     </button>
