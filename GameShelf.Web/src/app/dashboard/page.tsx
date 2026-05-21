@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from "./Dashboard.module.css";
 import { Navbar } from '@/components/Navbar/Navbar';
+import { CustomSelect } from '@/components/CustomSelect/CustomSelect';
 import addIcon from '@/assets/add.svg';
 import arrowLeft from '@/assets/arrow-left.svg';
 import arrowRight from '@/assets/arrow-right.svg';
@@ -11,7 +12,6 @@ import eyeOnIcon from '@/assets/eye-on.svg';
 import eyeOffIcon from '@/assets/eye-off.svg';
 import linkIcon from '@/assets/link.svg';
 import starIcon from '@/assets/star.svg';
-
 
 type CollectionTab = 'library' | 'favorites' | 'planned' | 'wishlist' | 'playing' | 'completed' | 'abandoned';
 
@@ -51,10 +51,6 @@ type CollectionWithGames = {
 
 type CollectionsWithGamesResponse = {
     data?: CollectionWithGames[];
-};
-
-type UserProfile = {
-    avatarUrl: string;
 };
 
 type StatItem = {
@@ -163,7 +159,6 @@ export default function Dashboard() {
 
     const activeEmptyState = emptyStates[activeTab];
     const activeCustomCollection = customCollections.find((collection) => collection.id === activeCustomCollectionId);
-
 
     const scrollTabs = (direction: 'left' | 'right') => {
         if (!tabsRef.current) return;
@@ -559,26 +554,34 @@ export default function Dashboard() {
                     {activeGames.length > 0 ? (
                         <>
                             <div className={styles.gameControls}>
-                                <select value={selectedPlatform} onChange={(e) => setSelectedPlatform(e.target.value)}>
-                                    <option value="">Wszystkie platformy</option>
-                                    {platformOptions.map((platform) => (
-                                        <option key={platform} value={platform}>{platform}</option>
-                                    ))}
-                                </select>
+                                <CustomSelect
+                                    value={selectedPlatform}
+                                    onChange={setSelectedPlatform}
+                                    options={[
+                                        { value: '', label: 'Wszystkie platformy' },
+                                        ...platformOptions.map((p) => ({ value: p, label: p }))
+                                    ]}
+                                />
 
-                                <select value={selectedGenre} onChange={(e) => setSelectedGenre(e.target.value)}>
-                                    <option value="">Wszystkie kategorie</option>
-                                    {genreOptions.map((genre) => (
-                                        <option key={genre} value={genre}>{genre}</option>
-                                    ))}
-                                </select>
+                                <CustomSelect
+                                    value={selectedGenre}
+                                    onChange={setSelectedGenre}
+                                    options={[
+                                        { value: '', label: 'Wszystkie kategorie' },
+                                        ...genreOptions.map((g) => ({ value: g, label: g }))
+                                    ]}
+                                />
 
-                                <select value={sortOption} onChange={(e) => setSortOption(e.target.value as SortOption)}>
-                                    <option value="newest">Sortuj: od najnowszych</option>
-                                    <option value="oldest">Sortuj: od najstarszych</option>
-                                    <option value="titleAsc">Sortuj: A-Z</option>
-                                    <option value="titleDesc">Sortuj: Z-A</option>
-                                </select>
+                                <CustomSelect
+                                    value={sortOption}
+                                    onChange={(v) => setSortOption(v as SortOption)}
+                                    options={[
+                                        { value: 'newest', label: 'Sortuj: od najnowszych' },
+                                        { value: 'oldest', label: 'Sortuj: od najstarszych' },
+                                        { value: 'titleAsc', label: 'Sortuj: A–Z' },
+                                        { value: 'titleDesc', label: 'Sortuj: Z–A' },
+                                    ]}
+                                />
 
                                 <div className={styles.collectionActionButtons}>
                                     {isManualCollection && (
@@ -776,12 +779,16 @@ export default function Dashboard() {
 
                             <p className={styles.gameModalSectionLabel}>Przenieś do kolekcji</p>
                             <div className={styles.moveRow}>
-                                <select value={targetCollectionId} onChange={(e) => setTargetCollectionId(e.target.value)} className={styles.modalSelect}>
-                                    <option value="">Wybierz kolekcję...</option>
-                                    {allCollections.filter((c) => c.id !== selectedGame.collectionId).map((c) => (
-                                        <option key={c.id} value={c.id}>{c.name}</option>
-                                    ))}
-                                </select>
+                                <CustomSelect
+                                    value={targetCollectionId}
+                                    onChange={setTargetCollectionId}
+                                    options={[
+                                        { value: '', label: 'Wybierz kolekcję...' },
+                                        ...allCollections
+                                            .filter((c) => c.id !== selectedGame.collectionId)
+                                            .map((c) => ({ value: String(c.id), label: c.name }))
+                                    ]}
+                                />
                                 <button
                                     className={styles.moveButton}
                                     onClick={moveSelectedGame}
