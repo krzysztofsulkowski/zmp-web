@@ -5,6 +5,7 @@
     padding: 24px 40px;
 }
 
+
 .navbar {
     display: flex;
     align-items: center;
@@ -62,7 +63,6 @@
 
     .profileButton:hover {
         transform: translateY(-2px);
-        background: #1d1435;
     }
 
     .profileButton img {
@@ -103,8 +103,9 @@
             background: rgba(124, 58, 237, 0.25);
         }
 
+
 .content {
-    max-width: 1180px;
+    max-width: 860px;
     margin: 0 auto;
 }
 
@@ -112,225 +113,423 @@
         text-align: center;
         font-size: 38px;
         font-weight: 800;
-        margin-bottom: 16px;
+        margin-bottom: 32px;
     }
 
-.subtitle {
-    max-width: 760px;
-    margin: 0 auto 34px auto;
-    text-align: center;
-    font-size: 18px;
-    line-height: 1.6;
-    font-weight: 300;
-    opacity: 0.92;
-}
 
-.message {
-    text-align: center;
-    font-weight: 700;
-    margin-bottom: 22px;
-}
-
-.formsGrid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+.tabBar {
+    display: flex;
+    gap: 4px;
+    background: rgba(10, 8, 28, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 18px;
+    padding: 6px;
     margin-bottom: 24px;
 }
 
-.formCard,
-.card,
-.cardWide {
-    padding: 28px;
-    border-radius: 22px;
-    background: rgba(10, 8, 28, 0.58);
-    border: 1px solid rgba(124, 58, 237, 0.55);
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+.tab,
+.tabActive {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    border-radius: 13px;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-    .formCard h2,
-    .card h2,
-    .cardWide h2 {
-        font-size: 22px;
-        font-weight: 800;
-        margin-bottom: 20px;
-    }
-
-.inputRow {
-    display: flex;
-    gap: 12px;
+.tab {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.55);
 }
 
-    .inputRow input {
-        flex: 1;
-        min-width: 0;
-        border: 1px solid rgba(124, 58, 237, 0.55);
-        border-radius: 14px;
-        background: rgba(15, 15, 26, 0.9);
+    .tab:hover {
         color: white;
-        font-family: 'Figtree', system-ui, sans-serif;
-        font-size: 15px;
-        padding: 14px 16px;
-        outline: none;
     }
 
-    .inputRow button,
-    .userItem button,
-    .friendActions button {
-        border: none;
-        border-radius: 12px;
-        background: #7C3AED;
-        color: white;
-        font-family: 'Figtree', system-ui, sans-serif;
-        font-size: 14px;
-        font-weight: 800;
-        padding: 12px 18px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-        .inputRow button:hover,
-        .userItem button:hover,
-        .friendActions button:hover {
-            transform: translateY(-2px);
-        }
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+.tabActive {
+    background: #7C3AED;
+    color: white;
 }
 
-.cardWide {
-    grid-column: 1 / -1;
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
 }
 
-.userList {
+.badgeAlert {
+    background: #ef4444;
+}
+
+
+.messageSuccess,
+.messageError {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 20px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.messageSuccess {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #86efac;
+}
+
+.messageError {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+
+.panel {
+    border: 1px solid rgba(124, 58, 237, 0.45);
+    border-radius: 24px;
+    background: rgba(10, 8, 28, 0.45);
+    padding: 36px 40px;
+    min-height: 340px;
+}
+
+
+.emptyState {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    min-height: 240px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 16px;
+    font-weight: 300;
 }
 
-.userItem {
+.ctaButton {
+    border: none;
+    border-radius: 12px;
+    background: #7C3AED;
+    color: white;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .ctaButton:hover {
+        transform: translateY(-2px);
+    }
+
+
+.friendsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.friendCard {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    padding: 14px;
-    border-radius: 16px;
-    background: rgba(15, 15, 26, 0.72);
+    text-align: center;
+    gap: 10px;
+    padding: 24px 20px;
+    border-radius: 18px;
+    background: rgba(15, 15, 26, 0.65);
     border: 1px solid rgba(124, 58, 237, 0.32);
+    transition: border-color 0.2s ease;
 }
 
-.userInfo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-width: 0;
-}
-
-    .userInfo h3,
-    .friendCard h3 {
-        font-size: 16px;
-        font-weight: 800;
-        margin-bottom: 4px;
+    .friendCard:hover {
+        border-color: rgba(124, 58, 237, 0.65);
     }
 
-    .userInfo p,
-    .friendCard p {
-        font-size: 13px;
-        opacity: 0.78;
-    }
-
-.userAvatar,
-.userAvatarLarge {
+.friendAvatar {
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
-    background: #0f0f1a;
-    border: 1px solid rgba(124, 58, 237, 0.65);
+    background: rgba(124, 58, 237, 0.25);
+    border: 2px solid rgba(124, 58, 237, 0.55);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    flex-shrink: 0;
+    font-size: 26px;
     font-weight: 800;
+    flex-shrink: 0;
 }
 
-.userAvatar {
-    width: 48px;
-    height: 48px;
-    font-size: 18px;
-}
-
-.userAvatarLarge {
-    width: 76px;
-    height: 76px;
-    font-size: 28px;
-    margin-bottom: 14px;
-}
-
-    .userAvatar img,
-    .userAvatarLarge img {
+    .friendAvatar img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
 
-.actions,
+.friendInfo {
+    flex: 1;
+}
+
+    .friendInfo h3 {
+        font-size: 16px;
+        font-weight: 800;
+        margin: 0 0 4px;
+    }
+
+.friendBio {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 .friendActions {
     display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+
+.requestList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.requestItem {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(15, 15, 26, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.28);
+}
+
+.requestAvatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(124, 58, 237, 0.25);
+    border: 2px solid rgba(124, 58, 237, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-size: 18px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+    .requestAvatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.requestInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+    .requestInfo h3 {
+        font-size: 15px;
+        font-weight: 800;
+        margin: 0 0 3px;
+    }
+
+    .requestInfo p {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.55);
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+.requestActions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+
+.searchTab {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.searchForms {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.searchForm {
+    display: flex;
+    flex-direction: column;
     gap: 10px;
-    flex-wrap: wrap;
 }
 
-.secondaryButton {
-    background: rgba(15, 15, 26, 0.9) !important;
-    border: 1px solid rgba(124, 58, 237, 0.55) !important;
+.searchLabel {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
 }
 
-.friendsGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
+.inputRow {
+    display: flex;
+    gap: 10px;
 }
 
-.friendCard {
-    padding: 22px;
-    border-radius: 18px;
-    background: rgba(15, 15, 26, 0.72);
-    border: 1px solid rgba(124, 58, 237, 0.32);
+    .inputRow input {
+        flex: 1;
+        min-width: 0;
+        border: 1px solid rgba(124, 58, 237, 0.45);
+        border-radius: 12px;
+        background: rgba(15, 15, 26, 0.9);
+        color: white;
+        font-family: 'Figtree', system-ui, sans-serif;
+        font-size: 15px;
+        padding: 13px 16px;
+        outline: none;
+        transition: border-color 0.2s ease;
+    }
+
+        .inputRow input:focus {
+            border-color: #7C3AED;
+        }
+
+.divider {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 18px 0;
+    position: relative;
 }
 
-.friendActions {
-    margin-top: 18px;
+    .divider::before,
+    .divider::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 42%;
+        height: 1px;
+        background: rgba(124, 58, 237, 0.25);
+    }
+
+    .divider::before {
+        left: 0;
+    }
+
+    .divider::after {
+        right: 0;
+    }
+
+.searchResults {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.emptyText {
-    font-size: 15px;
-    line-height: 1.5;
-    opacity: 0.8;
+.resultsLabel {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
 }
 
-@media (max-width: 900px) {
-    .formsGrid,
-    .grid,
+
+.primaryButton {
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    background: #7C3AED;
+    color: white;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+    .primaryButton:hover {
+        background: #6D28D9;
+    }
+
+    .primaryButton:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+.ghostButton {
+    flex: 1;
+    border: 1px solid rgba(124, 58, 237, 0.45);
+    border-radius: 10px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+    .ghostButton:hover {
+        border-color: rgba(239, 68, 68, 0.6);
+        color: #fca5a5;
+    }
+
+
+@media (max-width: 700px) {
+    .page {
+        padding: 16px 20px;
+    }
+
+    .panel {
+        padding: 24px 20px;
+    }
+
+    .tabBar {
+        flex-direction: column;
+    }
+
     .friendsGrid {
         grid-template-columns: 1fr;
     }
 
-    .navLinks {
-        gap: 16px;
+    .requestItem {
+        flex-wrap: wrap;
     }
 
-        .navLinks button {
-            font-size: 14px;
-        }
-
-    .inputRow {
-        flex-direction: column;
-    }
-
-    .userItem {
-        align-items: flex-start;
-        flex-direction: column;
+    .requestActions {
+        width: 100%;
     }
 }
