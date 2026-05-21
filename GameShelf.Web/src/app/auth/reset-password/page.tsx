@@ -7,6 +7,33 @@ import arrowBack from '@/assets/arrow-back.svg';
 import eyeOn from '@/assets/eye-on-black.svg';
 import eyeOff from '@/assets/eye-off-black.svg';
 
+interface PasswordCriteria {
+    minLength: boolean;
+    hasUppercase: boolean;
+    hasNumber: boolean;
+    hasSpecial: boolean;
+}
+
+function getPasswordCriteria(pwd: string): PasswordCriteria {
+    return {
+        minLength: pwd.length >= 8,
+        hasUppercase: /[A-Z]/.test(pwd),
+        hasNumber: /[0-9]/.test(pwd),
+        hasSpecial: /[^A-Za-z0-9]/.test(pwd),
+    };
+}
+
+function isPasswordValid(criteria: PasswordCriteria): boolean {
+    return Object.values(criteria).every(Boolean);
+}
+
+const CRITERIA_LABELS: Record<keyof PasswordCriteria, string> = {
+    minLength: 'Min. 8 znaków',
+    hasUppercase: 'Wielka litera',
+    hasNumber: 'Cyfra',
+    hasSpecial: 'Znak specjalny',
+};
+
 export default function ResetPasswordPage() {
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -22,6 +49,16 @@ export default function ResetPasswordPage() {
 
     const token = searchParams.get('token');
 
+    const criteria = getPasswordCriteria(newPassword);
+    const passwordValid = isPasswordValid(criteria);
+    const metCount = Object.values(criteria).filter(Boolean).length;
+
+    const strengthColor =
+        metCount === 4 ? '#14AE5C' :
+            metCount === 3 ? '#3B82F6' :
+                metCount >= 1 ? '#F59E0B' :
+                    'transparent';
+
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         setError(null);
@@ -29,6 +66,11 @@ export default function ResetPasswordPage() {
 
         if (!token) {
             setError('Brak tokenu resetowania hasła.');
+            return;
+        }
+
+        if (!passwordValid) {
+            setError('Hasło musi zawierać min. 8 znaków, wielką literę, cyfrę i znak specjalny.');
             return;
         }
 
@@ -129,6 +171,35 @@ export default function ResetPasswordPage() {
                                         <img src={showNewPassword ? eyeOff : eyeOn} alt="" width={20} height={20} />
                                     </button>
                                 </div>
+
+                                {newPassword.length > 0 && (
+                                    <div className={styles.strengthWrapper}>
+                                        <div className={styles.strengthBars}>
+                                            {[1, 2, 3, 4].map((level) => (
+                                                <div
+                                                    key={level}
+                                                    className={styles.strengthBar}
+                                                    style={{
+                                                        backgroundColor: metCount >= level ? strengthColor : '#e5e7eb',
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                        <div className={styles.tooltipWrapper}>
+                                            <span className={styles.tooltipIcon}>?</span>
+                                            <div className={styles.tooltip}>
+                                                {(Object.keys(criteria) as (keyof PasswordCriteria)[]).map((key) => (
+                                                    <span
+                                                        key={key}
+                                                        className={`${styles.criteriaItem} ${criteria[key] ? styles.criteriaMet : styles.criteriaUnmet}`}
+                                                    >
+                                                        {criteria[key] ? '✓' : '✗'} {CRITERIA_LABELS[key]}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className={styles.field}>
