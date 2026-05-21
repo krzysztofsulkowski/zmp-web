@@ -8,6 +8,7 @@ import ForgotPasswordPage from './app/auth/forgot-password/page';
 import LandingPage from './app/auth/landing/page';
 import CommunityPage from './app/community/page';
 import FriendsPage from './app/friends/page';
+import FriendCollectionsPage from './app/friend-collections/page';
 import FaqPage from './app/faq/page';
 import AboutPage from './app/about/page';
 import ProfilePage from './app/profile/page';
@@ -102,6 +103,8 @@ function App() {
                     <Route path="/community" element={<CommunityPage />} />
 
                     <Route path="/friends" element={<FriendsPage />} />
+
+                    <Route path="/friends/:friendId" element={<FriendCollectionsPage />} />
 
                     <Route path="/profile" element={<ProfilePage />} />
 

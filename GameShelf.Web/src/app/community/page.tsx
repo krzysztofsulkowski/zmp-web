@@ -185,12 +185,12 @@ export default function CommunityPage() {
                             </article>
 
                             <article className={styles.summaryCard}>
-                                <span>Gry w bibliotekach</span>
+                                <span>Gry dostępne w systemie</span>
                                 <strong>{statistics.totalGamesInLibrary}</strong>
                             </article>
 
                             <article className={styles.summaryCard}>
-                                <span>Wszystkie gry użytkowników</span>
+                                <span>Gry dodane do kolekcji przez wszystkich graczy</span>
                                 <strong>{statistics.totalUserGames}</strong>
                             </article>
                         </div>
