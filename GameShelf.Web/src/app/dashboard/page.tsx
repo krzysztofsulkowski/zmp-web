@@ -180,6 +180,10 @@ export default function Dashboard() {
     const [gameImages, setGameImages] = useState<Record<number, string>>({});
     const [activeCustomCollectionId, setActiveCustomCollectionId] = useState<number | null>(null);
     const [libraryStats, setLibraryStats] = useState<MyLibraryStats | null>(null);
+    const [selectedGame, setSelectedGame] = useState<CollectionGame | null>(null);
+    const [targetCollectionId, setTargetCollectionId] = useState('');
+    const [gameActionError, setGameActionError] = useState('');
+    const [isFavoriteChecked, setIsFavoriteChecked] = useState(false);
 
     const [sortOption, setSortOption] = useState<SortOption>('newest');
     const [selectedGenre, setSelectedGenre] = useState('');
@@ -641,6 +645,99 @@ export default function Dashboard() {
         }
     };
 
+    const closeGameModal = () => {
+        setSelectedGame(null);
+        setTargetCollectionId('');
+        setGameActionError('');
+    };
+
+    const toggleFavoriteGame = () => {
+        setIsFavoriteChecked((prev) => !prev);
+    };
+
+    const moveSelectedGame = async () => {
+        if (!selectedGame || !targetCollectionId) {
+            setGameActionError('Wybierz kolekcję docelową.');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('authToken');
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/games/move-game`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    gameId: selectedGame.gameId,
+                    currentCollectionId: selectedGame.collectionId,
+                    targetCollectionId: Number(targetCollectionId)
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Nie udało się przenieść gry.');
+            }
+
+            await loadCollectionGames();
+            await loadLibraryStats();
+
+            const favoriteIds = getFavoriteGameIds();
+
+            const updatedFavoriteIds = isFavoriteChecked
+                ? Array.from(new Set([...favoriteIds, selectedGame.gameId]))
+                : favoriteIds.filter((id) => id !== selectedGame.gameId);
+
+            localStorage.setItem(
+                favoriteGamesStorageKey,
+                JSON.stringify(updatedFavoriteIds)
+            );
+            closeGameModal();
+        } catch (err) {
+            setGameActionError(err instanceof Error ? err.message : 'Wystąpił błąd.');
+        }
+    };
+
+    const removeSelectedGameFromCollection = async () => {
+        if (!selectedGame) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('authToken');
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/games/remove-from-collection/${selectedGame.gameId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Nie udało się usunąć gry z kolekcji.');
+            }
+
+            await loadCollectionGames();
+            await loadLibraryStats();
+
+            const favoriteIds = getFavoriteGameIds();
+
+            const updatedFavoriteIds = isFavoriteChecked
+                ? Array.from(new Set([...favoriteIds, selectedGame.gameId]))
+                : favoriteIds.filter((id) => id !== selectedGame.gameId);
+
+            localStorage.setItem(
+                favoriteGamesStorageKey,
+                JSON.stringify(updatedFavoriteIds)
+            );
+            closeGameModal();
+        } catch (err) {
+            setGameActionError(err instanceof Error ? err.message : 'Wystąpił błąd.');
+        }
+    };
+
     const loadLibraryStats = async () => {
         const token = localStorage.getItem('authToken');
 
@@ -864,7 +961,12 @@ export default function Dashboard() {
                                         <article
                                             key={`${game.collectionId}-${game.gameId}`}
                                             className={styles.dashboardGameCard}
-                                        >
+                                            onClick={() => {
+                                                setSelectedGame(game);
+                                                setIsFavoriteChecked(
+                                                    getFavoriteGameIds().includes(game.gameId)
+                                                );
+                                            }}                                        >
                                             <div className={styles.dashboardGameImage}>
                                                 {imageUrl ? (
                                                     <img src={imageUrl} alt={game.title} />
@@ -1015,7 +1117,67 @@ export default function Dashboard() {
                 )}
             </section>
 
-            
+            {selectedGame && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.gameManageModal}>
+                        <button className={styles.gameModalBackButton} onClick={closeGameModal}>
+                            ←
+                        </button>
+
+                        <h2>Zarządzaj grą</h2>
+
+                        <div className={styles.gameModalContent}>
+                            <p>
+                                <span>tytuł gry:</span>
+                                <strong>{selectedGame.title}</strong>
+                            </p>
+
+                            <p>
+                                <span>gatunek i platforma:</span>
+                                <strong>{selectedGame.genreName || 'Brak gatunku'} · {selectedGame.platformName || 'Brak platformy'}</strong>
+                            </p>
+
+                            <label className={styles.favoriteCheckbox}>
+                                <input
+                                    type="checkbox"
+                                    checked={isFavoriteChecked}
+                                    onChange={toggleFavoriteGame}
+                                />
+                                <span></span>
+                                ulubiona gra
+                            </label>
+
+                            <select
+                                value={targetCollectionId}
+                                onChange={(e) => setTargetCollectionId(e.target.value)}
+                                className={styles.modalSelect}
+                            >
+                                <option value="">Wybierz kolekcję docelową</option>
+
+                                {allCollections
+                                    .filter((collection) => collection.id !== selectedGame.collectionId)
+                                    .map((collection) => (
+                                        <option key={collection.id} value={collection.id}>
+                                            {collection.name}
+                                        </option>
+                                    ))}
+                            </select>
+
+                            {gameActionError && (
+                                <p className={styles.errorMessage}>{gameActionError}</p>
+                            )}
+
+                            <button className={styles.saveGameButton} onClick={moveSelectedGame}>
+                                Zapisz zmiany
+                            </button>
+
+                            <button className={styles.removeGameButton} onClick={removeSelectedGameFromCollection}>
+                                Usuń grę z kolekcji
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {showCreateModal && (
                 <div className={styles.modalOverlay}>

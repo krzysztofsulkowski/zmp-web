@@ -69,7 +69,7 @@
         text-align: center;
         font-size: 38px;
         font-weight: 800;
-        margin-bottom: 16px;
+        margin-bottom: 30px;
     }
 
 .collectionsBox {
@@ -542,6 +542,7 @@
 
 .statsSection {
     margin-top: 64px;
+    margin-bottom: 64px;
     text-align: center;
 }
 
@@ -634,4 +635,156 @@
     .statsGrid {
         grid-template-columns: 1fr;
     }
+}
+
+.dashboardGameCard {
+    cursor: pointer;
+}
+
+.gameManageModal {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+    min-height: 560px;
+    background: #ffffff;
+    border-radius: 28px;
+    padding: 70px 96px 78px;
+    box-shadow: 0 26px 90px rgba(0, 0, 0, 0.45);
+}
+
+.gameModalBackButton {
+    position: absolute;
+    top: 38px;
+    left: 42px;
+    border: none;
+    background: transparent;
+    color: #0f0f14;
+    font-size: 42px;
+    line-height: 1;
+    cursor: pointer;
+    font-family: 'Figtree', system-ui, sans-serif;
+}
+
+.gameManageModal h2 {
+    margin: 0 0 42px;
+    color: #0f0f14;
+    font-size: 34px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.gameModalContent {
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+    .gameModalContent p {
+        margin: 0 0 8px;
+        color: #0f0f14;
+        font-size: 21px;
+        line-height: 1.35;
+    }
+
+        .gameModalContent p span {
+            margin-right: 12px;
+            font-weight: 600;
+        }
+
+        .gameModalContent p strong {
+            font-weight: 800;
+        }
+
+.favoriteCheckbox {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 28px 0 24px;
+    color: #0f0f14;
+    font-size: 22px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+    .favoriteCheckbox input {
+        display: none;
+    }
+
+    .favoriteCheckbox span {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: white;
+        border: 2px solid #7C3AED;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .favoriteCheckbox input:checked + span {
+        background: #7C3AED;
+    }
+
+        .favoriteCheckbox input:checked + span::after {
+            content: '';
+            width: 18px;
+            height: 28px;
+            border-right: 5px solid white;
+            border-bottom: 5px solid white;
+            transform: rotate(45deg) translate(-2px, -3px);
+        }
+
+.modalSelect {
+    width: 100%;
+    height: 48px;
+    border-radius: 10px;
+    border: 1.5px solid #0f0f14;
+    padding: 0 16px;
+    margin-top: 10px;
+    color: #0f0f14;
+    background: white;
+    font-size: 20px;
+    font-family: 'Figtree', system-ui, sans-serif;
+}
+
+.saveGameButton {
+    width: 100%;
+    margin-top: 96px;
+    border: none;
+    border-radius: 14px;
+    background: #7C3AED;
+    color: white;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: 'Figtree', system-ui, sans-serif;
+}
+
+.removeGameButton {
+    width: 100%;
+    margin-top: 14px;
+    border: 1.5px solid #ef2424;
+    border-radius: 14px;
+    background: white;
+    color: #ef2424;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: 'Figtree', system-ui, sans-serif;
+}
+
+.errorMessage {
+    margin-top: 12px;
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.errorMessage {
+    color: #dc2626;
+    font-size: 13px;
+    margin-top: 12px;
 }
