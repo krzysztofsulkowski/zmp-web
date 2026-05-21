@@ -5,7 +5,6 @@
     padding: 24px 40px;
 }
 
-
 .navbar {
     display: flex;
     align-items: center;
@@ -103,9 +102,8 @@
             background: rgba(124, 58, 237, 0.25);
         }
 
-
 .content {
-    max-width: 860px;
+    max-width: 1100px;
     margin: 0 auto;
 }
 
@@ -113,49 +111,54 @@
         text-align: center;
         font-size: 38px;
         font-weight: 800;
-        margin-bottom: 32px;
+        margin-bottom: 30px;
     }
 
+.panel {
+    border: 1px solid #7C3AED;
+    border-radius: 24px;
+    background: rgba(10, 8, 28, 0.45);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+    padding: 36px 52px;
+    min-height: 460px;
+}
 
-.tabBar {
+.tabsWrapper {
     display: flex;
-    gap: 4px;
-    background: rgba(10, 8, 28, 0.55);
-    border: 1px solid rgba(124, 58, 237, 0.35);
-    border-radius: 18px;
-    padding: 6px;
-    margin-bottom: 24px;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(124, 58, 237, 0.25);
+    padding-bottom: 0;
 }
 
 .tab,
 .tabActive {
-    flex: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 17px;
+    font-weight: 300;
+    cursor: pointer;
+    opacity: 0.9;
+    white-space: nowrap;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 8px;
-    border: none;
-    border-radius: 13px;
-    font-family: 'Figtree', system-ui, sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    padding: 12px 16px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.tab {
-    background: transparent;
-    color: rgba(255, 255, 255, 0.55);
+    padding: 0 0 14px;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    transition: font-weight 0.15s ease, border-color 0.15s ease;
 }
 
     .tab:hover {
-        color: white;
+        font-weight: 700;
     }
 
 .tabActive {
-    background: #7C3AED;
-    color: white;
+    font-weight: 800;
+    border-bottom-color: #7C3AED;
 }
 
 .badge {
@@ -168,14 +171,14 @@
     border-radius: 999px;
     font-size: 11px;
     font-weight: 800;
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
+    background: rgba(124, 58, 237, 0.4);
+    color: #c4b5fd;
 }
 
 .badgeAlert {
     background: #ef4444;
+    color: white;
 }
-
 
 .messageSuccess,
 .messageError {
@@ -199,23 +202,13 @@
     color: #fca5a5;
 }
 
-
-.panel {
-    border: 1px solid rgba(124, 58, 237, 0.45);
-    border-radius: 24px;
-    background: rgba(10, 8, 28, 0.45);
-    padding: 36px 40px;
-    min-height: 340px;
-}
-
-
 .emptyState {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 20px;
-    min-height: 240px;
+    min-height: 280px;
     color: rgba(255, 255, 255, 0.5);
     font-size: 16px;
     font-weight: 300;
@@ -224,25 +217,25 @@
 .ctaButton {
     border: none;
     border-radius: 12px;
-    background: #7C3AED;
+    background: rgba(124, 58, 237, 0.45);
     color: white;
     font-family: 'Figtree', system-ui, sans-serif;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
-    padding: 12px 24px;
+    padding: 14px 28px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
     .ctaButton:hover {
+        background: rgba(124, 58, 237, 0.65);
         transform: translateY(-2px);
     }
 
-
 .friendsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
 }
 
 .friendCard {
@@ -251,15 +244,17 @@
     align-items: center;
     text-align: center;
     gap: 10px;
-    padding: 24px 20px;
-    border-radius: 18px;
-    background: rgba(15, 15, 26, 0.65);
-    border: 1px solid rgba(124, 58, 237, 0.32);
-    transition: border-color 0.2s ease;
+    padding: 24px 18px;
+    border-radius: 22px;
+    background: rgba(10, 8, 28, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.45);
+    overflow: hidden;
+    transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
     .friendCard:hover {
-        border-color: rgba(124, 58, 237, 0.65);
+        border-color: rgba(124, 58, 237, 0.8);
+        transform: translateY(-2px);
     }
 
 .friendAvatar {
@@ -285,17 +280,18 @@
 
 .friendInfo {
     flex: 1;
+    width: 100%;
 }
 
     .friendInfo h3 {
         font-size: 16px;
-        font-weight: 800;
+        font-weight: 700;
         margin: 0 0 4px;
     }
 
 .friendBio {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    color: #c4b5fd;
     margin: 0;
     line-height: 1.4;
     display: -webkit-box;
@@ -310,7 +306,6 @@
     width: 100%;
 }
 
-
 .requestList {
     display: flex;
     flex-direction: column;
@@ -323,8 +318,8 @@
     gap: 16px;
     padding: 16px;
     border-radius: 16px;
-    background: rgba(15, 15, 26, 0.65);
-    border: 1px solid rgba(124, 58, 237, 0.28);
+    background: rgba(10, 8, 28, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.32);
 }
 
 .requestAvatar {
@@ -361,7 +356,7 @@
 
     .requestInfo p {
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.55);
+        color: #c4b5fd;
         margin: 0;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -374,7 +369,6 @@
     flex-shrink: 0;
 }
 
-
 .searchTab {
     display: flex;
     flex-direction: column;
@@ -384,7 +378,6 @@
 .searchForms {
     display: flex;
     flex-direction: column;
-    gap: 0;
 }
 
 .searchForm {
@@ -407,19 +400,23 @@
     .inputRow input {
         flex: 1;
         min-width: 0;
-        border: 1px solid rgba(124, 58, 237, 0.45);
-        border-radius: 12px;
-        background: rgba(15, 15, 26, 0.9);
+        border: none;
+        border-radius: 8px;
+        background: rgba(124, 58, 237, 0.25);
         color: white;
         font-family: 'Figtree', system-ui, sans-serif;
-        font-size: 15px;
-        padding: 13px 16px;
+        font-size: 14px;
+        padding: 10px 14px;
         outline: none;
-        transition: border-color 0.2s ease;
+        transition: outline 0.2s ease;
     }
 
         .inputRow input:focus {
-            border-color: #7C3AED;
+            outline: 1px solid #7C3AED;
+        }
+
+        .inputRow input::placeholder {
+            color: rgba(255, 255, 255, 0.45);
         }
 
 .divider {
@@ -456,18 +453,17 @@
 }
 
 .resultsLabel {
-    font-size: 14px;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
     margin: 0;
 }
-
 
 .primaryButton {
     flex: 1;
     border: none;
-    border-radius: 10px;
-    background: #7C3AED;
+    border-radius: 12px;
+    background: rgba(124, 58, 237, 0.45);
     color: white;
     font-family: 'Figtree', system-ui, sans-serif;
     font-size: 13px;
@@ -479,7 +475,7 @@
 }
 
     .primaryButton:hover {
-        background: #6D28D9;
+        background: rgba(124, 58, 237, 0.65);
     }
 
     .primaryButton:disabled {
@@ -490,7 +486,7 @@
 .ghostButton {
     flex: 1;
     border: 1px solid rgba(124, 58, 237, 0.45);
-    border-radius: 10px;
+    border-radius: 12px;
     background: transparent;
     color: rgba(255, 255, 255, 0.7);
     font-family: 'Figtree', system-ui, sans-serif;
@@ -507,8 +503,7 @@
         color: #fca5a5;
     }
 
-
-@media (max-width: 700px) {
+@media (max-width: 768px) {
     .page {
         padding: 16px 20px;
     }
@@ -517,12 +512,13 @@
         padding: 24px 20px;
     }
 
-    .tabBar {
-        flex-direction: column;
+    .tabsWrapper {
+        gap: 20px;
+        overflow-x: auto;
     }
 
     .friendsGrid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
     }
 
     .requestItem {
@@ -531,5 +527,11 @@
 
     .requestActions {
         width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .friendsGrid {
+        grid-template-columns: 1fr;
     }
 }

@@ -203,7 +203,7 @@ export default function FriendsPage() {
             <section className={styles.content}>
                 <h1>Znajomi</h1>
 
-                <div className={styles.tabBar}>
+                <div className={styles.tabsWrapper}>
                     <button
                         className={activeTab === 'friends' ? styles.tabActive : styles.tab}
                         onClick={() => setActiveTab('friends')}
