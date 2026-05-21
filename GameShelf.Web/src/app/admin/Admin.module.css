@@ -97,7 +97,7 @@
     color: #0F0F14;
     font-family: 'Figtree', sans-serif;
     font-size: 20px;
-    font-weight: 00;
+    font-weight: 600;
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s, transform 0.12s;
     text-align: left;

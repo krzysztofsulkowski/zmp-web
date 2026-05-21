@@ -241,7 +241,7 @@ export default function GamesPage() {
                             className={styles.proposeButton}
                             onClick={() => navigate('/propose-game')}
                         >
-                               Zaproponuj nową
+                            Zaproponuj nową
                         </button>
                     </div>
                 )}
