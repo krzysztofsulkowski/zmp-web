@@ -19,7 +19,6 @@ type GlobalStatistics = {
     mostPopularGames: StatisticItem[];
     popularPlatforms: StatisticItem[];
     popularGenres: StatisticItem[];
-    highestRatedGames: StatisticItem[];
 };
 
 const medals = ['🥇', '🥈', '🥉'];
@@ -122,7 +121,6 @@ export default function CommunityPage() {
                             {renderList('Najpopularniejsze gry', statistics.mostPopularGames, 'Brak danych.', 'graczy')}
                             {renderList('Popularne platformy', statistics.popularPlatforms, 'Brak danych.', 'użytkowników')}
                             {renderList('Popularne gatunki', statistics.popularGenres, 'Brak danych.', 'gier')}
-                            {renderList('Najwyżej oceniane gry', statistics.highestRatedGames, 'Brak danych.', 'pkt')}
                         </div>
                     </>
                 )}
