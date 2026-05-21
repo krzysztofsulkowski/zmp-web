@@ -4,11 +4,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import styles from './ResetPassword.module.css';
 import logo from '@/assets/logo.svg';
 import arrowBack from '@/assets/arrow-back.svg';
+import eyeOn from '@/assets/eye-on-black.svg';
+import eyeOff from '@/assets/eye-off-black.svg';
 
 export default function ResetPasswordPage() {
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showRepeatPassword, setShowRepeatPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -37,15 +41,10 @@ export default function ResetPasswordPage() {
             const response = await fetch(`${apiUrl}/api/authentication/reset-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email,
-                    token,
-                    newPassword
-                })
+                body: JSON.stringify({ email, token, newPassword })
             });
 
             let data = null;
-
             try {
                 data = await response.json();
             } catch {
@@ -113,24 +112,44 @@ export default function ResetPasswordPage() {
 
                             <div className={styles.field}>
                                 <label className={styles.label}>nowe hasło</label>
-                                <input
-                                    type="password"
-                                    value={newPassword}
-                                    onChange={(event) => setNewPassword(event.target.value)}
-                                    required
-                                    className={styles.input}
-                                />
+                                <div className={styles.passwordWrapper}>
+                                    <input
+                                        type={showNewPassword ? 'text' : 'password'}
+                                        value={newPassword}
+                                        onChange={(event) => setNewPassword(event.target.value)}
+                                        required
+                                        className={styles.input}
+                                    />
+                                    <button
+                                        type="button"
+                                        className={styles.eyeButton}
+                                        onClick={() => setShowNewPassword((prev) => !prev)}
+                                        aria-label={showNewPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
+                                    >
+                                        <img src={showNewPassword ? eyeOff : eyeOn} alt="" width={20} height={20} />
+                                    </button>
+                                </div>
                             </div>
 
                             <div className={styles.field}>
                                 <label className={styles.label}>powtórz nowe hasło</label>
-                                <input
-                                    type="password"
-                                    value={repeatPassword}
-                                    onChange={(event) => setRepeatPassword(event.target.value)}
-                                    required
-                                    className={styles.input}
-                                />
+                                <div className={styles.passwordWrapper}>
+                                    <input
+                                        type={showRepeatPassword ? 'text' : 'password'}
+                                        value={repeatPassword}
+                                        onChange={(event) => setRepeatPassword(event.target.value)}
+                                        required
+                                        className={styles.input}
+                                    />
+                                    <button
+                                        type="button"
+                                        className={styles.eyeButton}
+                                        onClick={() => setShowRepeatPassword((prev) => !prev)}
+                                        aria-label={showRepeatPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
+                                    >
+                                        <img src={showRepeatPassword ? eyeOff : eyeOn} alt="" width={20} height={20} />
+                                    </button>
+                                </div>
                             </div>
 
                             <p className={styles.bottomText}>

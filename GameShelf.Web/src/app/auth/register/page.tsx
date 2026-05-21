@@ -3,12 +3,16 @@ import type { FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from "./Register.module.css";
 import logo from "@/assets/logo.svg";
+import eyeOn from "@/assets/eye-on-black.svg";
+import eyeOff from "@/assets/eye-off-black.svg";
 
 export default function RegisterPage() {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -134,24 +138,54 @@ export default function RegisterPage() {
 
                             <div className={styles.field}>
                                 <label className={styles.label}>hasło</label>
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                    className={styles.input}
-                                />
+                                <div className={styles.passwordWrapper}>
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        className={styles.input}
+                                    />
+                                    <button
+                                        type="button"
+                                        className={styles.eyeButton}
+                                        onClick={() => setShowPassword((prev) => !prev)}
+                                        aria-label={showPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
+                                    >
+                                        <img
+                                            src={showPassword ? eyeOff : eyeOn}
+                                            alt=""
+                                            width={20}
+                                            height={20}
+                                        />
+                                    </button>
+                                </div>
                             </div>
 
                             <div className={styles.field}>
                                 <label className={styles.label}>powtórz hasło</label>
-                                <input
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required
-                                    className={styles.input}
-                                />
+                                <div className={styles.passwordWrapper}>
+                                    <input
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        required
+                                        className={styles.input}
+                                    />
+                                    <button
+                                        type="button"
+                                        className={styles.eyeButton}
+                                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                                        aria-label={showConfirmPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
+                                    >
+                                        <img
+                                            src={showConfirmPassword ? eyeOff : eyeOn}
+                                            alt=""
+                                            width={20}
+                                            height={20}
+                                        />
+                                    </button>
+                                </div>
                             </div>
 
                             <button
