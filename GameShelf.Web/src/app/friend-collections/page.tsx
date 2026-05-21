@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from './FriendCollections.module.css';
-import logo from '@/assets/logo.svg';
+import { Navbar } from '@/components/Navbar/Navbar';
 import arrowLeft from '@/assets/arrow-left.svg';
 import arrowRight from '@/assets/arrow-right.svg';
 
@@ -56,9 +56,6 @@ export default function FriendCollectionsPage() {
 
     const tabsRef = useRef<HTMLDivElement | null>(null);
 
-    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    const [myAvatarUrl, setMyAvatarUrl] = useState('');
-
     const [friend, setFriend] = useState<FriendProfile | null>(null);
     const [collections, setCollections] = useState<CollectionWithGames[]>([]);
     const [gameImages, setGameImages] = useState<Record<number, string>>({});
@@ -81,10 +78,6 @@ export default function FriendCollectionsPage() {
     const getFriendName = () =>
         friend?.userName ?? friend?.username ?? 'Nieznany użytkownik';
 
-    const handleLogout = () => {
-        localStorage.removeItem('authToken');
-        navigate('/login');
-    };
 
     const scrollTabs = (direction: 'left' | 'right') => {
         if (!tabsRef.current) return;
@@ -99,15 +92,6 @@ export default function FriendCollectionsPage() {
 
     const isInMine = (g: CompareGame) => g.ownedByMe;
     const isInFriend = (g: CompareGame) => g.ownedByFriend;
-
-    const loadMyAvatar = async () => {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/authentication/me`, {
-            headers: getAuthHeaders()
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        setMyAvatarUrl(resolveUrl(data.avatarUrl));
-    };
 
     const loadFriendProfile = async () => {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/friends/my-friends`, {
@@ -172,7 +156,6 @@ export default function FriendCollectionsPage() {
         if (!friendId) return;
         setIsLoading(true);
         Promise.all([
-            loadMyAvatar(),
             loadFriendProfile(),
             loadFriendCollections(),
             loadGameImages(),
@@ -194,29 +177,7 @@ export default function FriendCollectionsPage() {
 
     return (
         <main className={styles.page}>
-            <nav className={styles.navbar}>
-                <img src={logo} alt="GameShelf" className={styles.logo} />
-
-                <div className={styles.navLinks}>
-                    <button onClick={() => navigate('/dashboard')}>STRONA GŁÓWNA</button>
-                    <button onClick={() => navigate('/community')}>SPOŁECZNOŚĆ</button>
-                    <button className={styles.activeNav} onClick={() => navigate('/friends')}>ZNAJOMI</button>
-                    <button onClick={() => navigate('/faq')}>FAQ</button>
-                    <button onClick={() => navigate('/about')}>O NAS</button>
-                </div>
-
-                <div className={styles.profileWrapper}>
-                    <button className={styles.profileButton} onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
-                        {myAvatarUrl && <img src={myAvatarUrl} alt="Avatar" />}
-                    </button>
-                    {isProfileMenuOpen && (
-                        <div className={styles.profileMenu}>
-                            <button onClick={() => navigate('/profile')}>Ustawienia</button>
-                            <button onClick={handleLogout}>Wyloguj się</button>
-                        </div>
-                    )}
-                </div>
-            </nav>
+            <Navbar activePage="friends" />
 
             <section className={styles.content}>
                 <button className={styles.backButton} onClick={() => navigate('/friends')}>

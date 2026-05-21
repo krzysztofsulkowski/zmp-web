@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Friends.module.css';
-import logo from '@/assets/logo.svg';
+import { Navbar } from '@/components/Navbar/Navbar';
 
 type UserProfile = {
     avatarUrl: string;
@@ -27,8 +27,6 @@ type Tab = 'friends' | 'requests' | 'search';
 export default function FriendsPage() {
     const navigate = useNavigate();
 
-    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    const [avatarUrl, setAvatarUrl] = useState('');
     const [activeTab, setActiveTab] = useState<Tab>('friends');
 
     const [searchValue, setSearchValue] = useState('');
@@ -40,17 +38,6 @@ export default function FriendsPage() {
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState<'success' | 'error'>('success');
     const [isLoading, setIsLoading] = useState(false);
-
-    const handleLogout = () => {
-        localStorage.removeItem('authToken');
-        navigate('/login');
-    };
-
-    const getAvatarUrl = (url?: string) => {
-        if (!url) return '';
-        if (url.startsWith('http')) return url;
-        return `${import.meta.env.VITE_API_URL}${url}`;
-    };
 
     const getUserName = (user: FriendUser) =>
         user.userName ?? user.username ?? 'Nieznany użytkownik';
@@ -69,14 +56,10 @@ export default function FriendsPage() {
         setTimeout(() => setMessage(''), 3500);
     };
 
-    const loadUserAvatar = async () => {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/authentication/me`, {
-            method: 'GET',
-            headers: getAuthHeaders()
-        });
-        if (!response.ok) return;
-        const data = await response.json() as UserProfile;
-        setAvatarUrl(getAvatarUrl(data.avatarUrl));
+    const getAvatarUrl = (url?: string): string => {
+        if (!url) return '';
+        if (url.startsWith('http')) return url;
+        return `${import.meta.env.VITE_API_URL}${url}`;
     };
 
     const loadFriends = async () => {
@@ -171,34 +154,13 @@ export default function FriendsPage() {
     };
 
     useEffect(() => {
-        loadUserAvatar().catch(console.error);
         loadFriends().catch(console.error);
         loadPendingRequests().catch(console.error);
     }, []);
 
     return (
         <main className={styles.page}>
-            <nav className={styles.navbar}>
-                <img src={logo} alt="GameShelf" className={styles.logo} />
-                <div className={styles.navLinks}>
-                    <button onClick={() => navigate('/dashboard')}>STRONA GŁÓWNA</button>
-                    <button onClick={() => navigate('/community')}>SPOŁECZNOŚĆ</button>
-                    <button className={styles.activeNav}>ZNAJOMI</button>
-                    <button onClick={() => navigate('/faq')}>FAQ</button>
-                    <button onClick={() => navigate('/about')}>O NAS</button>
-                </div>
-                <div className={styles.profileWrapper}>
-                    <button className={styles.profileButton} onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
-                        {avatarUrl && <img src={avatarUrl} alt="Avatar użytkownika" />}
-                    </button>
-                    {isProfileMenuOpen && (
-                        <div className={styles.profileMenu}>
-                            <button onClick={() => navigate('/profile')}>Ustawienia</button>
-                            <button onClick={handleLogout}>Wyloguj się</button>
-                        </div>
-                    )}
-                </div>
-            </nav>
+            <Navbar activePage="friends" />
 
             <section className={styles.content}>
                 <h1>Znajomi</h1>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Faq.module.css';
-import logo from '@/assets/logo.svg';
+import { Navbar } from '@/components/Navbar/Navbar';
 
 type UserProfile = {
     avatarUrl: string;
@@ -47,80 +47,9 @@ export default function FaqPage() {
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState('');
 
-    const handleLogout = () => {
-        localStorage.removeItem('authToken');
-        navigate('/login');
-    };
-
-    const getAvatarUrl = (url: string) => {
-        if (!url) {
-            return '';
-        }
-
-        if (url.startsWith('http')) {
-            return url;
-        }
-
-        return `${import.meta.env.VITE_API_URL}${url}`;
-    };
-
-    const loadUserAvatar = async () => {
-        const token = localStorage.getItem('authToken');
-
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/authentication/me`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-
-        if (!response.ok) {
-            return;
-        }
-
-        const data = await response.json() as UserProfile;
-
-        setAvatarUrl(getAvatarUrl(data.avatarUrl ?? ''));
-    };
-
-    useEffect(() => {
-        loadUserAvatar().catch((error) => console.error(error));
-    }, []);
-
     return (
         <main className={styles.page}>
-            <nav className={styles.navbar}>
-                <img src={logo} alt="GameShelf" className={styles.logo} />
-
-                <div className={styles.navLinks}>
-                    <button onClick={() => navigate('/dashboard')}>STRONA GŁÓWNA</button>
-                    <button onClick={() => navigate('/community')}>SPOŁECZNOŚĆ</button>
-                    <button onClick={() => navigate('/friends')}>ZNAJOMI</button>
-                    <button className={styles.activeNav}>FAQ</button>
-                    <button onClick={() => navigate('/about')}>O NAS</button>
-                </div>
-
-                <div className={styles.profileWrapper}>
-                    <button
-                        className={styles.profileButton}
-                        onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    >
-                        {avatarUrl && <img src={avatarUrl} alt="Avatar użytkownika" />}
-                    </button>
-
-                    {isProfileMenuOpen && (
-                        <div className={styles.profileMenu}>
-                            <button onClick={() => navigate('/profile')}>
-                                Ustawienia
-                            </button>
-
-                            <button onClick={handleLogout}>
-                                Wyloguj się
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </nav>
+            <Navbar activePage="faq" />
 
             <section className={styles.content}>
                 <h1>Najczęściej zadawane pytania</h1>
