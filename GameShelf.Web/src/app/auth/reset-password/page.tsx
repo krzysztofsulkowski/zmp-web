@@ -53,12 +53,7 @@ export default function ResetPasswordPage() {
             }
 
             if (!response.ok) {
-                if (data?.errors) {
-                    const messages = Object.values(data.errors).flat().join(' ');
-                    throw new Error(messages);
-                }
-
-                throw new Error(data?.title || data?.message || 'Nie udało się zmienić hasła.');
+                throw new Error('Nie udało się zmienić hasła. Sprawdź poprawność danych.');
             }
 
             setSuccessMessage('Hasło zostało zmienione. Możesz się teraz zalogować.');
@@ -78,6 +73,9 @@ export default function ResetPasswordPage() {
 
     return (
         <main className={styles.page}>
+            {error && <p className={styles.errorMessage}>{error}</p>}
+            {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
+
             <div className={styles.container}>
                 <section className={styles.leftPanel}>
                     <div className={styles.logoWrapper}>
@@ -143,9 +141,6 @@ export default function ResetPasswordPage() {
                                 Zmień hasło
                             </button>
                         </form>
-
-                        {error && <p className={styles.errorMessage}>{error}</p>}
-                        {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
                     </div>
                 </section>
             </div>

@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import styles from "./Login.module.css";
 import logo from "@/assets/logo.svg";
+
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -95,6 +96,9 @@ export default function LoginPage() {
 
     return (
         <main className={styles.page}>
+            {error && <p className={styles.errorMessage}>{error}</p>}
+            {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
+
             <div className={styles.container}>
 
                 <section className={styles.leftPanel}>
@@ -165,9 +169,6 @@ export default function LoginPage() {
                                 Kontynuuj przez Google
                             </button>
                         </form>
-
-                        {error && <p className={styles.errorMessage}>{error}</p>}
-                        {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
 
                         <p className={styles.bottomText}>
                             Nie masz konta? <Link to="/register" className={styles.linkStrong}>Zarejestruj się</Link>

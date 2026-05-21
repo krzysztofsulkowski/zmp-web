@@ -26,8 +26,8 @@ export default function RegisterPage() {
             return;
         }
 
-        if (password.length < 6) {
-            setError("Hasło musi mieć co najmniej 6 znaków");
+        if (password.length < 8) {
+            setError("Hasło musi mieć co najmniej 8 znaków");
             return;
         }
 
@@ -56,12 +56,7 @@ export default function RegisterPage() {
             console.log("REGISTER RESPONSE:", data);
 
             if (!res.ok) {
-                if (data?.errors) {
-                    const messages = Object.values(data.errors).flat().join(" ");
-                    throw new Error(messages);
-                }
-
-                throw new Error(data?.title || data?.message || 'Rejestracja nieudana.');
+                throw new Error('Rejestracja nieudana. Sprawdź poprawność danych.');
             }
 
             setError(null);
@@ -86,6 +81,9 @@ export default function RegisterPage() {
 
     return (
         <main className={styles.page}>
+            {error && <p className={styles.errorMessage}>{error}</p>}
+            {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
+
             <div className={styles.container}>
                 <section className={styles.leftPanel}>
                     <div className={styles.logoWrapper}>
@@ -174,9 +172,6 @@ export default function RegisterPage() {
                                 Kontynuuj przez Google
                             </button>
                         </form>
-
-                        {error && <p className={styles.errorMessage}>{error}</p>}
-                        {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
 
                         <p className={styles.bottomText}>
                             Masz już konto? <Link to="/login" className={styles.linkStrong}>Zaloguj się</Link>
