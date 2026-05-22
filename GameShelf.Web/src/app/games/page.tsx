@@ -10,6 +10,8 @@ type Game = {
     imageUrl: string;
     averageRating?: number | null;
     myRating?: number | null;
+    genreName?: string | null;
+    platformName?: string | null;
     genre?: {
         id: number;
         name: string;
@@ -44,6 +46,7 @@ export default function GamesPage() {
     const [selectedGame, setSelectedGame] = useState<Game | null>(null);
     const [selectedCollectionId, setSelectedCollectionId] = useState('');
     const [selectedRating, setSelectedRating] = useState('');
+    const [userGameIds, setUserGameIds] = useState<Set<number>>(new Set());
 
     const getRatingText = (rating?: number | null) => {
         if (!rating || rating <= 0) return 'Brak oceny';
@@ -89,6 +92,19 @@ export default function GamesPage() {
         }
     };
 
+    const loadUserGameIds = async () => {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/collections/grouped-with-games`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ draw: 1, start: 0, length: 1000, searchValue: '', orderColumn: 0, orderDir: 'asc', extraFilters: {} })
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        const allGames = (data.data ?? []).flatMap((c: { games: { gameId: number }[] }) => c.games);
+        setUserGameIds(new Set(allGames.map((g: { gameId: number }) => g.gameId)));
+    };
+
     const fetchGames = async (value: string) => {
         if (!value.trim()) {
             setGames([]);
@@ -123,7 +139,7 @@ export default function GamesPage() {
 
             const data = await response.json() as GamesResponse;
 
-            setGames(data.data ?? []);
+            setGames((data.data ?? []).filter(g => !userGameIds.has(g.id)));
         } catch (err) {
             console.error(err);
             setGames([]);
@@ -134,6 +150,7 @@ export default function GamesPage() {
 
     useEffect(() => {
         loadCollections().catch((err) => console.error(err));
+        loadUserGameIds().catch((err) => console.error(err));
     }, []);
 
     useEffect(() => {
@@ -286,13 +303,8 @@ export default function GamesPage() {
                                 <h2>{game.title}</h2>
 
                                 <p>
-                                    {game.genre?.name ?? 'Brak gatunku'} · {game.platform?.name ?? 'Brak platformy'}
+                                    {(game.genre?.name || game.genreName) ?? 'Brak gatunku'} · {(game.platform?.name || game.platformName) ?? 'Brak platformy'}
                                 </p>
-
-                                <div className={styles.ratingInfo}>
-                                    <span>Moja ocena: {getRatingText(game.myRating)}</span>
-                                    <span>Średnia: {getRatingText(game.averageRating)}</span>
-                                </div>
 
                                 <button onClick={() => openAddGameModal(game)}>
                                     Dodaj do kolekcji
@@ -317,8 +329,8 @@ export default function GamesPage() {
 
                             <div>
                                 <h3>{selectedGame.title}</h3>
-                                <p>Kategoria: {selectedGame.genre?.name ?? 'Brak kategorii'}</p>
-                                <p>Platforma: {selectedGame.platform?.name ?? 'Brak platformy'}</p>
+                                <p>Kategoria: {selectedGame.genre?.name || selectedGame.genreName || 'Brak kategorii'}</p>
+                                <p>Platforma: {selectedGame.platform?.name || selectedGame.platformName || 'Brak platformy'}</p>
                                 <p>Średnia ocena: {getRatingText(selectedGame.averageRating)}</p>
                             </div>
                         </div>

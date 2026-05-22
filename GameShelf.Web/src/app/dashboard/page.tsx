@@ -12,6 +12,7 @@ import eyeOnIcon from '@/assets/eye-on.svg';
 import eyeOffIcon from '@/assets/eye-off.svg';
 import linkIcon from '@/assets/link.svg';
 import starIcon from '@/assets/star.svg';
+import arrowIcon from '@/assets/arrow-left.svg';
 
 type CollectionTab = 'library' | 'favorites' | 'planned' | 'wishlist' | 'playing' | 'completed' | 'abandoned';
 
@@ -751,47 +752,55 @@ export default function Dashboard() {
             {selectedGame && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.gameManageModal}>
-                        <button className={styles.gameModalBackButton} onClick={closeGameModal}>←</button>
-                        <h2>Zarządzaj grą</h2>
-                        <div className={styles.gameModalContent}>
+                        <button className={styles.gameModalBackButton} onClick={closeGameModal}>
+                            <img src={arrowIcon} alt="Wróć" />
+                        </button>
+
+                        <div className={styles.gameModalHeader}>
                             <p className={styles.gameModalTitle}>{selectedGame.title}</p>
                             <p className={styles.gameModalMeta}>{selectedGame.genreName || 'Brak gatunku'} · {selectedGame.platformName || 'Brak platformy'}</p>
+                        </div>
 
-                            <div className={styles.gameModalDivider} />
+                        <div className={styles.gameModalDivider} />
 
-                            <label className={styles.modalLabel}>
-                                Moja ocena
-                                <select value={selectedRating} onChange={(e) => setSelectedRating(e.target.value)}>
+                        <div className={styles.gameModalSection}>
+                            <p className={styles.gameModalSectionLabel}>Moja ocena</p>
+                            <div className={styles.moveRow}>
+                                <select
+                                    className={styles.modalSelect}
+                                    value={selectedRating}
+                                    onChange={(e) => setSelectedRating(e.target.value)}
+                                >
                                     <option value="">Bez oceny</option>
                                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
                                         <option key={rating} value={rating}>{rating}/10</option>
                                     ))}
                                 </select>
-                            </label>
-
+                                <button
+                                    className={styles.moveButton}
+                                    onClick={rateGame}
+                                    disabled={!selectedRating}
+                                >
+                                    Zapisz
+                                </button>
+                            </div>
                             {selectedRating === '10' && (
-                                <p className={styles.ratingHint}>Ocena 10/10 oznaczy grę jako ulubioną.</p>
+                                <p className={styles.ratingHint}>Ocena 10/10 doda grę do Ulubionych.</p>
                             )}
+                        </div>
 
-                            <button
-                                className={styles.moveButton}
-                                onClick={rateGame}
-                                disabled={!selectedRating}
-                            >
-                                Zapisz ocenę
-                            </button>
+                        <div className={styles.gameModalDivider} />
 
-                            <div className={styles.gameModalDivider} />
-
+                        <div className={styles.gameModalSection}>
                             <p className={styles.gameModalSectionLabel}>Przenieś do kolekcji</p>
-                            <div className={styles.moveRow}>
+                            <div className={styles.moveRowFull}>
                                 <CustomSelect
                                     value={targetCollectionId}
                                     onChange={setTargetCollectionId}
                                     options={[
                                         { value: '', label: 'Wybierz kolekcję...' },
                                         ...allCollections
-                                            .filter((c) => c.id !== selectedGame.collectionId)
+                                            .filter((c) => c.id !== selectedGame.collectionId && c.name !== 'Ulubione')
                                             .map((c) => ({ value: String(c.id), label: c.name }))
                                     ]}
                                 />
@@ -803,15 +812,15 @@ export default function Dashboard() {
                                     Przenieś
                                 </button>
                             </div>
-
-                            {gameActionError && <p className={styles.errorMessage}>{gameActionError}</p>}
-
-                            <div className={styles.gameModalDivider} />
-
-                            <button className={styles.removeGameButton} onClick={removeSelectedGameFromCollection}>
-                                Usuń grę z kolekcji
-                            </button>
                         </div>
+
+                        {gameActionError && <p className={styles.errorMessage}>{gameActionError}</p>}
+
+                        <div className={styles.gameModalDivider} />
+
+                        <button className={styles.removeGameButton} onClick={removeSelectedGameFromCollection}>
+                            Usuń grę z kolekcji
+                        </button>
                     </div>
                 </div>
             )}
