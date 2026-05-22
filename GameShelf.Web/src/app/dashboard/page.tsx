@@ -12,6 +12,7 @@ import eyeOnIcon from '@/assets/eye-on.svg';
 import eyeOffIcon from '@/assets/eye-off.svg';
 import linkIcon from '@/assets/link.svg';
 import starIcon from '@/assets/star.svg';
+import arrowIcon from '@/assets/arrow-left.svg';
 
 type CollectionTab = 'library' | 'favorites' | 'planned' | 'wishlist' | 'playing' | 'completed' | 'abandoned';
 
@@ -35,6 +36,8 @@ type CollectionGame = {
     collectionName: string;
     addedAt: string;
     type?: string;
+    myRating?: number | null;
+    averageRating?: number | null;
 };
 
 type AvailableGameImage = {
@@ -65,8 +68,6 @@ type MyLibraryStats = {
     gamesByPlatform: StatItem[];
     gamesByCollection: StatItem[];
 };
-
-const favoriteGamesStorageKey = 'favoriteGameIds';
 
 const tabs: { key: CollectionTab; label: string }[] = [
     { key: 'library', label: 'Biblioteka' },
@@ -142,7 +143,7 @@ export default function Dashboard() {
     const [selectedGame, setSelectedGame] = useState<CollectionGame | null>(null);
     const [targetCollectionId, setTargetCollectionId] = useState('');
     const [gameActionError, setGameActionError] = useState('');
-    const [isFavoriteChecked, setIsFavoriteChecked] = useState(false);
+    const [selectedRating, setSelectedRating] = useState('');
     const [sortOption, setSortOption] = useState<SortOption>('newest');
     const [selectedGenre, setSelectedGenre] = useState('');
     const [selectedPlatform, setSelectedPlatform] = useState('');
@@ -163,12 +164,6 @@ export default function Dashboard() {
     const scrollTabs = (direction: 'left' | 'right') => {
         if (!tabsRef.current) return;
         tabsRef.current.scrollBy({ left: direction === 'left' ? -220 : 220, behavior: 'smooth' });
-    };
-
-    const getFavoriteGameIds = () => {
-        const savedIds = localStorage.getItem(favoriteGamesStorageKey);
-        if (!savedIds) return [];
-        return JSON.parse(savedIds) as number[];
     };
 
     const getActiveDefaultCollectionId = () => {
@@ -192,13 +187,11 @@ export default function Dashboard() {
         }
 
         if (activeTab === 'favorites' && activeCustomCollectionId === null) {
-            const favoriteIds = getFavoriteGameIds();
-            return collectionsWithGames
-                .flatMap((collection) => collection.games)
-                .filter((game, index, games) =>
-                    favoriteIds.includes(game.gameId) &&
-                    games.findIndex((item) => item.gameId === game.gameId) === index
-                );
+            const allGames = collectionsWithGames.flatMap((collection) => collection.games);
+            return allGames.filter((game, index, arr) =>
+                game.myRating === 10 &&
+                arr.findIndex((g) => g.gameId === game.gameId) === index
+            );
         }
 
         const activeCollectionId = activeCustomCollectionId ?? getActiveDefaultCollectionId();
@@ -213,13 +206,11 @@ export default function Dashboard() {
             return collectionsWithGames.flatMap((c) => c.games).length;
         }
         if (tabKey === 'favorites') {
-            const favoriteIds = getFavoriteGameIds();
-            return collectionsWithGames
-                .flatMap((c) => c.games)
-                .filter((g, i, arr) =>
-                    favoriteIds.includes(g.gameId) &&
-                    arr.findIndex((x) => x.gameId === g.gameId) === i
-                ).length;
+            const allGames = collectionsWithGames.flatMap((c) => c.games);
+            return allGames.filter((g, i, arr) =>
+                g.myRating === 10 &&
+                arr.findIndex((x) => x.gameId === g.gameId) === i
+            ).length;
         }
         const tab = tabs.find((t) => t.key === tabKey);
         const collection = collectionsWithGames.find((c) => c.collectionName === tab?.label);
@@ -426,17 +417,25 @@ export default function Dashboard() {
         setSelectedGame(null);
         setTargetCollectionId('');
         setGameActionError('');
+        setSelectedRating('');
     };
 
-    const toggleFavoriteGame = async () => {
-        if (!selectedGame) return;
-        const newChecked = !isFavoriteChecked;
-        setIsFavoriteChecked(newChecked);
-        const favoriteIds = getFavoriteGameIds();
-        const updatedFavoriteIds = newChecked
-            ? Array.from(new Set([...favoriteIds, selectedGame.gameId]))
-            : favoriteIds.filter((id) => id !== selectedGame.gameId);
-        localStorage.setItem(favoriteGamesStorageKey, JSON.stringify(updatedFavoriteIds));
+    const rateGame = async () => {
+        if (!selectedGame || !selectedRating) return;
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/games/rate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ gameId: selectedGame.gameId, rating: Number(selectedRating) })
+            });
+            if (!response.ok) throw new Error('Nie udało się zapisać oceny');
+            await loadCollectionGames();
+            await loadLibraryStats();
+            closeGameModal();
+        } catch (err) {
+            setGameActionError(err instanceof Error ? err.message : 'Wystąpił błąd.');
+        }
     };
 
     const moveSelectedGame = async () => {
@@ -469,11 +468,6 @@ export default function Dashboard() {
             if (!response.ok) throw new Error('Nie udało się usunąć gry z kolekcji.');
             await loadCollectionGames();
             await loadLibraryStats();
-            const favoriteIds = getFavoriteGameIds();
-            const updatedFavoriteIds = isFavoriteChecked
-                ? Array.from(new Set([...favoriteIds, selectedGame.gameId]))
-                : favoriteIds.filter((id) => id !== selectedGame.gameId);
-            localStorage.setItem(favoriteGamesStorageKey, JSON.stringify(updatedFavoriteIds));
             closeGameModal();
         } catch (err) {
             setGameActionError(err instanceof Error ? err.message : 'Wystąpił błąd.');
@@ -617,14 +611,14 @@ export default function Dashboard() {
 
                                 {visibleGames.map((game) => {
                                     const imageUrl = getGameImageUrl(game);
-                                    const isFavorite = getFavoriteGameIds().includes(game.gameId);
+                                    const isFavorite = game.myRating === 10;
                                     return (
                                         <article
                                             key={`${game.collectionId}-${game.gameId}`}
                                             className={styles.dashboardGameCard}
                                             onClick={() => {
                                                 setSelectedGame(game);
-                                                setIsFavoriteChecked(getFavoriteGameIds().includes(game.gameId));
+                                                setSelectedRating(game.myRating && game.myRating > 0 ? String(game.myRating) : '');
                                             }}
                                         >
                                             <div className={styles.dashboardGameImage}>
@@ -758,34 +752,55 @@ export default function Dashboard() {
             {selectedGame && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.gameManageModal}>
-                        <button className={styles.gameModalBackButton} onClick={closeGameModal}>←</button>
-                        <h2>Zarządzaj grą</h2>
-                        <div className={styles.gameModalContent}>
+                        <button className={styles.gameModalBackButton} onClick={closeGameModal}>
+                            <img src={arrowIcon} alt="Wróć" />
+                        </button>
+
+                        <div className={styles.gameModalHeader}>
                             <p className={styles.gameModalTitle}>{selectedGame.title}</p>
                             <p className={styles.gameModalMeta}>{selectedGame.genreName || 'Brak gatunku'} · {selectedGame.platformName || 'Brak platformy'}</p>
+                        </div>
 
-                            <div className={styles.gameModalDivider} />
+                        <div className={styles.gameModalDivider} />
 
-                            <label className={styles.favoriteCheckbox}>
-                                <input type="checkbox" checked={isFavoriteChecked} onChange={toggleFavoriteGame} />
-                                <span></span>
-                                <div className={styles.favoriteCheckboxLabel}>
-                                    <strong>Ulubiona gra</strong>
-                                    <small>{isFavoriteChecked ? 'Zapisano w ulubionych' : 'Kliknij aby dodać do ulubionych'}</small>
-                                </div>
-                            </label>
-
-                            <div className={styles.gameModalDivider} />
-
-                            <p className={styles.gameModalSectionLabel}>Przenieś do kolekcji</p>
+                        <div className={styles.gameModalSection}>
+                            <p className={styles.gameModalSectionLabel}>Moja ocena</p>
                             <div className={styles.moveRow}>
+                                <select
+                                    className={styles.modalSelect}
+                                    value={selectedRating}
+                                    onChange={(e) => setSelectedRating(e.target.value)}
+                                >
+                                    <option value="">Bez oceny</option>
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
+                                        <option key={rating} value={rating}>{rating}/10</option>
+                                    ))}
+                                </select>
+                                <button
+                                    className={styles.moveButton}
+                                    onClick={rateGame}
+                                    disabled={!selectedRating}
+                                >
+                                    Zapisz
+                                </button>
+                            </div>
+                            {selectedRating === '10' && (
+                                <p className={styles.ratingHint}>Ocena 10/10 doda grę do Ulubionych.</p>
+                            )}
+                        </div>
+
+                        <div className={styles.gameModalDivider} />
+
+                        <div className={styles.gameModalSection}>
+                            <p className={styles.gameModalSectionLabel}>Przenieś do kolekcji</p>
+                            <div className={styles.moveRowFull}>
                                 <CustomSelect
                                     value={targetCollectionId}
                                     onChange={setTargetCollectionId}
                                     options={[
                                         { value: '', label: 'Wybierz kolekcję...' },
                                         ...allCollections
-                                            .filter((c) => c.id !== selectedGame.collectionId)
+                                            .filter((c) => c.id !== selectedGame.collectionId && c.name !== 'Ulubione')
                                             .map((c) => ({ value: String(c.id), label: c.name }))
                                     ]}
                                 />
@@ -797,15 +812,15 @@ export default function Dashboard() {
                                     Przenieś
                                 </button>
                             </div>
-
-                            {gameActionError && <p className={styles.errorMessage}>{gameActionError}</p>}
-
-                            <div className={styles.gameModalDivider} />
-
-                            <button className={styles.removeGameButton} onClick={removeSelectedGameFromCollection}>
-                                Usuń grę z kolekcji
-                            </button>
                         </div>
+
+                        {gameActionError && <p className={styles.errorMessage}>{gameActionError}</p>}
+
+                        <div className={styles.gameModalDivider} />
+
+                        <button className={styles.removeGameButton} onClick={removeSelectedGameFromCollection}>
+                            Usuń grę z kolekcji
+                        </button>
                     </div>
                 </div>
             )}

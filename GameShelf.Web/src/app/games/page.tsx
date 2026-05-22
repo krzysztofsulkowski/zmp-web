@@ -8,6 +8,10 @@ type Game = {
     title: string;
     description: string;
     imageUrl: string;
+    averageRating?: number | null;
+    myRating?: number | null;
+    genreName?: string | null;
+    platformName?: string | null;
     genre?: {
         id: number;
         name: string;
@@ -28,8 +32,6 @@ type GamesResponse = {
     data?: Game[];
 };
 
-const favoriteGamesStorageKey = 'favoriteGameIds';
-
 export default function GamesPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -43,15 +45,12 @@ export default function GamesPage() {
 
     const [selectedGame, setSelectedGame] = useState<Game | null>(null);
     const [selectedCollectionId, setSelectedCollectionId] = useState('');
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [selectedRating, setSelectedRating] = useState('');
+    const [userGameIds, setUserGameIds] = useState<Set<number>>(new Set());
 
-    const saveFavoriteGameId = (gameId: number) => {
-        const savedIds = localStorage.getItem(favoriteGamesStorageKey);
-        const currentIds: number[] = savedIds ? JSON.parse(savedIds) : [];
-
-        if (!currentIds.includes(gameId)) {
-            localStorage.setItem(favoriteGamesStorageKey, JSON.stringify([...currentIds, gameId]));
-        }
+    const getRatingText = (rating?: number | null) => {
+        if (!rating || rating <= 0) return 'Brak oceny';
+        return `${rating}/10`;
     };
 
     const loadCollections = async () => {
@@ -93,6 +92,19 @@ export default function GamesPage() {
         }
     };
 
+    const loadUserGameIds = async () => {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/collections/grouped-with-games`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ draw: 1, start: 0, length: 1000, searchValue: '', orderColumn: 0, orderDir: 'asc', extraFilters: {} })
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        const allGames = (data.data ?? []).flatMap((c: { games: { gameId: number }[] }) => c.games);
+        setUserGameIds(new Set(allGames.map((g: { gameId: number }) => g.gameId)));
+    };
+
     const fetchGames = async (value: string) => {
         if (!value.trim()) {
             setGames([]);
@@ -127,7 +139,7 @@ export default function GamesPage() {
 
             const data = await response.json() as GamesResponse;
 
-            setGames(data.data ?? []);
+            setGames((data.data ?? []).filter(g => !userGameIds.has(g.id)));
         } catch (err) {
             console.error(err);
             setGames([]);
@@ -138,6 +150,7 @@ export default function GamesPage() {
 
     useEffect(() => {
         loadCollections().catch((err) => console.error(err));
+        loadUserGameIds().catch((err) => console.error(err));
     }, []);
 
     useEffect(() => {
@@ -150,7 +163,7 @@ export default function GamesPage() {
 
     const openAddGameModal = (game: Game) => {
         setSelectedGame(game);
-        setIsFavorite(false);
+        setSelectedRating(game.myRating && game.myRating > 0 ? String(game.myRating) : '');
 
         const selectedFromUrl = collections.find(
             (collection) => String(collection.id) === collectionId
@@ -167,7 +180,7 @@ export default function GamesPage() {
 
     const closeModal = () => {
         setSelectedGame(null);
-        setIsFavorite(false);
+        setSelectedRating('');
     };
 
     const addGameToCollection = async (gameId: number, targetCollectionId: string | number) => {
@@ -185,6 +198,26 @@ export default function GamesPage() {
         }
     };
 
+    const rateGame = async (gameId: number, rating: number) => {
+        const token = localStorage.getItem('authToken');
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/games/rate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                gameId,
+                rating
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Nie udało się zapisać oceny');
+        }
+    };
+
     const saveGameToCollection = async () => {
         if (!selectedGame || !selectedCollectionId) {
             return;
@@ -193,16 +226,17 @@ export default function GamesPage() {
         try {
             await addGameToCollection(selectedGame.id, selectedCollectionId);
 
-            if (isFavorite) {
-                saveFavoriteGameId(selectedGame.id);
+            if (selectedRating) {
+                await rateGame(selectedGame.id, Number(selectedRating));
             }
 
             setMessage('Gra została dodana do kolekcji.');
             setSelectedGame(null);
-            setIsFavorite(false);
+            setSelectedRating('');
+            await fetchGames(searchValue);
         } catch (err) {
             console.error(err);
-            setMessage('Nie udało się dodać gry.');
+            setMessage('Nie udało się dodać gry lub zapisać oceny.');
         }
     };
 
@@ -230,7 +264,7 @@ export default function GamesPage() {
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                 />
-                <br></br>
+                <br />
                 {searchValue.trim() && (
                     <div className={styles.proposeWrapper}>
                         <span className={styles.proposeText}>
@@ -269,7 +303,7 @@ export default function GamesPage() {
                                 <h2>{game.title}</h2>
 
                                 <p>
-                                    {game.genre?.name ?? 'Brak gatunku'} · {game.platform?.name ?? 'Brak platformy'}
+                                    {(game.genre?.name || game.genreName) ?? 'Brak gatunku'} · {(game.platform?.name || game.platformName) ?? 'Brak platformy'}
                                 </p>
 
                                 <button onClick={() => openAddGameModal(game)}>
@@ -284,7 +318,6 @@ export default function GamesPage() {
             {selectedGame && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
-
                         <h2>Dodaj grę do kolekcji</h2>
 
                         <div className={styles.modalGamePreview}>
@@ -296,8 +329,9 @@ export default function GamesPage() {
 
                             <div>
                                 <h3>{selectedGame.title}</h3>
-                                <p>Kategoria: {selectedGame.genre?.name ?? 'Brak kategorii'}</p>
-                                <p>Platforma: {selectedGame.platform?.name ?? 'Brak platformy'}</p>
+                                <p>Kategoria: {selectedGame.genre?.name || selectedGame.genreName || 'Brak kategorii'}</p>
+                                <p>Platforma: {selectedGame.platform?.name || selectedGame.platformName || 'Brak platformy'}</p>
+                                <p>Średnia ocena: {getRatingText(selectedGame.averageRating)}</p>
                             </div>
                         </div>
 
@@ -312,14 +346,23 @@ export default function GamesPage() {
                             </select>
                         </label>
 
-                        <label className={styles.modalCheckboxLabel}>
-                            <input
-                                type="checkbox"
-                                checked={isFavorite}
-                                onChange={(e) => setIsFavorite(e.target.checked)}
-                            />
-                            Oznacz jako ulubioną grę
+                        <label className={styles.modalLabel}>
+                            Moja ocena
+                            <select value={selectedRating} onChange={(e) => setSelectedRating(e.target.value)}>
+                                <option value="">Bez oceny</option>
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
+                                    <option key={rating} value={rating}>
+                                        {rating}/10
+                                    </option>
+                                ))}
+                            </select>
                         </label>
+
+                        {selectedRating === '10' && (
+                            <p className={styles.ratingHint}>
+                                Ocena 10/10 oznaczy grę jako ulubioną.
+                            </p>
+                        )}
 
                         <div className={styles.modalActions}>
                             <button onClick={closeModal}>Anuluj</button>
