@@ -8,6 +8,8 @@ type Game = {
     title: string;
     description: string;
     imageUrl: string;
+    averageRating?: number | null;
+    myRating?: number | null;
     genre?: {
         id: number;
         name: string;
@@ -28,8 +30,6 @@ type GamesResponse = {
     data?: Game[];
 };
 
-const favoriteGamesStorageKey = 'favoriteGameIds';
-
 export default function GamesPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -43,15 +43,11 @@ export default function GamesPage() {
 
     const [selectedGame, setSelectedGame] = useState<Game | null>(null);
     const [selectedCollectionId, setSelectedCollectionId] = useState('');
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [selectedRating, setSelectedRating] = useState('');
 
-    const saveFavoriteGameId = (gameId: number) => {
-        const savedIds = localStorage.getItem(favoriteGamesStorageKey);
-        const currentIds: number[] = savedIds ? JSON.parse(savedIds) : [];
-
-        if (!currentIds.includes(gameId)) {
-            localStorage.setItem(favoriteGamesStorageKey, JSON.stringify([...currentIds, gameId]));
-        }
+    const getRatingText = (rating?: number | null) => {
+        if (!rating || rating <= 0) return 'Brak oceny';
+        return `${rating}/10`;
     };
 
     const loadCollections = async () => {
@@ -150,7 +146,7 @@ export default function GamesPage() {
 
     const openAddGameModal = (game: Game) => {
         setSelectedGame(game);
-        setIsFavorite(false);
+        setSelectedRating(game.myRating && game.myRating > 0 ? String(game.myRating) : '');
 
         const selectedFromUrl = collections.find(
             (collection) => String(collection.id) === collectionId
@@ -167,7 +163,7 @@ export default function GamesPage() {
 
     const closeModal = () => {
         setSelectedGame(null);
-        setIsFavorite(false);
+        setSelectedRating('');
     };
 
     const addGameToCollection = async (gameId: number, targetCollectionId: string | number) => {
@@ -185,6 +181,26 @@ export default function GamesPage() {
         }
     };
 
+    const rateGame = async (gameId: number, rating: number) => {
+        const token = localStorage.getItem('authToken');
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/games/rate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                gameId,
+                rating
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Nie udało się zapisać oceny');
+        }
+    };
+
     const saveGameToCollection = async () => {
         if (!selectedGame || !selectedCollectionId) {
             return;
@@ -193,16 +209,17 @@ export default function GamesPage() {
         try {
             await addGameToCollection(selectedGame.id, selectedCollectionId);
 
-            if (isFavorite) {
-                saveFavoriteGameId(selectedGame.id);
+            if (selectedRating) {
+                await rateGame(selectedGame.id, Number(selectedRating));
             }
 
             setMessage('Gra została dodana do kolekcji.');
             setSelectedGame(null);
-            setIsFavorite(false);
+            setSelectedRating('');
+            await fetchGames(searchValue);
         } catch (err) {
             console.error(err);
-            setMessage('Nie udało się dodać gry.');
+            setMessage('Nie udało się dodać gry lub zapisać oceny.');
         }
     };
 
@@ -230,7 +247,7 @@ export default function GamesPage() {
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                 />
-                <br></br>
+                <br />
                 {searchValue.trim() && (
                     <div className={styles.proposeWrapper}>
                         <span className={styles.proposeText}>
@@ -272,6 +289,11 @@ export default function GamesPage() {
                                     {game.genre?.name ?? 'Brak gatunku'} · {game.platform?.name ?? 'Brak platformy'}
                                 </p>
 
+                                <div className={styles.ratingInfo}>
+                                    <span>Moja ocena: {getRatingText(game.myRating)}</span>
+                                    <span>Średnia: {getRatingText(game.averageRating)}</span>
+                                </div>
+
                                 <button onClick={() => openAddGameModal(game)}>
                                     Dodaj do kolekcji
                                 </button>
@@ -284,7 +306,6 @@ export default function GamesPage() {
             {selectedGame && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
-
                         <h2>Dodaj grę do kolekcji</h2>
 
                         <div className={styles.modalGamePreview}>
@@ -298,6 +319,7 @@ export default function GamesPage() {
                                 <h3>{selectedGame.title}</h3>
                                 <p>Kategoria: {selectedGame.genre?.name ?? 'Brak kategorii'}</p>
                                 <p>Platforma: {selectedGame.platform?.name ?? 'Brak platformy'}</p>
+                                <p>Średnia ocena: {getRatingText(selectedGame.averageRating)}</p>
                             </div>
                         </div>
 
@@ -312,14 +334,23 @@ export default function GamesPage() {
                             </select>
                         </label>
 
-                        <label className={styles.modalCheckboxLabel}>
-                            <input
-                                type="checkbox"
-                                checked={isFavorite}
-                                onChange={(e) => setIsFavorite(e.target.checked)}
-                            />
-                            Oznacz jako ulubioną grę
+                        <label className={styles.modalLabel}>
+                            Moja ocena
+                            <select value={selectedRating} onChange={(e) => setSelectedRating(e.target.value)}>
+                                <option value="">Bez oceny</option>
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
+                                    <option key={rating} value={rating}>
+                                        {rating}/10
+                                    </option>
+                                ))}
+                            </select>
                         </label>
+
+                        {selectedRating === '10' && (
+                            <p className={styles.ratingHint}>
+                                Ocena 10/10 oznaczy grę jako ulubioną.
+                            </p>
+                        )}
 
                         <div className={styles.modalActions}>
                             <button onClick={closeModal}>Anuluj</button>
