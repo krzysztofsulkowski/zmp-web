@@ -43,7 +43,7 @@ export default function FriendsPage() {
         user.userName ?? user.username ?? 'Nieznany użytkownik';
 
     const getUserId = (user: FriendUser) =>
-        user.friendId ?? user.userId ?? user.id;
+        user.userId ?? user.friendId ?? user.id;
 
     const getAuthHeaders = () => {
         const token = localStorage.getItem('authToken');
@@ -94,15 +94,7 @@ export default function FriendsPage() {
             });
             if (!response.ok) throw new Error();
             const data = await response.json() as SearchResponse | FriendUser[];
-            const raw: FriendUser[] = Array.isArray(data) ? data : data.data ?? [];
-            const friendIds = new Set(friends.map((f) => getUserId(f)));
-            const query = searchValue.toLowerCase();
-            const filtered = raw.filter((u) => {
-                if (friendIds.has(getUserId(u))) return false;
-                const name = getUserName(u).toLowerCase();
-                return name.includes(query);
-            });
-            setSearchResults(filtered);
+            setSearchResults(Array.isArray(data) ? data : data.data ?? []);
         } catch {
             showMessage('Nie udało się wyszukać użytkowników.', 'error');
         } finally {
@@ -150,18 +142,14 @@ export default function FriendsPage() {
         }
     };
 
-    const rejectOrRemove = async (friendId: string, isFriend = false) => {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/friends/reject-or-remove/${friendId}`, {
-                method: 'DELETE',
-                headers: getAuthHeaders()
-            });
-            if (!response.ok) throw new Error();
+    const rejectOrRemove = async (friendId: string) => {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/friends/reject-or-remove/${friendId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
+        if (response.ok) {
             await loadPendingRequests();
             await loadFriends();
-            showMessage(isFriend ? 'Znajomy został usunięty.' : 'Zaproszenie odrzucone.');
-        } catch {
-            showMessage(isFriend ? 'Nie udało się usunąć znajomego.' : 'Nie udało się odrzucić zaproszenia.', 'error');
         }
     };
 
@@ -237,11 +225,11 @@ export default function FriendsPage() {
                                                     className={styles.primaryButton}
                                                     onClick={() => navigate(`/friends/${getUserId(friend)}`)}
                                                 >
-                                                    Wyświetl profil
+                                                    Kolekcje
                                                 </button>
                                                 <button
                                                     className={styles.ghostButton}
-                                                    onClick={() => rejectOrRemove(getUserId(friend), true)}
+                                                    onClick={() => rejectOrRemove(getUserId(friend))}
                                                 >
                                                     Usuń
                                                 </button>

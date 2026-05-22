@@ -66,11 +66,6 @@ type MyLibraryStats = {
     gamesByCollection: StatItem[];
 };
 
-type PageMessage = {
-    type: 'success' | 'error';
-    text: string;
-};
-
 const favoriteGamesStorageKey = 'favoriteGameIds';
 
 const tabs: { key: CollectionTab; label: string }[] = [
@@ -147,7 +142,6 @@ export default function Dashboard() {
     const [selectedGame, setSelectedGame] = useState<CollectionGame | null>(null);
     const [targetCollectionId, setTargetCollectionId] = useState('');
     const [gameActionError, setGameActionError] = useState('');
-    const [pageMessage, setPageMessage] = useState<PageMessage | null>(null);
     const [isFavoriteChecked, setIsFavoriteChecked] = useState(false);
     const [sortOption, setSortOption] = useState<SortOption>('newest');
     const [selectedGenre, setSelectedGenre] = useState('');
@@ -258,11 +252,6 @@ export default function Dashboard() {
         setCurrentPage(1);
     };
 
-    const showPageMessage = (type: PageMessage['type'], text: string) => {
-        setPageMessage({ type, text });
-    };
-
-
     const getUniqueValues = (games: CollectionGame[], field: 'genreName' | 'platformName' | 'type') => {
         return Array.from(new Set(games.map((game) => game[field]).filter((value): value is string => Boolean(value))));
     };
@@ -362,17 +351,12 @@ export default function Dashboard() {
 
     const copyCollectionLink = async () => {
         if (!activeCollection?.shareCode) {
-            showPageMessage('error', 'Brak kodu udostępniania dla tej kolekcji.');
+            alert('Brak kodu udostępniania dla tej kolekcji.');
             return;
         }
-
-        try {
-            const link = `${window.location.origin}/collections/share/${activeCollection.shareCode}`;
-            await navigator.clipboard.writeText(link);
-            showPageMessage('success', 'Link do kolekcji został skopiowany.');
-        } catch {
-            showPageMessage('error', 'Nie udało się skopiować linku do kolekcji.');
-        }
+        const link = `${window.location.origin}/collections/share/${activeCollection.shareCode}`;
+        await navigator.clipboard.writeText(link);
+        alert('Link do kolekcji został skopiowany.');
     };
 
     const createCollection = async () => {
@@ -458,28 +442,14 @@ export default function Dashboard() {
     const moveSelectedGame = async () => {
         if (!selectedGame || !targetCollectionId) return;
         if (Number(targetCollectionId) === selectedGame.collectionId) return;
-
-        const actualSource = collectionsWithGames.find((c) =>
-            c.games.some((g) => g.gameId === selectedGame.gameId)
-        );
-
-        const currentCollectionId = actualSource?.collectionId ?? selectedGame.collectionId;
-
         try {
             const token = localStorage.getItem('authToken');
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/games/move-game`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({
-                    gameId: selectedGame.gameId,
-                    currentCollectionId: currentCollectionId,
-                    targetCollectionId: Number(targetCollectionId)
-                })
+                body: JSON.stringify({ gameId: selectedGame.gameId, currentCollectionId: selectedGame.collectionId, targetCollectionId: Number(targetCollectionId) })
             });
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                throw new Error(errorData?.detail || 'Nie udało się przenieść gry.');
-            }
+            if (!response.ok) throw new Error('Nie udało się przenieść gry.');
             await loadCollectionGames();
             await loadLibraryStats();
             closeGameModal();
@@ -517,16 +487,6 @@ export default function Dashboard() {
         loadLibraryStats().catch((err) => console.error(err));
     }, []);
 
-    useEffect(() => {
-        if (!pageMessage) return;
-
-        const timer = window.setTimeout(() => {
-            setPageMessage(null);
-        }, 3500);
-
-        return () => window.clearTimeout(timer);
-    }, [pageMessage]);
-
     const activeGames = getActiveGames();
     const filteredGames = applyFiltersAndSorting(activeGames);
     const totalPages = Math.ceil(filteredGames.length / gamesPerPage);
@@ -541,12 +501,6 @@ export default function Dashboard() {
 
             <section className={styles.content}>
                 <h1>Twoje kolekcje</h1>
-
-                {pageMessage && (
-                    <p className={`${styles.pageMessage} ${pageMessage.type === 'success' ? styles.pageMessageSuccess : styles.pageMessageError}`}>
-                        {pageMessage.text}
-                    </p>
-                )}
 
                 <div className={styles.collectionsBox}>
                     <div className={styles.tabsWrapper}>
@@ -669,11 +623,7 @@ export default function Dashboard() {
                                             key={`${game.collectionId}-${game.gameId}`}
                                             className={styles.dashboardGameCard}
                                             onClick={() => {
-                                                const gameWithCorrectCollection = collectionsWithGames
-                                                    .flatMap((c) => c.games)
-                                                    .find((g) => g.gameId === game.gameId && g.collectionId === game.collectionId)
-                                                    ?? game;
-                                                setSelectedGame(gameWithCorrectCollection);
+                                                setSelectedGame(game);
                                                 setIsFavoriteChecked(getFavoriteGameIds().includes(game.gameId));
                                             }}
                                         >
@@ -835,12 +785,7 @@ export default function Dashboard() {
                                     options={[
                                         { value: '', label: 'Wybierz kolekcję...' },
                                         ...allCollections
-                                            .filter((c) => {
-                                                const actualSourceId = collectionsWithGames.find((coll) =>
-                                                    coll.games.some((g) => g.gameId === selectedGame.gameId)
-                                                )?.collectionId ?? selectedGame.collectionId;
-                                                return c.id !== actualSourceId && c.name !== 'Ulubione';
-                                            })
+                                            .filter((c) => c.id !== selectedGame.collectionId)
                                             .map((c) => ({ value: String(c.id), label: c.name }))
                                     ]}
                                 />

@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Community.module.css';
 import { Navbar } from '@/components/Navbar/Navbar';
+import rankingGoldIcon from '@/assets/ranking-one.svg';
+import rankingSilverIcon from '@/assets/ranking-two.svg';
+import rankingBronzeIcon from '@/assets/ranking-three.svg';
 
-type UserProfile = {
-    avatarUrl: string;
-};
 
 type StatisticItem = {
     label: string;
@@ -21,8 +21,7 @@ type GlobalStatistics = {
     popularGenres: StatisticItem[];
 };
 
-const medals = ['🥇', '🥈', '🥉'];
-
+const rankingIcons = [rankingGoldIcon, rankingSilverIcon, rankingBronzeIcon];
 export default function CommunityPage() {
     const navigate = useNavigate();
 
@@ -65,7 +64,11 @@ export default function CommunityPage() {
                         >
                             <div className={styles.rankingLeft}>
                                 <span className={styles.position}>
-                                    {index < 3 ? medals[index] : index + 1}
+                                    {index < 3 ? (
+                                        <img src={rankingIcons[index]} alt={`Miejsce ${index + 1}`} />
+                                    ) : (
+                                        index + 1
+                                    )}
                                 </span>
                                 <span className={styles.rankingLabel}>{item.label}</span>
                             </div>

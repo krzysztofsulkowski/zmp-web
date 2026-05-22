@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Faq.module.css';
 import { Navbar } from '@/components/Navbar/Navbar';

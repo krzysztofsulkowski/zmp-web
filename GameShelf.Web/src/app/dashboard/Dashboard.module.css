@@ -352,7 +352,6 @@
         font-weight: 500;
     }
 
-/* ── Stats section ── */
 
 .statsSection {
     margin-top: 64px;
@@ -471,8 +470,6 @@
     flex-shrink: 0;
 }
 
-/* ── Modals ── */
-
 .modalOverlay {
     position: fixed;
     top: 0;
@@ -556,7 +553,6 @@
     color: white !important;
 }
 
-/* ── Game manage modal ── */
 
 .gameManageModal {
     position: relative;
@@ -764,7 +760,6 @@
     margin-top: 8px;
 }
 
-/* ── Responsive ── */
 
 @media (max-width: 1000px) {
     .statsChartsRow {
