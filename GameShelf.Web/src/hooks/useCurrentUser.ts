@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { clearAuthStorage } from '@/hooks/authStorage';
 
 type UserProfile = {
     avatarUrl: string;
@@ -32,7 +33,7 @@ export function useCurrentUser() {
     };
 
     const handleLogout = (): void => {
-        localStorage.removeItem('authToken');
+        clearAuthStorage();
         navigate('/login');
     };
 

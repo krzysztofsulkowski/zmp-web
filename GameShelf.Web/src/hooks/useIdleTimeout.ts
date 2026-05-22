@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { clearAuthStorage } from '@/hooks/authStorage';
 
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
 
@@ -16,7 +17,7 @@ export function useIdleTimeout() {
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const logout = useCallback(() => {
-        localStorage.removeItem('authToken');
+        clearAuthStorage();
         navigate('/login');
     }, [navigate]);
 
