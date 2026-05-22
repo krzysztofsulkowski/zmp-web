@@ -68,17 +68,30 @@ export default function ProfilePage() {
         }
     };
 
+    const MAX_FILE_SIZE_MB = 5;
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const ALLOWED_EXTENSIONS = 'JPG, PNG, WebP, GIF';
+
     const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
 
-        if (!file) {
+        if (!file) return;
+
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            setMessage(`Nieobsługiwany format pliku. Dozwolone: ${ALLOWED_EXTENSIONS}.`);
+            event.target.value = '';
             return;
         }
 
-        const localPreviewUrl = URL.createObjectURL(file);
+        if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+            setMessage(`Plik jest za duży. Maksymalny rozmiar to ${MAX_FILE_SIZE_MB} MB.`);
+            event.target.value = '';
+            return;
+        }
 
+        setMessage('');
         setAvatar(file);
-        setPreviewAvatar(localPreviewUrl);
+        setPreviewAvatar(URL.createObjectURL(file));
     };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -156,7 +169,8 @@ export default function ProfilePage() {
                             <label className={styles.avatarUpload}>
                                 Zmień avatar
                                 <input type="file" accept="image/*" onChange={handleAvatarChange} />
-                            </label>
+                                </label>
+                                <p className={styles.avatarHint}>JPG, PNG, WebP, GIF · maks. 5 MB</p>
                         </div>
 
                         <div className={styles.formGroup}>

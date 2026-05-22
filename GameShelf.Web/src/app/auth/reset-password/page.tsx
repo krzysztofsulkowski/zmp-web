@@ -42,6 +42,7 @@ export default function ResetPasswordPage() {
     const [showRepeatPassword, setShowRepeatPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -79,6 +80,8 @@ export default function ResetPasswordPage() {
             return;
         }
 
+        setIsLoading(true);
+
         try {
             const response = await fetch(`${apiUrl}/api/authentication/reset-password`, {
                 method: 'POST',
@@ -109,6 +112,8 @@ export default function ResetPasswordPage() {
             } else {
                 setError('Wystąpił nieoczekiwany błąd.');
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -227,8 +232,12 @@ export default function ResetPasswordPage() {
                                 Po zapisaniu nowego hasła wrócisz do ekranu logowania.
                             </p>
 
-                            <button type="submit" className={styles.primaryButton}>
-                                Zmień hasło
+                            <button
+                                type="submit"
+                                className={styles.primaryButton}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Zapisywanie...' : 'Zmień hasło'}
                             </button>
                         </form>
                     </div>
