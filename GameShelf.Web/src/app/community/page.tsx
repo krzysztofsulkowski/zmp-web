@@ -19,6 +19,8 @@ type GlobalStatistics = {
     mostPopularGames: StatisticItem[];
     popularPlatforms: StatisticItem[];
     popularGenres: StatisticItem[];
+    topRatedGames?: StatisticItem[];
+    highestRatedGames?: StatisticItem[];
 };
 
 const rankingIcons = [rankingGoldIcon, rankingSilverIcon, rankingBronzeIcon];
@@ -52,7 +54,7 @@ export default function CommunityPage() {
         loadStatistics().catch(console.error);
     }, []);
 
-    const renderList = (title: string, items: StatisticItem[], emptyText: string, valueLabel: string) => (
+    const renderList = (title: string, items: StatisticItem[], emptyText: string, valueLabel: string, formatValue?: (value: number) => string) => (
         <article className={styles.statCard}>
             <h2>{title}</h2>
             {items.length > 0 ? (
@@ -72,7 +74,9 @@ export default function CommunityPage() {
                                 </span>
                                 <span className={styles.rankingLabel}>{item.label}</span>
                             </div>
-                            <span className={styles.rankingValue}>{item.value} {valueLabel}</span>
+                            <span className={styles.rankingValue}>
+                                {formatValue ? formatValue(item.value) : `${item.value} ${valueLabel}`}
+                            </span>
                         </div>
                     ))}
                 </div>
@@ -124,6 +128,16 @@ export default function CommunityPage() {
                             {renderList('Najpopularniejsze gry', statistics.mostPopularGames, 'Brak danych.', 'graczy')}
                             {renderList('Popularne platformy', statistics.popularPlatforms, 'Brak danych.', 'użytkowników')}
                             {renderList('Popularne gatunki', statistics.popularGenres, 'Brak danych.', 'gier')}
+                            {renderList(
+                                'Najwyżej oceniane gry',
+                                statistics.highestRatedGames ?? statistics.topRatedGames ?? [],
+                                'Brak danych.',
+                                '',
+                                (v) => {
+                                    const rating = v / 10;
+                                    return `${Number.isInteger(rating) ? rating : rating.toFixed(1)}/10`;
+                                }
+                            )}
                         </div>
                     </>
                 )}
