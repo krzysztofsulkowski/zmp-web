@@ -19,6 +19,8 @@ import AdminPage from './app/admin/page';
 import LogPage from './app/log/page';
 import AdminGamesPage from './app/admin-games/page';
 import UsersPage from './app/users/page';
+import { useIdleTimeout } from '@/hooks/useIdleTimeout';
+
 
 import './App.css';
 
@@ -42,20 +44,16 @@ function getRolesFromToken(token: string) {
     return Array.isArray(role) ? role : [role];
 }
 
+function ProtectedLayout() {
+    useIdleTimeout();
+    return <Outlet />;
+}
 function ProtectedRoute() {
     const token = localStorage.getItem('authToken');
-
-    if (!token) {
-        return <Navigate to="/login" replace />;
-    }
-
+    if (!token) return <Navigate to="/login" replace />;
     const roles = getRolesFromToken(token);
-
-    if (roles.includes('Administrator')) {
-        return <Navigate to="/admin" replace />;
-    }
-
-    return <Outlet />;
+    if (roles.includes('Administrator')) return <Navigate to="/admin" replace />;
+    return <ProtectedLayout />;
 }
 
 function AdminRoute() {
@@ -93,10 +91,6 @@ function App() {
 
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-                <Route path="/faq" element={<FaqPage />} />
-
-                <Route path="/about" element={<AboutPage />} />
-
                 <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
 
@@ -105,6 +99,10 @@ function App() {
                     <Route path="/friends" element={<FriendsPage />} />
 
                     <Route path="/friends/:friendId" element={<FriendCollectionsPage />} />
+
+                    <Route path="/faq" element={<FaqPage />} />
+
+                    <Route path="/about" element={<AboutPage />} />
 
                     <Route path="/profile" element={<ProfilePage />} />
 
