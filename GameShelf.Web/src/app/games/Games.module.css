@@ -266,3 +266,35 @@
         height: 18px;
         accent-color: #7C3AED;
     }
+
+.proposeWrapper {
+    width: 100%;
+    max-width: 600px;
+    margin: 16px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.proposeText {
+    font-size: 15px;
+    color: white;
+    font-weight: 300;
+}
+
+.proposeButton {
+    border: none;
+    border-radius: 18px;
+    background: #7C3AED;
+    color: white;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Figtree', system-ui, sans-serif;
+}
+
+    .proposeButton:hover {
+        background: #6D28D9;
+    }

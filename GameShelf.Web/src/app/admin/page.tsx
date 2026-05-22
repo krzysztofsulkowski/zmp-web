@@ -1,38 +1,42 @@
 import { useNavigate } from 'react-router-dom';
 import styles from './Admin.module.css';
+import logo from '@/assets/logo.svg';
+import arrow from '@/assets/arrow-right-black.svg';
+import { clearAuthStorage } from '@/hooks/authStorage';
+
 
 export default function AdminPage() {
     const navigate = useNavigate();
 
     return (
         <main className={styles.page}>
+            <img src={logo} alt="GameShelf" className={styles.logo} />
+
+            <button
+                className={styles.logoutButton}
+                onClick={() => {
+                    clearAuthStorage();
+                    navigate('/login', { replace: true });
+                }}
+            >
+                Wyloguj się
+            </button>
+
             <section className={styles.card}>
                 <h1>Panel administratora</h1>
 
-                <p>
-                    Zarządzaj aplikacją GameShelf oraz monitoruj działanie systemu.
-                </p>
-
                 <div className={styles.buttons}>
-                    <button
-                        className={styles.adminButton}
-                        onClick={() => navigate('/log')}
-                    >
+                    <button className={styles.adminButton} onClick={() => navigate('/log')}>
                         Logi systemowe
+                        <img src={arrow} alt="" width={25} />
                     </button>
-
-                    <button
-                        className={styles.adminButton}
-                        onClick={() => navigate('/admin-games')}
-                    >
+                    <button className={styles.adminButton} onClick={() => navigate('/admin-games')}>
                         Gry
+                        <img src={arrow} alt="" width={25} />
                     </button>
-
-                    <button
-                        className={styles.adminButton}
-                        onClick={() => navigate('/users')}
-                    >
+                    <button className={styles.adminButton} onClick={() => navigate('/users')}>
                         Użytkownicy
+                        <img src={arrow} alt="" width={25} />
                     </button>
                 </div>
             </section>

@@ -1,23 +1,24 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styles from './ForgotPassword.module.css';
 import logo from '@/assets/logo.svg';
-import arrowBack from "@/assets/arrow-back.svg";
-import { useNavigate } from "react-router-dom";
+import arrowBack from '@/assets/arrow-back.svg';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
 
+    const navigate = useNavigate();
     const apiUrl = import.meta.env.VITE_API_URL;
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
         setSuccessMessage(null);
+        setIsLoading(true);
 
         try {
             const res = await fetch(`${apiUrl}/api/authentication/forgot-password`, {
@@ -38,11 +39,16 @@ export default function ForgotPasswordPage() {
             } else {
                 setError('Wystąpił nieoczekiwany błąd.');
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <main className={styles.page}>
+            {error && <p className={styles.errorMessage}>{error}</p>}
+            {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
+
             <div className={styles.container}>
                 <section className={styles.leftPanel}>
                     <div className={styles.logoWrapper}>
@@ -77,17 +83,19 @@ export default function ForgotPasswordPage() {
                                     className={styles.input}
                                 />
                             </div>
+
                             <p className={styles.bottomText}>
                                 Na Twój adres e-mail wyślemy link, który umożliwi Ci zmianę hasła.
                             </p>
-                            <button type="submit" className={styles.primaryButton}>
-                                Wyślij link
+
+                            <button
+                                type="submit"
+                                className={styles.primaryButton}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Wysyłanie...' : 'Wyślij link'}
                             </button>
                         </form>
-
-                        {error && <p className={styles.errorMessage}>{error}</p>}
-                        {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
-
                     </div>
                 </section>
             </div>

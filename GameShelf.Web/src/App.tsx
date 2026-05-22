@@ -8,42 +8,32 @@ import ForgotPasswordPage from './app/auth/forgot-password/page';
 import LandingPage from './app/auth/landing/page';
 import CommunityPage from './app/community/page';
 import FriendsPage from './app/friends/page';
+import FriendCollectionsPage from './app/friend-collections/page';
 import FaqPage from './app/faq/page';
 import AboutPage from './app/about/page';
 import ProfilePage from './app/profile/page';
 import GamesPage from './app/games/page';
+import ProposeGamePage from './app/propose-game/page';
 import ResetPasswordPage from './app/auth/reset-password/page';
 import AdminPage from './app/admin/page';
 import LogPage from './app/log/page';
 import AdminGamesPage from './app/admin-games/page';
 import UsersPage from './app/users/page';
+import { useIdleTimeout } from '@/hooks/useIdleTimeout';
+import { clearAuthStorage, getRolesFromToken, isAuthTokenValid } from '@/hooks/authStorage';
+
 
 import './App.css';
 
-function getRolesFromToken(token: string) {
-    const payloadBase64 = token.split('.')[1];
-
-    if (!payloadBase64) {
-        return [];
-    }
-
-    const payloadJson = atob(
-        payloadBase64.replace(/-/g, '+').replace(/_/g, '/')
-    );
-
-    const payload = JSON.parse(payloadJson) as Record<string, unknown>;
-
-    const role =
-        payload.role ??
-        payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-
-    return Array.isArray(role) ? role : [role];
+function ProtectedLayout() {
+    useIdleTimeout();
+    return <Outlet />;
 }
-
 function ProtectedRoute() {
     const token = localStorage.getItem('authToken');
 
-    if (!token) {
+    if (!token || !isAuthTokenValid(token)) {
+        clearAuthStorage();
         return <Navigate to="/login" replace />;
     }
 
@@ -53,13 +43,14 @@ function ProtectedRoute() {
         return <Navigate to="/admin" replace />;
     }
 
-    return <Outlet />;
+    return <ProtectedLayout />;
 }
 
 function AdminRoute() {
     const token = localStorage.getItem('authToken');
 
-    if (!token) {
+    if (!token || !isAuthTokenValid(token)) {
+        clearAuthStorage();
         return <Navigate to="/login" replace />;
     }
 
@@ -69,7 +60,7 @@ function AdminRoute() {
         return <Navigate to="/dashboard" replace />;
     }
 
-    return <Outlet />;
+    return <ProtectedLayout />;
 }
 
 function App() {
@@ -91,10 +82,6 @@ function App() {
 
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-                <Route path="/faq" element={<FaqPage />} />
-
-                <Route path="/about" element={<AboutPage />} />
-
                 <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard" element={<Dashboard />} />
 
@@ -102,9 +89,17 @@ function App() {
 
                     <Route path="/friends" element={<FriendsPage />} />
 
+                    <Route path="/friends/:friendId" element={<FriendCollectionsPage />} />
+
+                    <Route path="/faq" element={<FaqPage />} />
+
+                    <Route path="/about" element={<AboutPage />} />
+
                     <Route path="/profile" element={<ProfilePage />} />
 
                     <Route path="/games" element={<GamesPage />} />
+
+                    <Route path="/propose-game" element={<ProposeGamePage />} />
                 </Route>
 
                 <Route element={<AdminRoute />}>

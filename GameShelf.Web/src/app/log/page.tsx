@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Log.module.css';
+import arrowBack from '@/assets/arrow-back.svg';
 
 type HistoryLog = {
     creationDate: string;
@@ -27,30 +28,16 @@ export default function LogsPage() {
     const loadLogs = async () => {
         try {
             const token = localStorage.getItem('authToken');
-
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/historyLog/get-history-logs`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({
-                    draw: 1,
-                    start: 0,
-                    length: 100,
-                    searchValue: '',
-                    orderColumn: 0,
-                    orderDir: 'desc',
-                    extraFilters: {}
+                    draw: 1, start: 0, length: 100, searchValue: '',
+                    orderColumn: 0, orderDir: 'desc', extraFilters: {}
                 })
             });
-
-            if (!response.ok) {
-                throw new Error('Nie udało się pobrać logów.');
-            }
-
+            if (!response.ok) throw new Error('Nie udało się pobrać logów.');
             const data = await response.json() as LogsResponse;
-
             setLogs(data.data ?? []);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Wystąpił nieoczekiwany błąd.');
@@ -59,26 +46,20 @@ export default function LogsPage() {
         }
     };
 
-    useEffect(() => {
-        loadLogs();
-    }, []);
+    useEffect(() => { loadLogs(); }, []);
 
     return (
         <main className={styles.page}>
             <section className={styles.panel}>
                 <div className={styles.header}>
-                    <div>
-                        <h1>Logi systemowe</h1>
-                        <p>Historia zmian wykonanych w aplikacji.</p>
-                    </div>
-
-                    <button onClick={() => navigate('/admin')}>
-                        Wróć
+                    <button className={styles.backBtn} onClick={() => navigate('/admin')}>
+                        <img src={arrowBack} alt="Wróć" width={20} height={20} />
                     </button>
+                    <h1 className={styles.title}>Logi systemowe</h1>
+                    <div className={styles.headerSpacer} />
                 </div>
 
                 {loading && <div className={styles.state}>Ładowanie logów...</div>}
-
                 {!loading && error && <div className={styles.error}>{error}</div>}
 
                 {!loading && !error && (
@@ -95,25 +76,16 @@ export default function LogsPage() {
                                     <th>Po</th>
                                 </tr>
                             </thead>
-
                             <tbody>
                                 {logs.map((log, index) => (
                                     <tr key={`${log.creationDate}-${index}`}>
                                         <td>{new Date(log.creationDate).toLocaleString('pl-PL')}</td>
-                                        <td>
-                                            <span className={styles.badge}>
-                                                {log.eventType}
-                                            </span>
-                                        </td>
-                                        <td>{log.userEmail || '-'}</td>
-                                        <td>{log.objectType || '-'}</td>
-                                        <td className={styles.muted}>{log.objectId || '-'}</td>
-                                        <td>
-                                            <pre>{log.before || '-'}</pre>
-                                        </td>
-                                        <td>
-                                            <pre>{log.after || '-'}</pre>
-                                        </td>
+                                        <td><span className={styles.badge}>{log.eventType}</span></td>
+                                        <td>{log.userEmail || '—'}</td>
+                                        <td>{log.objectType || '—'}</td>
+                                        <td className={styles.muted}>{log.objectId || '—'}</td>
+                                        <td><pre>{log.before || '—'}</pre></td>
+                                        <td><pre>{log.after || '—'}</pre></td>
                                     </tr>
                                 ))}
                             </tbody>

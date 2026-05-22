@@ -4,19 +4,61 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import styles from './ResetPassword.module.css';
 import logo from '@/assets/logo.svg';
 import arrowBack from '@/assets/arrow-back.svg';
+import eyeOn from '@/assets/eye-on-black.svg';
+import eyeOff from '@/assets/eye-off-black.svg';
+
+interface PasswordCriteria {
+    minLength: boolean;
+    hasUppercase: boolean;
+    hasNumber: boolean;
+    hasSpecial: boolean;
+}
+
+function getPasswordCriteria(pwd: string): PasswordCriteria {
+    return {
+        minLength: pwd.length >= 8,
+        hasUppercase: /[A-Z]/.test(pwd),
+        hasNumber: /[0-9]/.test(pwd),
+        hasSpecial: /[^A-Za-z0-9]/.test(pwd),
+    };
+}
+
+function isPasswordValid(criteria: PasswordCriteria): boolean {
+    return Object.values(criteria).every(Boolean);
+}
+
+const CRITERIA_LABELS: Record<keyof PasswordCriteria, string> = {
+    minLength: 'Min. 8 znaków',
+    hasUppercase: 'Wielka litera',
+    hasNumber: 'Cyfra',
+    hasSpecial: 'Znak specjalny',
+};
 
 export default function ResetPasswordPage() {
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showRepeatPassword, setShowRepeatPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const apiUrl = import.meta.env.VITE_API_URL;
 
     const token = searchParams.get('token');
+
+    const criteria = getPasswordCriteria(newPassword);
+    const passwordValid = isPasswordValid(criteria);
+    const metCount = Object.values(criteria).filter(Boolean).length;
+
+    const strengthColor =
+        metCount === 4 ? '#14AE5C' :
+            metCount === 3 ? '#3B82F6' :
+                metCount >= 1 ? '#F59E0B' :
+                    'transparent';
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -28,24 +70,26 @@ export default function ResetPasswordPage() {
             return;
         }
 
+        if (!passwordValid) {
+            setError('Hasło musi zawierać min. 8 znaków, wielką literę, cyfrę i znak specjalny.');
+            return;
+        }
+
         if (newPassword !== repeatPassword) {
             setError('Hasła nie są takie same.');
             return;
         }
 
+        setIsLoading(true);
+
         try {
             const response = await fetch(`${apiUrl}/api/authentication/reset-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email,
-                    token,
-                    newPassword
-                })
+                body: JSON.stringify({ email, token, newPassword })
             });
 
             let data = null;
-
             try {
                 data = await response.json();
             } catch {
@@ -53,12 +97,7 @@ export default function ResetPasswordPage() {
             }
 
             if (!response.ok) {
-                if (data?.errors) {
-                    const messages = Object.values(data.errors).flat().join(' ');
-                    throw new Error(messages);
-                }
-
-                throw new Error(data?.title || data?.message || 'Nie udało się zmienić hasła.');
+                throw new Error('Nie udało się zmienić hasła. Sprawdź poprawność danych.');
             }
 
             setSuccessMessage('Hasło zostało zmienione. Możesz się teraz zalogować.');
@@ -73,11 +112,16 @@ export default function ResetPasswordPage() {
             } else {
                 setError('Wystąpił nieoczekiwany błąd.');
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <main className={styles.page}>
+            {error && <p className={styles.errorMessage}>{error}</p>}
+            {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
+
             <div className={styles.container}>
                 <section className={styles.leftPanel}>
                     <div className={styles.logoWrapper}>
@@ -115,37 +159,87 @@ export default function ResetPasswordPage() {
 
                             <div className={styles.field}>
                                 <label className={styles.label}>nowe hasło</label>
-                                <input
-                                    type="password"
-                                    value={newPassword}
-                                    onChange={(event) => setNewPassword(event.target.value)}
-                                    required
-                                    className={styles.input}
-                                />
+                                <div className={styles.passwordWrapper}>
+                                    <input
+                                        type={showNewPassword ? 'text' : 'password'}
+                                        value={newPassword}
+                                        onChange={(event) => setNewPassword(event.target.value)}
+                                        required
+                                        className={styles.input}
+                                    />
+                                    <button
+                                        type="button"
+                                        className={styles.eyeButton}
+                                        onClick={() => setShowNewPassword((prev) => !prev)}
+                                        aria-label={showNewPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
+                                    >
+                                        <img src={showNewPassword ? eyeOff : eyeOn} alt="" width={20} height={20} />
+                                    </button>
+                                </div>
+
+                                {newPassword.length > 0 && (
+                                    <div className={styles.strengthWrapper}>
+                                        <div className={styles.strengthBars}>
+                                            {[1, 2, 3, 4].map((level) => (
+                                                <div
+                                                    key={level}
+                                                    className={styles.strengthBar}
+                                                    style={{
+                                                        backgroundColor: metCount >= level ? strengthColor : '#e5e7eb',
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                        <div className={styles.tooltipWrapper}>
+                                            <span className={styles.tooltipIcon}>?</span>
+                                            <div className={styles.tooltip}>
+                                                {(Object.keys(criteria) as (keyof PasswordCriteria)[]).map((key) => (
+                                                    <span
+                                                        key={key}
+                                                        className={`${styles.criteriaItem} ${criteria[key] ? styles.criteriaMet : styles.criteriaUnmet}`}
+                                                    >
+                                                        {criteria[key] ? '✓' : '✗'} {CRITERIA_LABELS[key]}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className={styles.field}>
                                 <label className={styles.label}>powtórz nowe hasło</label>
-                                <input
-                                    type="password"
-                                    value={repeatPassword}
-                                    onChange={(event) => setRepeatPassword(event.target.value)}
-                                    required
-                                    className={styles.input}
-                                />
+                                <div className={styles.passwordWrapper}>
+                                    <input
+                                        type={showRepeatPassword ? 'text' : 'password'}
+                                        value={repeatPassword}
+                                        onChange={(event) => setRepeatPassword(event.target.value)}
+                                        required
+                                        className={styles.input}
+                                    />
+                                    <button
+                                        type="button"
+                                        className={styles.eyeButton}
+                                        onClick={() => setShowRepeatPassword((prev) => !prev)}
+                                        aria-label={showRepeatPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
+                                    >
+                                        <img src={showRepeatPassword ? eyeOff : eyeOn} alt="" width={20} height={20} />
+                                    </button>
+                                </div>
                             </div>
 
                             <p className={styles.bottomText}>
                                 Po zapisaniu nowego hasła wrócisz do ekranu logowania.
                             </p>
 
-                            <button type="submit" className={styles.primaryButton}>
-                                Zmień hasło
+                            <button
+                                type="submit"
+                                className={styles.primaryButton}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Zapisywanie...' : 'Zmień hasło'}
                             </button>
                         </form>
-
-                        {error && <p className={styles.errorMessage}>{error}</p>}
-                        {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
                     </div>
                 </section>
             </div>

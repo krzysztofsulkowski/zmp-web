@@ -1,0 +1,158 @@
+.wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    background: rgba(124, 58, 237, 0.18);
+    color: white;
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    min-width: 160px;
+    justify-content: space-between;
+}
+
+    .trigger:hover {
+        border-color: rgba(124, 58, 237, 0.75);
+        background: rgba(124, 58, 237, 0.28);
+    }
+
+.open .trigger {
+    border-color: #7C3AED;
+    background: rgba(124, 58, 237, 0.28);
+}
+
+.selectedLabel {
+    font-weight: 600;
+}
+
+.placeholder {
+    font-weight: 400;
+    opacity: 0.7;
+}
+
+.chevron {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    color: rgba(255, 255, 255, 0.7);
+    transition: transform 0.2s ease;
+}
+
+.open .chevron {
+    transform: rotate(180deg);
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 100%;
+    padding: 6px;
+    border-radius: 14px;
+    background: #16102e;
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    animation: dropdownIn 0.15s ease;
+}
+
+@keyframes dropdownIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.82);
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+    .option:hover {
+        background: rgba(124, 58, 237, 0.25);
+        color: white;
+    }
+
+.optionActive {
+    background: rgba(124, 58, 237, 0.2);
+    color: white;
+    font-weight: 700;
+}
+
+    .optionActive:hover {
+        background: rgba(124, 58, 237, 0.35);
+    }
+
+.checkIcon {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    color: #a78bfa;
+}
+.triggerLight {
+    background: white;
+    border: 1px solid #484848;
+    color: #0F0F14;
+    border-radius: 10px;
+}
+
+    .triggerLight:hover {
+        border-color: #7C3AED;
+        background: white;
+        color: #0F0F14;
+    }
+
+.chevronLight {
+    color: #484848;
+}
+
+.dropdownLight {
+    background: white;
+    border: 1px solid #d4d4d8;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.optionLight {
+    color: #0F0F14;
+}
+
+    .optionLight:hover {
+        background: #f4f0ff;
+        color: #7C3AED;
+    }
+
+.optionLightActive {
+    background: #ede9fe;
+    color: #7C3AED;
+}
