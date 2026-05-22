@@ -86,15 +86,6 @@ export default function RegisterPage() {
                 body: JSON.stringify({ email, username, password }),
             });
 
-            let data = null;
-            try {
-                data = await res.json();
-            } catch {
-                data = null;
-            }
-
-            console.log("REGISTER RESPONSE:", data);
-
             if (!res.ok) {
                 throw new Error('Rejestracja nieudana. Sprawdź poprawność danych.');
             }
@@ -106,8 +97,8 @@ export default function RegisterPage() {
                 navigate('/login');
             }, 1000);
 
-        } catch (err: any) {
-            setError(err.message || 'Wystąpił błąd rejestracji.');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Wystąpił błąd rejestracji.');
             setSuccessMessage(null);
         } finally {
             setIsLoading(false);

@@ -20,29 +20,10 @@ import LogPage from './app/log/page';
 import AdminGamesPage from './app/admin-games/page';
 import UsersPage from './app/users/page';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
+import { clearAuthStorage, getRolesFromToken, isAuthTokenValid } from '@/hooks/authStorage';
 
 
 import './App.css';
-
-function getRolesFromToken(token: string) {
-    const payloadBase64 = token.split('.')[1];
-
-    if (!payloadBase64) {
-        return [];
-    }
-
-    const payloadJson = atob(
-        payloadBase64.replace(/-/g, '+').replace(/_/g, '/')
-    );
-
-    const payload = JSON.parse(payloadJson) as Record<string, unknown>;
-
-    const role =
-        payload.role ??
-        payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-
-    return Array.isArray(role) ? role : [role];
-}
 
 function ProtectedLayout() {
     useIdleTimeout();
@@ -50,16 +31,26 @@ function ProtectedLayout() {
 }
 function ProtectedRoute() {
     const token = localStorage.getItem('authToken');
-    if (!token) return <Navigate to="/login" replace />;
+
+    if (!token || !isAuthTokenValid(token)) {
+        clearAuthStorage();
+        return <Navigate to="/login" replace />;
+    }
+
     const roles = getRolesFromToken(token);
-    if (roles.includes('Administrator')) return <Navigate to="/admin" replace />;
+
+    if (roles.includes('Administrator')) {
+        return <Navigate to="/admin" replace />;
+    }
+
     return <ProtectedLayout />;
 }
 
 function AdminRoute() {
     const token = localStorage.getItem('authToken');
 
-    if (!token) {
+    if (!token || !isAuthTokenValid(token)) {
+        clearAuthStorage();
         return <Navigate to="/login" replace />;
     }
 
@@ -69,7 +60,7 @@ function AdminRoute() {
         return <Navigate to="/dashboard" replace />;
     }
 
-    return <Outlet />;
+    return <ProtectedLayout />;
 }
 
 function App() {

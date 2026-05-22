@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { getRolesFromToken, isAuthTokenValid } from '@/hooks/authStorage';
 
 export default function AuthCallback() {
     const navigate = useNavigate();
@@ -8,15 +9,15 @@ export default function AuthCallback() {
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const token = params.get('token');
-        const error = params.get('error');
 
-        if (token) {
+        if (token && isAuthTokenValid(token)) {
             localStorage.setItem('authToken', token);
-            console.log("Token Google zapisany pomyślnie");
-            navigate('/dashboard');
+
+            const roles = getRolesFromToken(token);
+            const targetPath = roles.includes('Administrator') ? '/admin' : '/dashboard';
+
+            navigate(targetPath);
         } else {
-            console.error("Błąd autoryzacji zewnętrznej:", error);
-            console.error("Błąd autoryzacji zewnętrznej:", error);
             navigate('/login?error=auth_failed');
         }
     }, [navigate, location]);

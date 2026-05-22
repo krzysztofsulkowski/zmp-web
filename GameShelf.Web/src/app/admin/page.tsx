@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Admin.module.css';
 import logo from '@/assets/logo.svg';
 import arrow from '@/assets/arrow-right-black.svg';
+import { clearAuthStorage } from '@/hooks/authStorage';
 
 
 export default function AdminPage() {
@@ -14,7 +15,7 @@ export default function AdminPage() {
             <button
                 className={styles.logoutButton}
                 onClick={() => {
-                    localStorage.removeItem('authToken');
+                    clearAuthStorage();
                     navigate('/login', { replace: true });
                 }}
             >

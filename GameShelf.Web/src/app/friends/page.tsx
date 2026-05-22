@@ -69,7 +69,6 @@ export default function FriendsPage() {
         });
         if (!response.ok) return;
         const data = await response.json();
-        console.log('friends raw:', JSON.stringify(data, null, 2));
         setFriends(Array.isArray(data) ? data : data.data ?? []);
     };
 
